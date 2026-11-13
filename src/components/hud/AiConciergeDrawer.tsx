@@ -15,6 +15,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { DESTINATIONS, CulturalDestination } from "@/data/destinations";
+import { BarongAvatar } from "./BarongAvatar";
 
 interface AiConciergeDrawerProps {
   isOpen: boolean;
@@ -86,6 +87,9 @@ export function AiConciergeDrawer({
   const handleGenerate = () => {
     let matched = DESTINATIONS.filter((d) => {
       if (vibe === "semua") return true;
+      if (vibe === "pantai" || vibe === "laut") {
+        return d.category === "laut" || d.category === "pantai";
+      }
       return d.category === vibe;
     });
 
@@ -142,14 +146,7 @@ export function AiConciergeDrawer({
       <div className="p-4 border-b border-white/10 flex items-center justify-between shrink-0 bg-slate-900/50">
         <div className="flex items-center gap-3">
           <div className="relative shrink-0">
-            <div className="barong-radiation-glow scale-90" aria-hidden="true" />
-            <div className="relative z-10 w-11 h-11 rounded-2xl bg-slate-950 border border-amber-400/80 flex items-center justify-center shadow-lg overflow-hidden">
-              <img
-                src="/animasi/assets/bot-base-transparent.png"
-                alt="Barong AI Avatar"
-                className="w-8 h-8 object-contain drop-shadow"
-              />
-            </div>
+            <BarongAvatar size={44} isActive={true} />
           </div>
           <div>
             <h2 className="text-sm font-black text-white tracking-wide flex items-center gap-1.5">

@@ -14,6 +14,32 @@ interface AdventureMapProps {
   tripItems: CulturalDestination[];
   flyToCoords?: [number, number] | null;
   onMapMove?: (coords: [number, number]) => void;
+  zoomTrigger?: { type: "in" | "out"; id: number } | null;
+}
+
+function getCategoryFlatSvg(category: Category): string {
+  switch (category) {
+    case "laut":
+    case "pantai":
+      return `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>`;
+    case "gunung":
+      return `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>`;
+    case "hutan":
+      return `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 10v.2A3 3 0 0 1 8.9 16H5a3 3 0 0 1-1-5.8V10a3 3 0 0 1 6 0Z"/><path d="M7 16v6"/><path d="M13 19v3"/><path d="M12 19h8.3a1 1 0 0 0 .7-1.7L18 14h.3a1 1 0 0 0 .7-1.7L16 9h.2a1 1 0 0 0 .8-1.7l-3.5-4.6a1 1 0 0 0-1.6 0L8.4 7.3A1 1 0 0 0 9.2 9H9.4a1 1 0 0 0 .7 1.7L7.2 14H7.5a1 1 0 0 0 .7 1.7L11 19"/></svg>`;
+    case "pertanian":
+      return `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/></svg>`;
+    case "budaya":
+      return `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18"/><line x1="10" x2="10" y1="18"/><line x1="14" x2="14" y1="18"/><line x1="18" x2="18" y1="18"/><polygon points="12 2 20 7 4 7"/></svg>`;
+    case "pakaian":
+      return `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg>`;
+    case "desa":
+      return `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+    case "darat":
+      return `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>`;
+    case "festival":
+    default:
+      return `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>`;
+  }
 }
 
 export function AdventureMap({
@@ -24,6 +50,7 @@ export function AdventureMap({
   tripItems,
   flyToCoords,
   onMapMove,
+  zoomTrigger,
 }: AdventureMapProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -44,13 +71,6 @@ export function AdventureMap({
       minZoom: 4,
       maxZoom: 18,
     });
-
-    // Add zoom control at bottom right (above BMKG bar)
-    L.control
-      .zoom({
-        position: "topright",
-      })
-      .addTo(map);
 
     // OpenStreetMap Tile Layer using our Next.js API proxy with custom User-Agent and caching
     const tileLayer = L.tileLayer("/api/tiles/{z}/{x}/{y}", {
@@ -107,21 +127,18 @@ export function AdventureMap({
     const filtered =
       selectedCategory === "all"
         ? destinations
-        : destinations.filter((d) => d.category === selectedCategory);
+        : destinations.filter(
+            (d) =>
+              d.category === selectedCategory ||
+              (selectedCategory === "laut" && d.category === "pantai")
+          );
 
     filtered.forEach((dest) => {
       const isSelected = activeDestination?.id === dest.id;
       const isInTrip = tripItems.some((t) => t.id === dest.id);
 
-      // Icon category mapping
-      const categoryIcon =
-        dest.category === "budaya"
-          ? "🎭"
-          : dest.category === "desa"
-          ? "🌾"
-          : dest.category === "gunung"
-          ? "⛰️"
-          : "🏖️";
+      // Flat SVG Icon for map pin
+      const categoryIconSvg = getCategoryFlatSvg(dest.category);
 
       const iconHtml = `
         <div class="relative group cursor-pointer">
@@ -136,8 +153,8 @@ export function AdventureMap({
               : isInTrip
               ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/30"
               : "bg-slate-900/90 text-amber-300 border border-amber-500/50 hover:bg-amber-500 hover:text-slate-950"
-          } text-sm font-bold shadow-xl transition-all duration-300">
-            ${categoryIcon}
+          } shadow-xl transition-all duration-300">
+            ${categoryIconSvg}
           </div>
           <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block whitespace-nowrap bg-slate-900/95 text-white text-[11px] font-semibold px-2 py-1 rounded-lg border border-amber-500/30 shadow-xl pointer-events-none z-50">
             ${dest.name}
@@ -240,6 +257,16 @@ export function AdventureMap({
       mapRef.current.flyTo(flyToCoords, 9, { duration: 1.5 });
     }
   }, [flyToCoords]);
+
+  // Handle external programmatic zoom in / out
+  useEffect(() => {
+    if (!mapRef.current || !zoomTrigger) return;
+    if (zoomTrigger.type === "in") {
+      mapRef.current.zoomIn();
+    } else if (zoomTrigger.type === "out") {
+      mapRef.current.zoomOut();
+    }
+  }, [zoomTrigger]);
 
   return (
     <div

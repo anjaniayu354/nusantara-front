@@ -74,11 +74,9 @@ class BarongCharacter {
     }
 
     this.container.innerHTML = `
-      <!-- 2 Lapisan Radiasi Shading Bergelombang Warna-Warni (Transparan & Lambat) -->
+      <!-- 2 Lapisan Shading Bergelombang Warna-Warni di Belakang Masker Barong -->
       <div class="barong-wave-layer-1" aria-hidden="true"></div>
       <div class="barong-wave-layer-2" aria-hidden="true"></div>
-      <div class="barong-radiate-ring ring-1" aria-hidden="true"></div>
-      <div class="barong-radiate-ring ring-2" aria-hidden="true"></div>
       <div class="barong-shadow"></div>
       <div class="barong-character">
         <!-- 1 Gambar Tunggal Barong (Tanpa Lapisan Gambar Ganda) -->

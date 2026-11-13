@@ -1,7 +1,20 @@
 "use client";
 
 import React from "react";
-import { X, MapPin, Compass, ShieldAlert, Sparkles, HeartHandshake, Plus, Check, ExternalLink } from "lucide-react";
+import {
+  X,
+  MapPin,
+  Compass,
+  ShieldAlert,
+  Sparkles,
+  HeartHandshake,
+  Plus,
+  Check,
+  Sprout,
+  Shirt,
+  Landmark,
+  CalendarDays,
+} from "lucide-react";
 import { CulturalDestination } from "@/data/destinations";
 import { formatCurrency } from "@/lib/currency";
 
@@ -22,24 +35,36 @@ export function DestinationSheet({
   onAddToTrip,
   isInTrip,
 }: DestinationSheetProps) {
-  if (!destination) return null;
+  // Retain last active destination so that slide-out transition animates smoothly
+  const [cachedDestination, setCachedDestination] = React.useState<CulturalDestination | null>(destination);
+
+  React.useEffect(() => {
+    if (destination) {
+      setCachedDestination(destination);
+    }
+  }, [destination]);
+
+  const active = destination || cachedDestination;
+  if (!active) return null;
 
   return (
-    <div
+    <aside
       role="dialog"
       aria-modal="true"
       aria-labelledby="dest-sheet-title"
-      className="fixed inset-y-0 right-0 z-30 w-full sm:w-[450px] bg-slate-950/95 backdrop-blur-xl border-l border-amber-500/30 shadow-2xl flex flex-col text-white transform transition-transform duration-300 animate-in slide-in-from-right"
+      className={`fixed inset-y-0 right-0 z-30 w-full sm:w-[420px] lg:w-[460px] h-full bg-slate-950/95 backdrop-blur-2xl border-l border-amber-500/30 shadow-2xl flex flex-col text-white transform transition-transform duration-300 ease-in-out ${
+        destination ? "translate-x-0" : "translate-x-full pointer-events-none"
+      }`}
     >
       {/* Header bar with photo banner */}
       <div className="relative h-48 w-full overflow-hidden shrink-0">
         <img
-          src={destination.imageUrl}
-          alt={destination.name}
+          src={active.imageUrl}
+          alt={active.name}
           className="w-full h-full object-cover brightness-75"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-        
+
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -49,22 +74,27 @@ export function DestinationSheet({
           <X className="w-5 h-5" />
         </button>
 
-        {/* Badge category */}
-        <div className="absolute top-4 left-4 flex gap-1.5">
+        {/* Badge category & province */}
+        <div className="absolute top-4 left-4 flex flex-wrap gap-1.5">
           <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-500 text-slate-950 px-2.5 py-1 rounded-full shadow">
-            {destination.category}
+            {active.category}
           </span>
           <span className="text-[10px] font-bold uppercase tracking-wider bg-black/60 text-amber-300 px-2.5 py-1 rounded-full border border-amber-500/30">
-            {destination.province}
+            {active.province}
           </span>
+          {active.subCategory && (
+            <span className="text-[10px] font-medium bg-slate-900/80 text-slate-200 px-2.5 py-1 rounded-full border border-white/10">
+              {active.subCategory}
+            </span>
+          )}
         </div>
 
         {/* Title overlay */}
         <div className="absolute bottom-3 left-4 right-4">
           <h2 id="dest-sheet-title" className="text-lg font-black text-white leading-tight">
-            {destination.name}
+            {active.name}
           </h2>
-          <p className="text-xs text-amber-300 font-medium">{destination.subtitle}</p>
+          <p className="text-xs text-amber-300 font-medium">{active.subtitle}</p>
         </div>
       </div>
 
@@ -75,11 +105,110 @@ export function DestinationSheet({
           <h3 className="text-xs uppercase tracking-wider font-bold text-amber-400 mb-1 flex items-center gap-1.5">
             <Compass className="w-4 h-4" /> Cerita Budaya & Sejarah
           </h3>
-          <p className="text-xs text-slate-200 leading-relaxed">{destination.description}</p>
+          <p className="text-xs text-slate-200 leading-relaxed">{active.description}</p>
           <div className="mt-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-200">
-            <strong>Nilai Filosofis:</strong> {destination.historicalSignificance}
+            <strong>Nilai Filosofis:</strong> {active.historicalSignificance}
           </div>
         </div>
+
+        {/* Traditional Attire (Pakaian Adat & Wastra) */}
+        {active.traditionalAttire && (
+          <div className="p-3 rounded-2xl bg-slate-900/80 border border-amber-500/30 space-y-2">
+            <h3 className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+              <Shirt className="w-4 h-4 text-amber-400" />
+              Pakaian Adat & Wastra Tradisional
+            </h3>
+            <div className="text-[11px] space-y-1.5 text-slate-300">
+              <div>
+                <span className="font-semibold text-white">Nama Busana: </span>
+                <span className="text-amber-200 font-medium">{active.traditionalAttire.name}</span>
+              </div>
+              <div>
+                <span className="font-semibold text-white">Wastra / Kain: </span>
+                <span>{active.traditionalAttire.wastraType}</span>
+              </div>
+              {active.traditionalAttire.headgear && (
+                <div>
+                  <span className="font-semibold text-white">Tutup Kepala / Mahkota: </span>
+                  <span className="text-amber-300">{active.traditionalAttire.headgear}</span>
+                </div>
+              )}
+              {active.traditionalAttire.colors && active.traditionalAttire.colors.length > 0 && (
+                <div className="flex items-center gap-1.5 pt-1">
+                  <span className="font-semibold text-white">Palet Warna Simbolik: </span>
+                  <div className="flex gap-1">
+                    {active.traditionalAttire.colors.map((c, i) => (
+                      <span
+                        key={i}
+                        className="w-4 h-4 rounded-full border border-white/30 inline-block shadow-sm"
+                        style={{ backgroundColor: c }}
+                        title={c}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+              <p className="text-[10px] text-slate-400 italic pt-1 border-t border-white/10">
+                "{active.traditionalAttire.significance}"
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Agricultural Products (Hasil Pertanian & Komoditas) */}
+        {active.agriculturalProducts && active.agriculturalProducts.length > 0 && (
+          <div className="p-3 rounded-2xl bg-slate-900/80 border border-emerald-500/30 space-y-2">
+            <h3 className="text-xs font-bold text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
+              <Sprout className="w-4 h-4 text-emerald-400" />
+              Hasil Pertanian & Komoditas Unggulan
+            </h3>
+            <div className="flex flex-wrap gap-1.5">
+              {active.agriculturalProducts.map((prod, i) => (
+                <span
+                  key={i}
+                  className="text-[11px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-xl font-medium"
+                >
+                  {prod}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Cultural Traditions (Budaya & Falsafah) */}
+        {active.culturalTraditions && active.culturalTraditions.length > 0 && (
+          <div className="p-3 rounded-2xl bg-slate-900/80 border border-white/10 space-y-1.5">
+            <h3 className="text-xs font-bold text-amber-200 uppercase tracking-wider flex items-center gap-1.5">
+              <Landmark className="w-4 h-4 text-amber-400" />
+              Budaya, Ritual & Falsafah Tradisi
+            </h3>
+            <ul className="list-disc list-inside space-y-1 text-[11px] text-slate-300">
+              {active.culturalTraditions.map((trad, i) => (
+                <li key={i}>{trad}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Associated Cultural Events */}
+        {active.culturalEvents && active.culturalEvents.length > 0 && (
+          <div className="p-3 rounded-2xl bg-slate-900/80 border border-indigo-500/30 space-y-1.5">
+            <h3 className="text-xs font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
+              <CalendarDays className="w-4 h-4 text-indigo-400" />
+              Event Budaya & Festival Tahunan
+            </h3>
+            <div className="flex flex-wrap gap-1.5">
+              {active.culturalEvents.map((evt, i) => (
+                <span
+                  key={i}
+                  className="text-[11px] bg-indigo-500/15 text-indigo-200 border border-indigo-500/30 px-2.5 py-1 rounded-xl font-medium"
+                >
+                  {evt}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Etiquette & Taboos (Etika & Pantangan Adat) */}
         <div className="p-3 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2">
@@ -87,23 +216,25 @@ export function DestinationSheet({
             <ShieldAlert className="w-4 h-4 text-rose-400" />
             Etika Kunjungan & Pantangan Adat
           </h3>
-          
+
           <div className="text-[11px] space-y-1.5">
             <div>
               <span className="font-semibold text-slate-300">Aturan Busana: </span>
-              <span className="text-slate-200">{destination.etiquette.dressCode}</span>
+              <span className="text-slate-200">{active.etiquette.dressCode}</span>
             </div>
             <div>
               <span className="font-semibold text-rose-300">Pantangan (Tabu):</span>
               <ul className="list-disc list-inside mt-1 space-y-0.5 text-slate-300">
-                {destination.etiquette.taboos.map((taboo, idx) => (
-                  <li key={idx} className="text-rose-200/90">{taboo}</li>
+                {active.etiquette.taboos.map((taboo, idx) => (
+                  <li key={idx} className="text-rose-200/90">
+                    {taboo}
+                  </li>
                 ))}
               </ul>
             </div>
             <div>
               <span className="font-semibold text-amber-300">Ritual / Tata Cara: </span>
-              <span className="text-slate-300">{destination.etiquette.rituals}</span>
+              <span className="text-slate-300">{active.etiquette.rituals}</span>
             </div>
           </div>
         </div>
@@ -120,10 +251,10 @@ export function DestinationSheet({
             </span>
           </div>
 
-          <p className="text-xs font-bold text-white">{destination.tripPackage.title}</p>
+          <p className="text-xs font-bold text-white">{active.tripPackage.title}</p>
           <div className="flex justify-between items-center text-[11px] text-slate-300">
-            <span>Penyelenggara: {destination.tripPackage.organizer}</span>
-            <span className="font-medium text-amber-300">{destination.tripPackage.duration}</span>
+            <span>Penyelenggara: {active.tripPackage.organizer}</span>
+            <span className="font-medium text-amber-300">{active.tripPackage.duration}</span>
           </div>
 
           <div className="flex items-center justify-between pt-2 border-t border-white/10">
@@ -131,14 +262,16 @@ export function DestinationSheet({
               <span className="text-[10px] text-slate-400">Harga Paket ({currency}):</span>
               <p className="text-base font-black text-amber-400">
                 {formatCurrency(
-                  currency === "USD" ? destination.tripPackage.priceUsd : destination.tripPackage.priceIdr,
+                  currency === "USD"
+                    ? active.tripPackage.priceUsd
+                    : active.tripPackage.priceIdr,
                   currency
                 )}
               </p>
             </div>
 
             <button
-              onClick={() => onAddToTrip(destination)}
+              onClick={() => onAddToTrip(active)}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition shadow-md ${
                 isInTrip
                   ? "bg-emerald-600 text-white hover:bg-emerald-500"
@@ -160,6 +293,6 @@ export function DestinationSheet({
           </div>
         </div>
       </div>
-    </div>
+    </aside>
   );
 }

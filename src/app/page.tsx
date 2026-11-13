@@ -31,8 +31,8 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<Category | "all">("all");
   const [activeDestination, setActiveDestination] = useState<CulturalDestination | null>(null);
   const [tripItems, setTripItems] = useState<CulturalDestination[]>([
-    DESTINATIONS[0], // Candi Borobudur default
-    DESTINATIONS[9], // Keraton Yogyakarta default
+    DESTINATIONS[0], // Pantai Tanjung Bira (Bulukumba)
+    DESTINATIONS[8], // Teluk Kiluan (Lampung)
   ]);
   const [currency, setCurrency] = useState<"IDR" | "USD">("IDR");
   const [language, setLanguage] = useState<"ID" | "EN">("ID");

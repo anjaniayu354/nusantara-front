@@ -1,8 +1,25 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Search, Sparkles, X, MapPin, Route, ChevronDown } from "lucide-react";
+import {
+  Search,
+  X,
+  MapPin,
+  Route,
+  ChevronDown,
+  SlidersHorizontal,
+  Layers,
+  Waves,
+  Mountain,
+  Trees,
+  Sprout,
+  Landmark,
+  Shirt,
+  Home,
+  CalendarDays,
+} from "lucide-react";
 import { DESTINATIONS, CulturalDestination, Category } from "@/data/destinations";
+import { BarongAvatar } from "./BarongAvatar";
 
 interface SearchWidgetProps {
   selectedCategory: Category | "all";
@@ -15,13 +32,23 @@ interface SearchWidgetProps {
   language?: "ID" | "EN";
 }
 
-const CATEGORIES: { id: Category | "all"; label: string; icon: string }[] = [
-  { id: "all", label: "Semua", icon: "🧭" },
-  { id: "budaya", label: "Budaya", icon: "🎭" },
-  { id: "desa", label: "Desa Adat", icon: "🌾" },
-  { id: "gunung", label: "Gunung", icon: "⛰️" },
-  { id: "pantai", label: "Pantai", icon: "🏖️" },
-  { id: "festival", label: "Festival", icon: "🎉" },
+export interface CategoryOption {
+  id: Category | "all";
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+const CATEGORIES: CategoryOption[] = [
+  { id: "all", label: "Semua", icon: Layers },
+  { id: "laut", label: "Wisata Laut", icon: Waves },
+  { id: "darat", label: "Wisata Darat", icon: MapPin },
+  { id: "gunung", label: "Wisata Gunung", icon: Mountain },
+  { id: "hutan", label: "Wisata Hutan", icon: Trees },
+  { id: "pertanian", label: "Hasil Pertanian", icon: Sprout },
+  { id: "budaya", label: "Budaya Tradisi", icon: Landmark },
+  { id: "pakaian", label: "Pakaian Adat", icon: Shirt },
+  { id: "desa", label: "Desa Adat", icon: Home },
+  { id: "festival", label: "Event Budaya", icon: CalendarDays },
 ];
 
 export function SearchWidget({
@@ -41,16 +68,29 @@ export function SearchWidget({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-  const activeCategory = CATEGORIES.find((c) => c.id === selectedCategory) || CATEGORIES[0];
+  const activeCategory =
+    CATEGORIES.find((c) => c.id === selectedCategory) ||
+    CATEGORIES.find((c) => (selectedCategory === "pantai" ? c.id === "laut" : false)) ||
+    CATEGORIES[0];
+
+  const ActiveIcon = activeCategory.icon;
 
   const filtered = query.trim()
     ? DESTINATIONS.filter((d) => {
         const q = query.toLowerCase();
         return (
           d.name.toLowerCase().includes(q) ||
+          d.subtitle.toLowerCase().includes(q) ||
           d.province.toLowerCase().includes(q) ||
+          (d.subCategory && d.subCategory.toLowerCase().includes(q)) ||
           d.tags.some((t) => t.toLowerCase().includes(q)) ||
-          d.description.toLowerCase().includes(q)
+          d.description.toLowerCase().includes(q) ||
+          (d.agriculturalProducts && d.agriculturalProducts.some((p) => p.toLowerCase().includes(q))) ||
+          (d.traditionalAttire &&
+            (d.traditionalAttire.name.toLowerCase().includes(q) ||
+              d.traditionalAttire.wastraType.toLowerCase().includes(q))) ||
+          (d.culturalTraditions && d.culturalTraditions.some((t) => t.toLowerCase().includes(q))) ||
+          (d.culturalEvents && d.culturalEvents.some((e) => e.toLowerCase().includes(q)))
         );
       })
     : [];
@@ -73,7 +113,7 @@ export function SearchWidget({
       ref={containerRef}
       className="absolute top-4 right-4 z-20 flex items-center gap-2 max-w-[95vw] select-none"
     >
-      {/* Unified Floating Bar: Trip Icon | Dropdown Filter | Search Bar */}
+      {/* Unified Floating Bar: Trip Icon | Flat Icon Dropdown Filter | Search Bar */}
       <div className="flex items-center bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-2xl px-2.5 py-1.5 shadow-2xl text-white">
         {/* Trip Plan: Icon Only Button */}
         <button
@@ -94,44 +134,57 @@ export function SearchWidget({
         {/* Separator between Trip Icon and Filter Dropdown */}
         <div className="w-px h-5 bg-white/20 mx-1.5 shrink-0" />
 
-        {/* Dropdown Filter */}
+        {/* Dropdown Filter: Flat Icon Only / Crisp Flat UI */}
         <div className="relative" ref={dropdownRef}>
           <button
             type="button"
             onClick={() => setIsDropdownOpen((prev) => !prev)}
             aria-expanded={isDropdownOpen}
             aria-label="Filter Kategori"
-            title="Pilih Kategori Destinasi"
-            className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl hover:bg-white/10 text-xs font-medium text-slate-200 transition"
+            title={`Filter Kategori: ${activeCategory.label}`}
+            className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl hover:bg-white/10 text-xs font-medium text-slate-200 transition group"
           >
-            <span>{activeCategory.icon}</span>
-            <span className="hidden sm:inline text-amber-300 font-semibold">{activeCategory.label}</span>
+            {/* Flat Sliders / Filter Icon */}
+            <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400 shrink-0 group-hover:rotate-180 transition-transform duration-300" />
+            <span className="flex items-center gap-1 text-amber-300 font-semibold">
+              <ActiveIcon className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+              <span className="hidden sm:inline text-xs">{activeCategory.label}</span>
+            </span>
             <ChevronDown
               className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
             />
           </button>
 
-          {/* Dropdown Menu */}
+          {/* Flat Icon Dropdown Menu */}
           {isDropdownOpen && (
-            <div className="absolute top-full mt-2 left-0 min-w-[155px] bg-slate-900/95 backdrop-blur-md border border-amber-500/30 rounded-xl p-1.5 shadow-2xl z-30">
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => {
-                    onSelectCategory(cat.id);
-                    setIsDropdownOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-left transition ${
-                    selectedCategory === cat.id
-                      ? "bg-amber-500/20 text-amber-300 font-bold"
-                      : "text-slate-300 hover:bg-white/10 hover:text-white"
-                  }`}
-                >
-                  <span>{cat.icon}</span>
-                  <span>{cat.label}</span>
-                </button>
-              ))}
+            <div className="absolute top-full mt-2 left-0 min-w-[190px] bg-slate-900/95 backdrop-blur-md border border-amber-500/30 rounded-xl p-1.5 shadow-2xl z-30 max-h-80 overflow-y-auto">
+              {CATEGORIES.map((cat) => {
+                const IconComponent = cat.icon;
+                const isSelected =
+                  selectedCategory === cat.id ||
+                  (cat.id === "laut" && selectedCategory === "pantai");
+
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => {
+                      onSelectCategory(cat.id);
+                      setIsDropdownOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs text-left transition ${
+                      isSelected
+                        ? "bg-amber-500/20 text-amber-300 font-bold"
+                        : "text-slate-300 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    <IconComponent
+                      className={`w-4 h-4 shrink-0 ${isSelected ? "text-amber-400" : "text-slate-400"}`}
+                    />
+                    <span>{cat.label}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -152,8 +205,8 @@ export function SearchWidget({
             onFocus={() => setIsAutocompleteOpen(true)}
             placeholder={
               language === "ID"
-                ? "Cari candi, desa adat, pantai..."
-                : "Search temples, villages, beaches..."
+                ? "Cari Bulukumba, Lampung, kopi, tapis..."
+                : "Search Bulukumba, Lampung, coffee, tapis..."
             }
             className="w-32 sm:w-52 md:w-64 bg-transparent text-xs text-white placeholder:text-slate-400 focus:outline-none"
           />
@@ -185,7 +238,7 @@ export function SearchWidget({
                   }}
                   className="w-full text-left p-2 rounded-xl hover:bg-white/10 flex items-start gap-2.5 transition text-white"
                 >
-                  <div className="p-1.5 rounded-lg bg-amber-500/20 text-amber-400 mt-0.5">
+                  <div className="p-1.5 rounded-lg bg-amber-500/20 text-amber-400 mt-0.5 shrink-0">
                     <MapPin className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -193,7 +246,7 @@ export function SearchWidget({
                     <p className="text-[10px] text-slate-300 truncate">
                       {d.province} • {d.subtitle}
                     </p>
-                    <div className="flex gap-1 mt-1">
+                    <div className="flex flex-wrap gap-1 mt-1">
                       {d.tags.slice(0, 3).map((t) => (
                         <span key={t} className="text-[9px] bg-white/5 text-slate-400 px-1.5 py-0.5 rounded">
                           #{t}
@@ -208,32 +261,16 @@ export function SearchWidget({
         </div>
       </div>
 
-      {/* AI Concierge Trigger Button (Barong Character Icon with Vibrant Radiant Shading) */}
-      <div className="relative group shrink-0">
-        {/* Compact & Rich Radiant Shading Aura */}
-        <div className="barong-radiation-glow" aria-hidden="true" />
-        <div className="barong-radiation-inner" aria-hidden="true" />
-
-        <button
-          type="button"
-          onClick={onOpenAiConcierge}
-          aria-label="Buka Barong AI Concierge"
-          title="Barong AI Concierge • Kurasi & Rekomendasi Budaya Nusantara"
-          className={`relative z-10 w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center bg-slate-950/95 border transition duration-300 active:scale-95 shadow-xl backdrop-blur-md overflow-hidden ${
-            isAiConciergeOpen
-              ? "border-amber-300 ring-2 ring-amber-400/60 scale-105"
-              : "border-amber-400/70 hover:border-amber-300 hover:scale-105"
-          }`}
-        >
-          {/* Barong Mask Artwork from /animasi */}
-          <img
-            src="/animasi/assets/bot-base-transparent.png"
-            alt="Barong AI"
-            className="w-8 h-8 sm:w-9 sm:h-9 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] group-hover:scale-110 transition-transform duration-300 select-none pointer-events-none"
-          />
-        </button>
-      </div>
+      {/* AI Concierge Trigger Button (Barong Character Icon without Box, Animated with Interactive Eyes & 2-Layer Wavy Shadow) */}
+      <button
+        type="button"
+        onClick={onOpenAiConcierge}
+        aria-label="Buka Barong AI Concierge"
+        title="Barong AI Concierge • Kurasi & Rekomendasi Budaya Nusantara"
+        className="relative shrink-0 p-0 m-0 bg-transparent border-0 outline-none cursor-pointer focus:outline-none transition-transform duration-200 active:scale-95 group"
+      >
+        <BarongAvatar size={72} isActive={isAiConciergeOpen} />
+      </button>
     </div>
   );
 }
-
