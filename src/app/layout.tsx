@@ -34,7 +34,7 @@ const nusantara = localFont({
 export const metadata: Metadata = {
   title: "Nusa Antara — Peta Petualangan Wisata & Trip Plan Budaya Nusantara",
   description:
-    "Portal Peta Petualangan Wisata Budaya Indonesia dengan integrasi OpenStreetMap, BMKG SATU PETA MKG, AI Concierge, dan Backsound Musik Gamelan Nusantara.",
+    "Portal Peta Petualangan Wisata Budaya Indonesia dengan integrasi OpenStreetMap, BMKG SATU PETA MKG, Bar Hala Ai, dan Backsound Musik Gamelan Nusantara.",
   icons: {
     icon: "/favicon.ico",
   },

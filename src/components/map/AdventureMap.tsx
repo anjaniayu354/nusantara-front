@@ -5,6 +5,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { CulturalDestination, Category } from "@/data/destinations";
 import { CULTURAL_EVENTS, CulturalEvent } from "@/data/culturalEvents";
+import { MapBaseStyle, MapLayerOptions } from "@/data/mapStyles";
 
 interface AdventureMapProps {
   destinations: CulturalDestination[];
@@ -15,6 +16,8 @@ interface AdventureMapProps {
   flyToCoords?: [number, number] | null;
   onMapMove?: (coords: [number, number]) => void;
   zoomTrigger?: { type: "in" | "out"; id: number } | null;
+  mapStyle?: MapBaseStyle;
+  layerOptions?: MapLayerOptions;
 }
 
 function getCategoryFlatSvg(category: Category): string {
@@ -51,9 +54,15 @@ export function AdventureMap({
   flyToCoords,
   onMapMove,
   zoomTrigger,
+  mapStyle = "osm",
+  layerOptions,
 }: AdventureMapProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
+  const baseTileLayerRef = useRef<L.TileLayer | null>(null);
+  const contourOverlayRef = useRef<L.TileLayer | null>(null);
+  const labelsOverlayRef = useRef<L.TileLayer | null>(null);
+  const seaMarksOverlayRef = useRef<L.TileLayer | null>(null);
   const markersRef = useRef<{ [key: string]: L.Marker }>({});
   const radarMarkersRef = useRef<L.Marker[]>([]);
   const routeLineRef = useRef<L.Polyline | null>(null);
@@ -72,15 +81,6 @@ export function AdventureMap({
       maxZoom: 18,
     });
 
-    // OpenStreetMap Tile Layer using our Next.js API proxy with custom User-Agent and caching
-    const tileLayer = L.tileLayer("/api/tiles/{z}/{x}/{y}", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors | Nusa Antara Live',
-      maxZoom: 19,
-      crossOrigin: true,
-    });
-
-    tileLayer.addTo(map);
     mapRef.current = map;
 
     // Listen to map center movements to dynamically update BMKG telemetry
@@ -112,8 +112,190 @@ export function AdventureMap({
       resizeObserver.disconnect();
       map.remove();
       mapRef.current = null;
+      baseTileLayerRef.current = null;
+      contourOverlayRef.current = null;
+      labelsOverlayRef.current = null;
+      seaMarksOverlayRef.current = null;
     };
   }, []);
+
+  // Switch Base Map Tile Layer dynamically
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (baseTileLayerRef.current) {
+      map.removeLayer(baseTileLayerRef.current);
+      baseTileLayerRef.current = null;
+    }
+
+    let newBaseLayer: L.TileLayer;
+    switch (mapStyle) {
+      case "satelit":
+        newBaseLayer = L.tileLayer(
+          "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+          {
+            attribution:
+              'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+            maxZoom: 19,
+            crossOrigin: true,
+          }
+        );
+        break;
+      case "gunung":
+        newBaseLayer = L.tileLayer(
+          "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+          {
+            attribution:
+              'Tiles &copy; Esri &mdash; DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey',
+            maxZoom: 19,
+            crossOrigin: true,
+          }
+        );
+        break;
+      case "kontur":
+        newBaseLayer = L.tileLayer(
+          "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+          {
+            subdomains: ["a", "b", "c"],
+            attribution:
+              'Map data: &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, SRTM | Map style: &copy; <a href="https://opentopomap.org" target="_blank" rel="noopener">OpenTopoMap</a>',
+            maxZoom: 17,
+            crossOrigin: true,
+          }
+        );
+        break;
+      case "malam":
+        newBaseLayer = L.tileLayer(
+          "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+          {
+            subdomains: ["a", "b", "c", "d"],
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>',
+            maxZoom: 19,
+            crossOrigin: true,
+          }
+        );
+        break;
+      case "bahari":
+        newBaseLayer = L.tileLayer(
+          "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+          {
+            subdomains: ["a", "b", "c", "d"],
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> &copy; <a href="https://carto.com" target="_blank" rel="noopener">CARTO</a>',
+            maxZoom: 19,
+            crossOrigin: true,
+          }
+        );
+        break;
+      case "osm":
+      default:
+        newBaseLayer = L.tileLayer("/api/tiles/{z}/{x}/{y}", {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors | Nusa Antara Live',
+          maxZoom: 19,
+          crossOrigin: true,
+        });
+        break;
+    }
+
+    newBaseLayer.addTo(map);
+    if (typeof (newBaseLayer as any).bringToBack === "function") {
+      (newBaseLayer as any).bringToBack();
+    }
+    baseTileLayerRef.current = newBaseLayer;
+  }, [mapStyle]);
+
+  // Handle Contour Overlay (Toggleable isoline curve overlay)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const shouldShowContour =
+      Boolean(layerOptions?.contourOverlay) && mapStyle !== "kontur";
+
+    if (shouldShowContour) {
+      if (!contourOverlayRef.current) {
+        const layer = L.tileLayer(
+          "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+          {
+            subdomains: ["a", "b", "c"],
+            maxZoom: 17,
+            opacity: 0.55,
+            zIndex: 2,
+            crossOrigin: true,
+          }
+        );
+        layer.addTo(map);
+        contourOverlayRef.current = layer;
+      }
+    } else {
+      if (contourOverlayRef.current) {
+        map.removeLayer(contourOverlayRef.current);
+        contourOverlayRef.current = null;
+      }
+    }
+  }, [layerOptions?.contourOverlay, mapStyle]);
+
+  // Handle Place & Road Labels Overlay
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const shouldShowLabels =
+      layerOptions?.labelsOverlay ?? (mapStyle === "satelit");
+
+    if (shouldShowLabels) {
+      if (!labelsOverlayRef.current) {
+        const layer = L.tileLayer(
+          "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+          {
+            maxZoom: 19,
+            opacity: 0.9,
+            zIndex: 4,
+            crossOrigin: true,
+          }
+        );
+        layer.addTo(map);
+        labelsOverlayRef.current = layer;
+      }
+    } else {
+      if (labelsOverlayRef.current) {
+        map.removeLayer(labelsOverlayRef.current);
+        labelsOverlayRef.current = null;
+      }
+    }
+  }, [layerOptions?.labelsOverlay, mapStyle]);
+
+  // Handle Maritime Sea Marks Overlay
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const shouldShowSeaMarks = Boolean(layerOptions?.seaMarksOverlay);
+
+    if (shouldShowSeaMarks) {
+      if (!seaMarksOverlayRef.current) {
+        const layer = L.tileLayer(
+          "https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png",
+          {
+            maxZoom: 18,
+            opacity: 0.85,
+            zIndex: 5,
+            crossOrigin: true,
+          }
+        );
+        layer.addTo(map);
+        seaMarksOverlayRef.current = layer;
+      }
+    } else {
+      if (seaMarksOverlayRef.current) {
+        map.removeLayer(seaMarksOverlayRef.current);
+        seaMarksOverlayRef.current = null;
+      }
+    }
+  }, [layerOptions?.seaMarksOverlay]);
 
   // Update Markers when destinations or category filter change
   useEffect(() => {
@@ -188,6 +370,11 @@ export function AdventureMap({
     radarMarkersRef.current.forEach((m) => m.remove());
     radarMarkersRef.current = [];
 
+    // Skip if cultural radar is toggled off
+    if (layerOptions?.culturalRadar === false) {
+      return;
+    }
+
     CULTURAL_EVENTS.forEach((event) => {
       const isToday = event.daysRemaining === 0;
       const beaconColor = isToday ? "bg-emerald-400" : "bg-rose-500";
@@ -225,7 +412,7 @@ export function AdventureMap({
       marker.addTo(map);
       radarMarkersRef.current.push(marker);
     });
-  }, []);
+  }, [layerOptions?.culturalRadar]);
 
   // Draw Golden Adventure Polyline for Trip Items
   useEffect(() => {

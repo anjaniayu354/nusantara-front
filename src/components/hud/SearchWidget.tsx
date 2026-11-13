@@ -261,12 +261,12 @@ export function SearchWidget({
         </div>
       </div>
 
-      {/* AI Concierge Trigger Button (Barong Character Icon without Box, Animated with Interactive Eyes & 2-Layer Wavy Shadow) */}
+      {/* Bar Hala Ai Trigger Button (Barong Character Icon without Box, Animated with Interactive Eyes & 2-Layer Wavy Shadow) */}
       <button
         type="button"
         onClick={onOpenAiConcierge}
-        aria-label="Buka Barong AI Concierge"
-        title="Barong AI Concierge • Kurasi & Rekomendasi Budaya Nusantara"
+        aria-label="Buka Bar Hala Ai"
+        title="Bar Hala Ai • Kurasi & Panduan Budaya Nusantara"
         className="relative shrink-0 p-0 m-0 bg-transparent border-0 outline-none cursor-pointer focus:outline-none transition-transform duration-200 active:scale-95 group"
       >
         <BarongAvatar size={72} isActive={isAiConciergeOpen} />

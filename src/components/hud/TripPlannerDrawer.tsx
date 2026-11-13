@@ -76,8 +76,8 @@ export function TripPlannerDrawer({
             </p>
             <p className="text-xs text-slate-400 max-w-xs">
               {language === "ID"
-                ? "Pilih destinasi di peta atau gunakan fitur AI Concierge untuk menambahkan destinasi adat dan budaya Nusantara."
-                : "Select destinations on the map or use the AI Concierge to curate your personalized route."}
+                ? "Pilih destinasi di peta atau gunakan fitur Bar Hala Ai untuk menambahkan destinasi adat dan budaya Nusantara."
+                : "Select destinations on the map or use Bar Hala Ai to curate your personalized route."}
             </p>
           </div>
         ) : (

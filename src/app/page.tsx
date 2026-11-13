@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
+import { Plus, Minus } from "lucide-react";
 import { DESTINATIONS, CulturalDestination, Category } from "@/data/destinations";
 import { BrandWidget } from "@/components/hud/BrandWidget";
 import { SearchWidget } from "@/components/hud/SearchWidget";
@@ -10,6 +11,8 @@ import { MusicPlayer } from "@/components/hud/MusicPlayer";
 import { DestinationSheet } from "@/components/hud/DestinationSheet";
 import { TripPlannerDrawer } from "@/components/hud/TripPlannerDrawer";
 import { AiConciergeDrawer } from "@/components/hud/AiConciergeDrawer";
+import { MapLayersWidget } from "@/components/hud/MapLayersWidget";
+import { MapBaseStyle, MapLayerOptions } from "@/data/mapStyles";
 
 // Dynamically import Leaflet AdventureMap with SSR disabled
 const AdventureMap = dynamic(
@@ -40,6 +43,24 @@ export default function Home() {
   const [isAiConciergeOpen, setIsAiConciergeOpen] = useState<boolean>(false);
   const [flyToCoords, setFlyToCoords] = useState<[number, number] | null>(null);
   const [mapCenterCoords, setMapCenterCoords] = useState<[number, number]>([-2.5489, 118.0149]);
+  const [zoomTrigger, setZoomTrigger] = useState<{ type: "in" | "out"; id: number } | null>(null);
+  const [mapStyle, setMapStyle] = useState<MapBaseStyle>("osm");
+  const [layerOptions, setLayerOptions] = useState<MapLayerOptions>({
+    contourOverlay: false,
+    labelsOverlay: true,
+    seaMarksOverlay: false,
+    culturalRadar: true,
+  });
+
+  const handleToggleLayerOption = (key: keyof MapLayerOptions) => {
+    setLayerOptions((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
+  // Check if any right drawer (Bar Hala Ai chat or Destination detail) is open
+  const isRightDrawerOpen = Boolean(isAiConciergeOpen || activeDestination);
 
   // Toggle item in trip plan
   const handleToggleTripItem = (dest: CulturalDestination) => {
@@ -51,8 +72,18 @@ export default function Home() {
   };
 
   const handleSelectDestination = (dest: CulturalDestination) => {
+    // Close Bar Hala Ai chat so destination detail takes right slider smoothly
+    setIsAiConciergeOpen(false);
     setActiveDestination(dest);
     setFlyToCoords(dest.coordinates);
+  };
+
+  const handleToggleAiConcierge = () => {
+    if (!isAiConciergeOpen) {
+      // Close destination detail so Bar Hala Ai chat takes right slider smoothly
+      setActiveDestination(null);
+    }
+    setIsAiConciergeOpen((prev) => !prev);
   };
 
   const handleApplyAiRecommendations = (recommended: CulturalDestination[]) => {
@@ -73,10 +104,10 @@ export default function Home() {
 
   return (
     <main className="relative w-screen h-screen overflow-hidden bg-slate-950 font-sans flex">
-      {/* Main Content Viewport (shifts & contracts width when AI Concierge slider opens) */}
+      {/* Main Content Viewport (shifts & contracts width when either AI Chat or Destination Detail slider opens) */}
       <div
         className={`relative h-full transition-all duration-300 ease-in-out ${
-          isAiConciergeOpen
+          isRightDrawerOpen
             ? "w-full md:w-[calc(100%-420px)] lg:w-[calc(100%-460px)]"
             : "w-full"
         }`}
@@ -90,50 +121,73 @@ export default function Home() {
           tripItems={tripItems}
           flyToCoords={flyToCoords}
           onMapMove={setMapCenterCoords}
+          zoomTrigger={zoomTrigger}
+          mapStyle={mapStyle}
+          layerOptions={layerOptions}
         />
 
         {/* Floating HUD: Top-Left Brand (Transparent, Logo & Thin Title) */}
         <BrandWidget />
 
-        {/* Floating HUD: Top-Right Trip Plan Icon, Category Dropdown, Search & AI Concierge (Barong Icon) */}
+        {/* Floating HUD: Top-Right Trip Plan Icon, Category Dropdown, Search & Bar Hala Ai */}
         <SearchWidget
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
           tripItemCount={tripItems.length}
           onOpenTripPlanner={() => setIsTripPlannerOpen(true)}
           onSelectDestination={handleSelectDestination}
-          onOpenAiConcierge={() => setIsAiConciergeOpen((prev) => !prev)}
+          onOpenAiConcierge={handleToggleAiConcierge}
           isAiConciergeOpen={isAiConciergeOpen}
           language={language}
         />
 
-        {/* Floating HUD: Bottom Bar (Music Player & BMKG Flat Telemetry Aligned Horizontally) */}
-        <div className="absolute bottom-3 inset-x-0 z-20 px-3 sm:px-4 flex flex-wrap items-center justify-between gap-2.5 pointer-events-none select-none">
+        {/* Floating HUD: Bottom Bar (Music Player, Map Layers, BMKG Flat Telemetry & Zoom Controls Aligned Horizontally) */}
+        <div className="absolute bottom-3 inset-x-0 z-20 px-3 sm:px-4 flex items-center justify-between gap-2.5 pointer-events-none select-none">
           {/* Left: Background Music Player */}
-          <div className="pointer-events-auto">
+          <div className="pointer-events-auto shrink-0">
             <MusicPlayer />
           </div>
 
-          {/* Right/Center: BMKG Flat Telemetry & Cultural Radar */}
-          <div className="pointer-events-auto">
+          {/* Right: Map Layers Widget, BMKG Flat Telemetry & Zoom In/Out Buttons */}
+          <div className="pointer-events-auto flex items-center gap-2">
+            <MapLayersWidget
+              mapStyle={mapStyle}
+              onSelectMapStyle={setMapStyle}
+              layerOptions={layerOptions}
+              onToggleLayerOption={handleToggleLayerOption}
+              language={language}
+            />
+
             <BmkgWeatherBar
               activeDestination={activeDestination}
               mapCenterCoords={mapCenterCoords}
               language={language}
               onSelectEventLocation={(coords) => setFlyToCoords(coords)}
             />
+
+            {/* Custom Map Zoom Controls (+ / -) Matching Height of BMKG Bar */}
+            <div className="bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-full p-1 flex items-center gap-1 shadow-2xl text-white shrink-0">
+              <button
+                type="button"
+                onClick={() => setZoomTrigger({ type: "in", id: Date.now() })}
+                aria-label="Perbesar peta"
+                title="Perbesar peta (+)"
+                className="w-7 h-7 flex items-center justify-center rounded-full bg-slate-800/80 hover:bg-amber-500 hover:text-slate-950 text-amber-300 font-bold transition active:scale-90"
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setZoomTrigger({ type: "out", id: Date.now() })}
+                aria-label="Perkecil peta"
+                title="Perkecil peta (-)"
+                className="w-7 h-7 flex items-center justify-center rounded-full bg-slate-800/80 hover:bg-amber-500 hover:text-slate-950 text-amber-300 font-bold transition active:scale-90"
+              >
+                <Minus className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         </div>
-
-        {/* Sliding Destination Detail Sheet (Right Drawer) */}
-        <DestinationSheet
-          destination={activeDestination}
-          onClose={() => setActiveDestination(null)}
-          currency={currency}
-          language={language}
-          onAddToTrip={handleToggleTripItem}
-          isInTrip={activeDestination ? tripItems.some((t) => t.id === activeDestination.id) : false}
-        />
 
         {/* Sliding Trip Planner Drawer (Left Drawer) */}
         <TripPlannerDrawer
@@ -147,7 +201,17 @@ export default function Home() {
         />
       </div>
 
-      {/* Full-Height Column AI Concierge Slider from the Right */}
+      {/* Sliding Destination Detail Sheet (Right Drawer - same sliding column as AI chat) */}
+      <DestinationSheet
+        destination={activeDestination}
+        onClose={() => setActiveDestination(null)}
+        currency={currency}
+        language={language}
+        onAddToTrip={handleToggleTripItem}
+        isInTrip={activeDestination ? tripItems.some((t) => t.id === activeDestination.id) : false}
+      />
+
+      {/* Full-Height Column Bar Hala Ai Slider from the Right */}
       <AiConciergeDrawer
         isOpen={isAiConciergeOpen}
         onClose={() => setIsAiConciergeOpen(false)}
