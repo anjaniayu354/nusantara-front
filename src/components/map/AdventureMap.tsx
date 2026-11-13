@@ -13,6 +13,7 @@ interface AdventureMapProps {
   activeDestination: CulturalDestination | null;
   tripItems: CulturalDestination[];
   flyToCoords?: [number, number] | null;
+  onMapMove?: (coords: [number, number]) => void;
 }
 
 export function AdventureMap({
@@ -22,6 +23,7 @@ export function AdventureMap({
   activeDestination,
   tripItems,
   flyToCoords,
+  onMapMove,
 }: AdventureMapProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -61,7 +63,33 @@ export function AdventureMap({
     tileLayer.addTo(map);
     mapRef.current = map;
 
+    // Listen to map center movements to dynamically update BMKG telemetry
+    const handleMapMove = () => {
+      if (map) {
+        const center = map.getCenter();
+        if (onMapMove) {
+          onMapMove([center.lat, center.lng]);
+        }
+      }
+    };
+
+    map.on("moveend", handleMapMove);
+    handleMapMove();
+
+    // Observe container resizing for smooth layout shifting
+    const resizeObserver = new ResizeObserver(() => {
+      if (mapRef.current) {
+        mapRef.current.invalidateSize();
+      }
+    });
+
+    if (mapContainerRef.current) {
+      resizeObserver.observe(mapContainerRef.current);
+    }
+
     return () => {
+      map.off("moveend", handleMapMove);
+      resizeObserver.disconnect();
       map.remove();
       mapRef.current = null;
     };

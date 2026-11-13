@@ -1,0 +1,52 @@
+{
+  "name": "Barong / Kala AI Bot",
+  "dimensions": {
+    "width": 980,
+    "height": 980
+  },
+  "features": {
+    "leftEye": {
+      "centerX": 418,
+      "centerY": 423,
+      "radius": 44,
+      "centerPercentX": 42.65,
+      "centerPercentY": 43.16,
+      "scleraRadius": 42,
+      "irisRadius": 32,
+      "pupilRadius": 18,
+      "highlightRadius": 6,
+      "maxGazeOffset": 14
+    },
+    "rightEye": {
+      "centerX": 561,
+      "centerY": 423,
+      "radius": 44,
+      "centerPercentX": 57.24,
+      "centerPercentY": 43.16,
+      "scleraRadius": 42,
+      "irisRadius": 32,
+      "pupilRadius": 18,
+      "highlightRadius": 6,
+      "maxGazeOffset": 14
+    },
+    "mouth": {
+      "centerX": 490,
+      "centerY": 566,
+      "upperTeeth": [522, 560],
+      "lowerTeeth": [575, 615],
+      "jawDisplacementMax": 12
+    }
+  },
+  "palette": {
+    "bgPrimary": "#070c1e",
+    "bgSecondary": "#0e1838",
+    "gold": "#f4b41a",
+    "goldLight": "#ffcc4d",
+    "crimson": "#cb2b3e",
+    "crimsonGlow": "rgba(203, 43, 62, 0.4)",
+    "navyDark": "#131422",
+    "skyBlue": "#56a0d3",
+    "sandCream": "#faf0ca"
+  }
+}
+

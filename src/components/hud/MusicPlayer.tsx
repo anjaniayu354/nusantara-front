@@ -2,7 +2,17 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { AUDIO_TRACKS, AudioTrack } from "@/data/audioTracks";
-import { Volume2, VolumeX, Play, Pause, SkipForward, Music2, Repeat, Disc3, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Volume2,
+  VolumeX,
+  Play,
+  Pause,
+  SkipForward,
+  Repeat,
+  Disc3,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 
 export function MusicPlayer() {
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(0);
@@ -11,20 +21,20 @@ export function MusicPlayer() {
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
-  const [isExpanded, setIsExpanded] = useState<boolean>(true);
+  const [isExpanded, setIsExpanded] = useState<boolean>(false); // Sleek pill docked parallel to BMKG by default
   const [hasInteracted, setHasInteracted] = useState<boolean>(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentTrack: AudioTrack = AUDIO_TRACKS[currentTrackIndex];
 
-  // Initialize and handle play state
+  // Initialize and handle volume/loop state
   useEffect(() => {
     if (!audioRef.current) return;
     audioRef.current.volume = isMuted ? 0 : volume;
     audioRef.current.loop = true; // Ensure continuous loop
   }, [volume, isMuted]);
 
-  // Attempt autoplay on first user interaction anywhere on the window
+  // Attempt autoplay on first user interaction anywhere
   useEffect(() => {
     const handleFirstUserInteraction = () => {
       if (!hasInteracted && audioRef.current && !isPlaying) {
@@ -69,7 +79,7 @@ export function MusicPlayer() {
     setCurrentTime(0);
   };
 
-  // When track index changes, reload and play
+  // Reload track when changed
   useEffect(() => {
     if (!audioRef.current) return;
     audioRef.current.src = currentTrack.src;
@@ -120,11 +130,11 @@ export function MusicPlayer() {
 
   return (
     <div
-      className="fixed bottom-24 left-4 z-30 transition-all duration-300"
+      className="relative select-none"
       role="region"
       aria-label="Pemutar Musik Latar Budaya Nusantara"
     >
-      {/* Hidden audio element with continuous loop */}
+      {/* Hidden audio element with continuous infinite loop */}
       <audio
         ref={audioRef}
         src={currentTrack.src}
@@ -132,7 +142,6 @@ export function MusicPlayer() {
         preload="auto"
         onTimeUpdate={handleTimeUpdate}
         onEnded={() => {
-          // Continuous loop guarantee
           if (audioRef.current) {
             audioRef.current.currentTime = 0;
             audioRef.current.play().catch(console.error);
@@ -140,149 +149,183 @@ export function MusicPlayer() {
         }}
       />
 
-      <div className="bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-2xl p-3 shadow-2xl text-amber-50 w-72 sm:w-80 transition-all">
-        {/* Header bar of music player */}
-        <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2 mb-2">
-          <div className="flex items-center gap-2">
-            <div className={`p-1.5 rounded-lg ${isPlaying ? "bg-amber-500/20 text-amber-400 animate-pulse" : "bg-white/5 text-slate-400"}`}>
-              <Disc3 className={`w-4 h-4 ${isPlaying ? "animate-spin" : ""}`} style={{ animationDuration: "4s" }} />
+      {/* Upward Expanded Popover Card (opens directly above the pill when toggled) */}
+      {isExpanded && (
+        <div className="absolute bottom-full mb-2 left-0 w-72 sm:w-80 bg-slate-950/95 backdrop-blur-xl border border-amber-500/40 rounded-2xl p-3 shadow-2xl text-amber-50 z-50 animate-in fade-in slide-in-from-bottom-2 duration-200">
+          {/* Header */}
+          <div className="flex items-center justify-between pb-2 border-b border-white/10 mb-2">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] uppercase tracking-wider font-bold text-amber-400">
+                Backsound Gamelan
+              </span>
+              <span className="inline-flex items-center gap-0.5 text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded-full font-mono">
+                <Repeat className="w-2.5 h-2.5" /> Loop
+              </span>
             </div>
-            <div>
-              <p className="text-[11px] uppercase tracking-wider font-semibold text-amber-400 flex items-center gap-1">
-                Backsound Nusantara
-                <span className="inline-flex items-center gap-0.5 text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded-full font-mono">
-                  <Repeat className="w-2.5 h-2.5" /> Loop
-                </span>
-              </p>
-            </div>
+            <button
+              onClick={() => setIsExpanded(false)}
+              aria-label="Tutup panel lagu"
+              className="p-1 rounded-md hover:bg-white/10 text-slate-400 hover:text-white transition"
+            >
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
           </div>
 
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            aria-label={isExpanded ? "Ciutkan pemutar musik" : "Perluas pemutar musik"}
-            className="p-1 rounded-md hover:bg-white/10 text-slate-300 transition"
-          >
-            {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-          </button>
-        </div>
-
-        {/* Track Title & Artist */}
-        <div className="mb-2">
-          <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold text-white truncate max-w-[200px]" title={currentTrack.title}>
+          {/* Track Title */}
+          <div className="mb-2">
+            <h4
+              className="text-xs font-bold text-white truncate"
+              title={currentTrack.title}
+            >
               {currentTrack.title}
             </h4>
-            <span className="text-[10px] text-slate-400 font-mono">
-              {formatSeconds(currentTime)} / {formatSeconds(duration)}
-            </span>
+            <div className="flex justify-between items-center text-[10px] text-slate-400 mt-0.5">
+              <span className="truncate max-w-[170px] text-amber-200/80">
+                {currentTrack.subtitle}
+              </span>
+              <span className="font-mono">
+                {formatSeconds(currentTime)} / {formatSeconds(duration)}
+              </span>
+            </div>
           </div>
-          <p className="text-[10px] text-amber-200/80 truncate">{currentTrack.subtitle}</p>
-        </div>
 
-        {/* Animated Sound Wave Equalizer (when playing) */}
-        {isPlaying && (
-          <div className="flex items-end gap-1 h-3 mb-2 px-1">
-            <span className="w-1 bg-amber-400 rounded-full animate-pulse h-full" style={{ animationDelay: "0.1s", animationDuration: "0.6s" }}></span>
-            <span className="w-1 bg-amber-300 rounded-full animate-pulse h-2/3" style={{ animationDelay: "0.3s", animationDuration: "0.8s" }}></span>
-            <span className="w-1 bg-amber-500 rounded-full animate-pulse h-4/5" style={{ animationDelay: "0.2s", animationDuration: "0.5s" }}></span>
-            <span className="w-1 bg-amber-300 rounded-full animate-pulse h-1/2" style={{ animationDelay: "0.4s", animationDuration: "0.7s" }}></span>
-            <span className="w-1 bg-amber-400 rounded-full animate-pulse h-full" style={{ animationDelay: "0.15s", animationDuration: "0.9s" }}></span>
-            <span className="w-1 bg-amber-500 rounded-full animate-pulse h-3/4" style={{ animationDelay: "0.25s", animationDuration: "0.6s" }}></span>
-            <span className="w-1 bg-amber-300 rounded-full animate-pulse h-2/3" style={{ animationDelay: "0.35s", animationDuration: "0.8s" }}></span>
+          {/* Progress Bar */}
+          <div
+            className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden cursor-pointer mb-2.5"
+            onClick={(e) => {
+              if (!audioRef.current || duration === 0) return;
+              const rect = e.currentTarget.getBoundingClientRect();
+              const clickPos = (e.clientX - rect.left) / rect.width;
+              audioRef.current.currentTime = clickPos * duration;
+            }}
+          >
+            <div
+              className="bg-gradient-to-r from-amber-500 to-amber-300 h-full rounded-full transition-all"
+              style={{
+                width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%`,
+              }}
+            />
           </div>
-        )}
 
-        {/* Collapsed quick controls or Expanded full controls */}
-        {isExpanded ? (
-          <div className="space-y-2 pt-1">
-            {/* Progress bar */}
-            <div className="w-full bg-white/10 rounded-full h-1 overflow-hidden cursor-pointer"
-                 onClick={(e) => {
-                   if (!audioRef.current || duration === 0) return;
-                   const rect = e.currentTarget.getBoundingClientRect();
-                   const clickPos = (e.clientX - rect.left) / rect.width;
-                   audioRef.current.currentTime = clickPos * duration;
-                 }}>
-              <div
-                className="bg-gradient-to-r from-amber-500 to-amber-300 h-full rounded-full transition-all"
-                style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
+          {/* Volume Control */}
+          <div className="flex items-center justify-between gap-2 pt-1 border-t border-white/5">
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={toggleMute}
+                aria-label={isMuted ? "Bunyikan audio" : "Bisukan audio"}
+                className="text-slate-400 hover:text-white transition p-1"
+              >
+                {isMuted || volume === 0 ? (
+                  <VolumeX className="w-3.5 h-3.5 text-rose-400" />
+                ) : (
+                  <Volume2 className="w-3.5 h-3.5 text-amber-400" />
+                )}
+              </button>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={isMuted ? 0 : volume}
+                onChange={handleVolumeChange}
+                aria-label="Volume musik"
+                className="w-20 h-1 accent-amber-400 bg-white/20 rounded-lg cursor-pointer"
               />
             </div>
 
-            {/* Playback & Volume row */}
-            <div className="flex items-center justify-between gap-3 pt-1">
-              {/* Play / Next Buttons */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={togglePlay}
-                  aria-label={isPlaying ? "Jeda musik latar" : "Putar musik latar"}
-                  className="w-8 h-8 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center font-bold shadow-md transition transform active:scale-95"
-                >
-                  {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
-                </button>
-
-                <button
-                  onClick={handleNextTrack}
-                  aria-label="Ganti lagu berikutnya"
-                  className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition"
-                  title="Ganti ke lagu berikutnya"
-                >
-                  <SkipForward className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {/* Volume Slider */}
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={toggleMute}
-                  aria-label={isMuted ? "Bunyikan audio" : "Bisukan audio"}
-                  className="text-slate-400 hover:text-white transition"
-                >
-                  {isMuted || volume === 0 ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-                </button>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  value={isMuted ? 0 : volume}
-                  onChange={handleVolumeChange}
-                  aria-label="Volume musik"
-                  className="w-16 h-1 accent-amber-400 bg-white/20 rounded-lg cursor-pointer"
-                />
-              </div>
-            </div>
-
-            {/* Track Selector buttons */}
-            <div className="pt-1 flex gap-1">
+            {/* Track Switcher */}
+            <div className="flex gap-1">
               {AUDIO_TRACKS.map((t, idx) => (
                 <button
                   key={t.id}
                   onClick={() => setCurrentTrackIndex(idx)}
-                  className={`text-[9px] px-2 py-1 rounded truncate flex-1 text-center font-medium transition ${
+                  className={`text-[9px] px-2 py-0.5 rounded font-medium transition ${
                     currentTrackIndex === idx
                       ? "bg-amber-500/30 text-amber-300 border border-amber-500/40"
                       : "bg-white/5 text-slate-400 hover:bg-white/10"
                   }`}
                 >
-                  {idx === 0 ? "🎵 Rising (Utama)" : "🎶 Dance of Nusantara"}
+                  {idx === 0 ? "Track 1" : "Track 2"}
                 </button>
               ))}
             </div>
           </div>
-        ) : (
-          /* Mini compact bar */
-          <div className="flex items-center justify-between pt-1">
-            <button
-              onClick={togglePlay}
-              className="px-2.5 py-1 rounded-md bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-1 transition"
-            >
-              {isPlaying ? <Pause className="w-3 h-3 fill-current" /> : <Play className="w-3 h-3 fill-current" />}
-              <span>{isPlaying ? "Jeda" : "Putar"}</span>
-            </button>
-            <span className="text-[10px] text-amber-300/80">Looping aktif</span>
-          </div>
-        )}
+        </div>
+      )}
+
+      {/* Main Docked Pill: Positioned Parallel to BMKG Bar at the Bottom */}
+      <div className="bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-full px-3 py-2 shadow-2xl text-white flex items-center gap-2 sm:gap-2.5">
+        {/* Spinning Disc / Visualizer Icon */}
+        <div
+          className={`flex items-center justify-center p-1 rounded-full ${
+            isPlaying ? "text-amber-400" : "text-slate-400"
+          }`}
+          title="Pemutar Backsound Budaya Nusantara (Looping)"
+        >
+          <Disc3
+            className={`w-4 h-4 ${isPlaying ? "animate-spin" : ""}`}
+            style={{ animationDuration: "3.5s" }}
+          />
+        </div>
+
+        {/* Play / Pause Mini Button */}
+        <button
+          onClick={togglePlay}
+          aria-label={isPlaying ? "Jeda musik latar" : "Putar musik latar"}
+          className="w-6 h-6 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center font-bold shadow transition active:scale-90"
+        >
+          {isPlaying ? (
+            <Pause className="w-3 h-3 fill-current" />
+          ) : (
+            <Play className="w-3 h-3 fill-current ml-0.5" />
+          )}
+        </button>
+
+        {/* Current Song Title */}
+        <span
+          className="text-xs font-medium text-amber-100 max-w-[100px] sm:max-w-[150px] truncate"
+          title={currentTrack.title}
+        >
+          {currentTrack.title}
+        </span>
+
+        {/* Next Track Button */}
+        <button
+          onClick={handleNextTrack}
+          aria-label="Lagu berikutnya"
+          title="Ganti ke lagu berikutnya"
+          className="p-1 rounded-full text-slate-400 hover:text-white transition"
+        >
+          <SkipForward className="w-3.5 h-3.5" />
+        </button>
+
+        {/* Mute Button */}
+        <button
+          onClick={toggleMute}
+          aria-label={isMuted ? "Bunyikan audio" : "Bisukan audio"}
+          title={isMuted ? "Bunyikan" : "Bisukan"}
+          className="p-1 rounded-full text-slate-400 hover:text-white transition"
+        >
+          {isMuted || volume === 0 ? (
+            <VolumeX className="w-3.5 h-3.5 text-rose-400" />
+          ) : (
+            <Volume2 className="w-3.5 h-3.5 text-amber-400" />
+          )}
+        </button>
+
+        {/* Expand / Collapse Details Chevron */}
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          aria-label={isExpanded ? "Ciutkan panel audio" : "Buka kontrol audio lengkap"}
+          title={isExpanded ? "Ciutkan" : "Kontrol lengkap"}
+          className="p-1 rounded-full text-slate-400 hover:text-white transition"
+        >
+          {isExpanded ? (
+            <ChevronDown className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronUp className="w-3.5 h-3.5" />
+          )}
+        </button>
       </div>
     </div>
   );

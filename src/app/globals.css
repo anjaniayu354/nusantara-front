@@ -3,6 +3,29 @@
 :root {
   --background: #020617;
   --foreground: #f8fafc;
+  --brand-title-color: #000000;
+  --brand-subtitle-color: #334155;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --brand-title-color: #ffffff;
+    --brand-subtitle-color: #e2e8f0;
+  }
+}
+
+:root[data-theme="dark"],
+html.dark,
+body.dark {
+  --brand-title-color: #ffffff;
+  --brand-subtitle-color: #e2e8f0;
+}
+
+:root[data-theme="light"],
+html.light,
+body.light {
+  --brand-title-color: #000000;
+  --brand-subtitle-color: #334155;
 }
 
 @theme inline {
@@ -10,6 +33,16 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-fraunces: var(--font-fraunces);
+  --font-cinzel: var(--font-cinzel);
+}
+
+.font-aesthetic {
+  font-family: var(--font-fraunces), "Playfair Display", Georgia, serif;
+}
+
+.font-cinzel {
+  font-family: var(--font-cinzel), "Times New Roman", serif;
 }
 
 body {
@@ -66,4 +99,70 @@ body {
 .leaflet-control-attribution a {
   color: #fbbf24 !important;
   text-decoration: none !important;
+}
+
+/* ==========================================================================
+   Barong AI Radiant Shading Aura (Compact & Vibrant, High Color Density)
+   ========================================================================== */
+
+@keyframes barongRadiationRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes barongRadiationPulse {
+  0%, 100% {
+    transform: scale(0.96);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+/* Outer Radiation: Compact (small inset) with rich, saturated shading */
+.barong-radiation-glow {
+  position: absolute;
+  inset: -4px;
+  border-radius: 20px;
+  background: conic-gradient(
+    from 0deg,
+    #f4b41a 0deg,
+    #cb2b3e 60deg,
+    #d946ef 120deg,
+    #8b5cf6 180deg,
+    #06b6d4 240deg,
+    #10b981 300deg,
+    #f4b41a 360deg
+  );
+  filter: blur(5px);
+  opacity: 0.88;
+  pointer-events: none;
+  animation: barongRadiationRotate 9s linear infinite, barongRadiationPulse 2.8s ease-in-out infinite;
+  z-index: 0;
+}
+
+/* Inner Radiation: Sharp vibrant contour right at the border edge */
+.barong-radiation-inner {
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 17px;
+  background: conic-gradient(
+    from 180deg,
+    #fbbf24 0deg,
+    #f43f5e 90deg,
+    #38bdf8 180deg,
+    #34d399 270deg,
+    #fbbf24 360deg
+  );
+  filter: blur(2px);
+  opacity: 0.92;
+  pointer-events: none;
+  animation: barongRadiationRotate 5s linear infinite reverse;
+  z-index: 1;
 }

@@ -1,0 +1,472 @@
+/* ==========================================================================
+   Nusa Antara — Bar Hala Ai Bot Character Styling
+   ========================================================================== */
+
+:root {
+  --barong-gold: #f4b41a;
+  --barong-gold-glow: rgba(244, 180, 26, 0.45);
+  --barong-crimson: #cb2b3e;
+  --barong-crimson-glow: rgba(203, 43, 62, 0.5);
+  --barong-black: #000000;
+  --barong-sky: #56a0d3;
+  --barong-cream: #faf0ca;
+}
+
+/* Character Stage Container */
+.barong-stage {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   2 LAPISAN RADIASI SHADING BERGELOMBANG WARNA-WARNI (TRANSPARAN & LAMBAT)
+   ========================================================================== */
+
+/* Lapisan 1: Gelombang Luar Shading Warna-Warni */
+.barong-wave-layer-1 {
+  position: absolute;
+  inset: -15%;
+  border-radius: 43% 57% 68% 32% / 46% 44% 56% 54%;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(244, 180, 26, 0.45) 0deg,
+    rgba(230, 57, 70, 0.42) 60deg,
+    rgba(217, 70, 239, 0.38) 120deg,
+    rgba(139, 92, 246, 0.35) 180deg,
+    rgba(6, 182, 212, 0.4) 240deg,
+    rgba(16, 185, 129, 0.38) 300deg,
+    rgba(244, 180, 26, 0.45) 360deg
+  );
+  filter: blur(34px);
+  opacity: 0.52;
+  z-index: 1;
+  pointer-events: none;
+  animation: waveMorphSlow1 18s ease-in-out infinite alternate, waveRotateSlow1 28s linear infinite;
+  will-change: transform, border-radius;
+  transition: opacity 0.5s ease;
+}
+
+/* Lapisan 2: Gelombang Dalam Shading Warna-Warni Berlawanan Arah */
+.barong-wave-layer-2 {
+  position: absolute;
+  inset: -8%;
+  border-radius: 58% 42% 35% 65% / 55% 35% 65% 45%;
+  background: conic-gradient(
+    from 180deg at 50% 50%,
+    rgba(6, 182, 212, 0.48) 0deg,
+    rgba(16, 185, 129, 0.42) 60deg,
+    rgba(244, 180, 26, 0.5) 120deg,
+    rgba(230, 57, 70, 0.48) 180deg,
+    rgba(217, 70, 239, 0.42) 240deg,
+    rgba(139, 92, 246, 0.4) 300deg,
+    rgba(6, 182, 212, 0.48) 360deg
+  );
+  filter: blur(24px);
+  opacity: 0.58;
+  z-index: 2;
+  pointer-events: none;
+  animation: waveMorphSlow2 14s ease-in-out infinite alternate, waveRotateSlow2 22s linear infinite reverse;
+  will-change: transform, border-radius;
+  transition: opacity 0.5s ease;
+}
+
+/* Gelombang Radiasi Cincin Berdenyut Lambat (Radiating Ripple Shading) */
+.barong-radiate-ring {
+  position: absolute;
+  inset: -10%;
+  border-radius: 48% 52% 45% 55% / 52% 48% 55% 45%;
+  border: 2px solid transparent;
+  background: radial-gradient(circle, transparent 62%, rgba(244, 180, 26, 0.28) 82%, rgba(217, 70, 239, 0.18) 96%, transparent 100%) border-box;
+  box-shadow: inset 0 0 35px rgba(6, 182, 212, 0.2), 0 0 35px rgba(244, 180, 26, 0.25);
+  filter: blur(10px);
+  z-index: 1;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.barong-radiate-ring.ring-1 {
+  animation: waveRadiateSlow 14s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+}
+
+.barong-radiate-ring.ring-2 {
+  animation: waveRadiateSlow 14s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+  animation-delay: 7s;
+}
+
+/* Floating Character Wrapper (Head + Layers) */
+.barong-character {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  animation: barongFloat 4.2s ease-in-out infinite;
+  transform-origin: center bottom;
+  transition: transform 0.25s ease-out;
+}
+
+/* Speaking State with 1 Unified Artwork (No duplicate image overlap) */
+.barong-character.speaking {
+  animation: barongFloat 4.2s ease-in-out infinite, barongTalkingNod 0.32s ease-in-out infinite alternate;
+}
+
+.barong-character.happy {
+  transform: translateY(-10px) scale(1.03);
+}
+
+.barong-character.surprised {
+  transform: translateY(-14px) scale(1.05);
+}
+
+/* Ground Shadow */
+.barong-shadow {
+  position: absolute;
+  bottom: 4%;
+  left: 20%;
+  right: 20%;
+  height: 24px;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45) 0%, transparent 75%);
+  border-radius: 50%;
+  filter: blur(6px);
+  z-index: 2;
+  pointer-events: none;
+  animation: barongShadowPulse 4.2s ease-in-out infinite;
+}
+
+/* Base Mask Illustration Art (1 Gambar Utama Tunggal) */
+.barong-art-base {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* Soundwave Voice Pulse (Glow lembut resonansi suara dari mulut saat bicara) */
+.barong-speech-pulse {
+  position: absolute;
+  left: 50%;
+  top: 57%;
+  width: 90px;
+  height: 42px;
+  transform: translate(-50%, -50%) scale(0.6);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(244, 180, 26, 0.5) 0%, rgba(203, 43, 62, 0.28) 55%, transparent 75%);
+  filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+  transition: opacity 0.2s ease;
+}
+
+.barong-character.speaking .barong-speech-pulse {
+  opacity: 1;
+  animation: speechPulseVocal 0.32s ease-in-out infinite alternate;
+}
+
+/* ==========================================================================
+   DYNAMIC INTERACTIVE EYE SYSTEM
+   ========================================================================== */
+
+.barong-eye-socket {
+  position: absolute;
+  width: 8.8%;
+  height: 8.8%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  overflow: hidden;
+  z-index: 6;
+  background: #ffffff;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.8), 0 0 0 2px #000000;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.barong-eye-socket.left {
+  left: 42.65%;
+  top: 43.16%;
+}
+
+.barong-eye-socket.right {
+  left: 57.25%;
+  top: 43.16%;
+}
+
+/* Sclera Base */
+.barong-sclera {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, #ffffff 65%, #f2eee2 100%);
+  border-radius: 50%;
+}
+
+/* Eyeball Container (Holds Iris + Pupil + Highlight, Moves with Gaze) */
+.barong-eyeball {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 72%;
+  height: 72%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* Red Iris */
+.barong-iris {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 45% 45%, #e63946 0%, #cb2b3e 60%, #871624 100%);
+  box-shadow: 0 0 5px rgba(203, 43, 62, 0.7), inset 0 0 4px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Dark Pupil (Pure Black) */
+.barong-pupil {
+  position: relative;
+  width: 54%;
+  height: 54%;
+  background: #000000;
+  border-radius: 50%;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.95);
+  transition: transform 0.2s ease;
+}
+
+/* Specular Catchlight Highlight */
+.barong-catchlight {
+  position: absolute;
+  top: 18%;
+  right: 18%;
+  width: 28%;
+  height: 28%;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 3px rgba(255, 255, 255, 0.9);
+}
+
+.barong-catchlight-sub {
+  position: absolute;
+  bottom: 22%;
+  left: 24%;
+  width: 14%;
+  height: 14%;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+}
+
+/* Eyelids for Blinking Animation (Pure Black with Gold Trim) */
+.barong-eyelid-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000000;
+  border-bottom: 2px solid var(--barong-gold);
+  transform: translateY(-105%);
+  transition: transform 0.08s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+  pointer-events: none;
+  border-radius: 50% 50% 30% 30%;
+}
+
+.barong-eyelid-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 35%;
+  background: #000000;
+  border-top: 1px solid var(--barong-gold);
+  transform: translateY(105%);
+  transition: transform 0.08s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+  pointer-events: none;
+  border-radius: 30% 30% 50% 50%;
+}
+
+/* Blinking Active State */
+.barong-eye-socket.blinking .barong-eyelid-top {
+  transform: translateY(-5%);
+}
+
+.barong-eye-socket.blinking .barong-eyelid-bottom {
+  transform: translateY(5%);
+}
+
+/* Expression Specific Styles */
+/* Mata selalu normal dan bulat utuh, tidak dipipihkan/squash */
+.barong-character.happy .barong-eye-socket,
+.barong-character.surprised .barong-eye-socket {
+  transform: translate(-50%, -50%);
+}
+
+.barong-character.happy .barong-eyelid-bottom {
+  transform: translateY(105%);
+}
+
+/* Thinking: Eyes look upwards */
+.barong-character.thinking .barong-eyeball {
+  transform: translate(-50%, -85%) !important;
+}
+
+/* Click Sparkles & Aura Particles */
+.barong-sparkle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--barong-gold);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 20;
+  box-shadow: 0 0 10px var(--barong-gold);
+  animation: sparkleFly 0.8s ease-out forwards;
+}
+
+/* ==========================================================================
+   ANIMATION KEYFRAMES
+   ========================================================================== */
+
+@keyframes barongFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.008);
+  }
+}
+
+@keyframes barongTalkingNod {
+  0% {
+    transform: translateY(-2px) scale(1) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) scale(1.015) rotate(0.4deg);
+  }
+  100% {
+    transform: translateY(-9px) scale(1.02) rotate(-0.3deg);
+  }
+}
+
+@keyframes barongShadowPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(0.9);
+    opacity: 0.25;
+  }
+}
+
+/* ==========================================================================
+   KEYFRAMES RADIASI SHADING BERGELOMBANG (SLOW & SMOOTH)
+   ========================================================================== */
+
+/* Morphing gelombang lambat lapisan 1 (18 detik) */
+@keyframes waveMorphSlow1 {
+  0% {
+    border-radius: 43% 57% 68% 32% / 46% 44% 56% 54%;
+    transform: scale(0.97);
+  }
+  33% {
+    border-radius: 65% 35% 42% 58% / 38% 62% 48% 52%;
+    transform: scale(1.04);
+  }
+  66% {
+    border-radius: 48% 52% 60% 40% / 58% 38% 62% 42%;
+    transform: scale(0.99);
+  }
+  100% {
+    border-radius: 43% 57% 68% 32% / 46% 44% 56% 54%;
+    transform: scale(0.97);
+  }
+}
+
+/* Rotasi gelombang lambat lapisan 1 (28 detik searah jarum jam) */
+@keyframes waveRotateSlow1 {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Morphing gelombang lambat lapisan 2 (14 detik) */
+@keyframes waveMorphSlow2 {
+  0% {
+    border-radius: 58% 42% 35% 65% / 55% 35% 65% 45%;
+    transform: scale(1.02);
+  }
+  50% {
+    border-radius: 36% 64% 58% 42% / 48% 58% 42% 52%;
+    transform: scale(0.95);
+  }
+  100% {
+    border-radius: 58% 42% 35% 65% / 55% 35% 65% 45%;
+    transform: scale(1.02);
+  }
+}
+
+/* Rotasi gelombang lambat lapisan 2 (22 detik berlawanan jarum jam) */
+@keyframes waveRotateSlow2 {
+  0% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+/* Gelombang radiasi cincin membesar perlahan keluar (14 detik) */
+@keyframes waveRadiateSlow {
+  0% {
+    transform: scale(0.82) rotate(0deg);
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: scale(1.38) rotate(90deg);
+    opacity: 0;
+  }
+}
+
+@keyframes speechPulseVocal {
+  0% {
+    transform: translate(-50%, -50%) scale(0.7);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.3);
+    opacity: 0.85;
+  }
+}
+
+@keyframes sparkleFly {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx, 20px), var(--ty, -30px)) scale(0);
+    opacity: 0;
+  }
+}
+

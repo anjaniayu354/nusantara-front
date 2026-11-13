@@ -1,111 +1,220 @@
 "use client";
 
-import React from "react";
-import { CloudSun, Waves, ShieldAlert, ShieldCheck, Radio, AlertTriangle, Wind } from "lucide-react";
-import { CULTURAL_EVENTS } from "@/data/culturalEvents";
+import React, { useMemo } from "react";
+import {
+  CloudSun,
+  Sun,
+  Cloud,
+  CloudRain,
+  CloudFog,
+  Thermometer,
+  Waves,
+  Wind,
+  ShieldCheck,
+  ShieldAlert,
+  ShieldX,
+  MapPin,
+  Radio,
+} from "lucide-react";
+import { CULTURAL_EVENTS, CulturalEvent } from "@/data/culturalEvents";
 import { CulturalDestination } from "@/data/destinations";
+import { findNearestBmkgStation, BmkgWeatherStation } from "@/data/bmkgStations";
 
 interface BmkgWeatherBarProps {
   activeDestination?: CulturalDestination | null;
-  language: "ID" | "EN";
+  mapCenterCoords?: [number, number];
+  language?: "ID" | "EN";
   onSelectEventLocation?: (coords: [number, number]) => void;
 }
 
 export function BmkgWeatherBar({
   activeDestination,
-  language,
+  mapCenterCoords,
+  language = "ID",
   onSelectEventLocation,
 }: BmkgWeatherBarProps) {
-  // Use active destination's BMKG data or standard Yogyakarta/Nusantara baseline
-  const weather = activeDestination?.bmkgStation || {
-    name: "Stasiun Klimatologi Yogyakarta / DIY",
-    temperature: 29,
-    condition: "Cerah Berawan",
-    humidity: 76,
-    windSpeedKmh: 14,
-    waveHeightMeters: 1.2,
-    safetyStatus: "AMAN" as const,
+  // Determine current effective coordinates (from active destination or live map center)
+  const currentCoords: [number, number] = useMemo(() => {
+    if (activeDestination?.coordinates) {
+      return activeDestination.coordinates;
+    }
+    if (mapCenterCoords) {
+      return mapCenterCoords;
+    }
+    return [-7.8053, 110.3642]; // Default: Yogyakarta
+  }, [activeDestination, mapCenterCoords]);
+
+  // Find dynamic nearest BMKG station based on active coordinates
+  const station: BmkgWeatherStation = useMemo(() => {
+    if (activeDestination?.bmkgStation) {
+      return {
+        id: activeDestination.id,
+        name: activeDestination.bmkgStation.name,
+        shortName: activeDestination.province || activeDestination.name,
+        province: activeDestination.province,
+        coordinates: activeDestination.coordinates,
+        temperature: activeDestination.bmkgStation.temperature,
+        condition: activeDestination.bmkgStation.condition,
+        humidity: activeDestination.bmkgStation.humidity,
+        windSpeedKmh: activeDestination.bmkgStation.windSpeedKmh,
+        waveHeightMeters: activeDestination.bmkgStation.waveHeightMeters,
+        safetyStatus: activeDestination.bmkgStation.safetyStatus,
+      };
+    }
+    return findNearestBmkgStation(currentCoords);
+  }, [activeDestination, currentCoords]);
+
+  // Find nearest cultural event to coordinates
+  const nearestEvent: CulturalEvent = useMemo(() => {
+    let minDistance = Infinity;
+    let selected = CULTURAL_EVENTS[0];
+
+    for (const ev of CULTURAL_EVENTS) {
+      const dLat = ev.coordinates[0] - currentCoords[0];
+      const dLng = ev.coordinates[1] - currentCoords[1];
+      const dist = dLat * dLat + dLng * dLng;
+      if (dist < minDistance) {
+        minDistance = dist;
+        selected = ev;
+      }
+    }
+    return selected;
+  }, [currentCoords]);
+
+  // Flat weather condition icon
+  const getWeatherIcon = (cond: string) => {
+    switch (cond) {
+      case "Cerah":
+        return <Sun className="w-3.5 h-3.5 text-amber-400 shrink-0" />;
+      case "Berawan":
+        return <Cloud className="w-3.5 h-3.5 text-slate-300 shrink-0" />;
+      case "Hujan Ringan":
+      case "Hujan Sedang":
+        return <CloudRain className="w-3.5 h-3.5 text-sky-400 shrink-0" />;
+      case "Kabut":
+        return <CloudFog className="w-3.5 h-3.5 text-slate-400 shrink-0" />;
+      case "Cerah Berawan":
+      default:
+        return <CloudSun className="w-3.5 h-3.5 text-amber-300 shrink-0" />;
+    }
   };
 
-  const primaryEvent = CULTURAL_EVENTS[0]; // e.g. Labuhan Merapi (Active)
-
-  const getSafetyBadge = (status: "AMAN" | "WASPADA" | "TUNDA") => {
+  // Flat safety status icon
+  const getSafetyIcon = (status: "AMAN" | "WASPADA" | "TUNDA") => {
     switch (status) {
       case "AMAN":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold text-[10px]">
+          <div
+            className="flex items-center gap-1 text-emerald-400 bg-emerald-500/20 px-1.5 py-0.5 rounded-full border border-emerald-500/30"
+            title={language === "ID" ? "Indeks Wisata: AMAN" : "Tourism Safety: SAFE"}
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-            🟢 {language === "ID" ? "Indeks Wisata: AMAN" : "Safety: SAFE"}
-          </span>
+          </div>
         );
       case "WASPADA":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold text-[10px]">
-            🟡 {language === "ID" ? "Indeks Wisata: WASPADA" : "Safety: CAUTION"}
-          </span>
+          <div
+            className="flex items-center gap-1 text-amber-400 bg-amber-500/20 px-1.5 py-0.5 rounded-full border border-amber-500/30"
+            title={language === "ID" ? "Indeks Wisata: WASPADA" : "Tourism Safety: CAUTION"}
+          >
+            <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+          </div>
         );
       case "TUNDA":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold text-[10px]">
-            🔴 {language === "ID" ? "Indeks Wisata: TUNDA" : "Safety: DELAY"}
-          </span>
+          <div
+            className="flex items-center gap-1 text-rose-400 bg-rose-500/20 px-1.5 py-0.5 rounded-full border border-rose-500/30"
+            title={language === "ID" ? "Indeks Wisata: TUNDA" : "Tourism Safety: DELAY"}
+          >
+            <ShieldX className="w-3.5 h-3.5 text-rose-400" />
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+          </div>
         );
     }
   };
 
   return (
-    <aside
+    <div
+      role="region"
       aria-label="Informasi Cuaca BMKG dan Radar Event Budaya"
-      className="fixed bottom-3 left-1/2 -translate-x-1/2 z-20 w-[95vw] max-w-4xl select-none"
+      className="select-none"
     >
-      <div className="bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-2xl p-2.5 sm:px-4 sm:py-2.5 shadow-2xl text-white">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-xs">
-          {/* Left: BMKG Telemetry */}
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <div className="flex items-center gap-1.5 text-amber-300 font-bold">
-              <CloudSun className="w-4 h-4 text-amber-400" />
-              <span>BMKG SATU PETA MKG:</span>
-            </div>
-            <span className="text-slate-300">
-              {weather.name.split("/")[0]}
-            </span>
-            <span className="font-mono font-bold text-white">
-              {weather.temperature}°C
-            </span>
-            <span className="text-slate-300">
-              {weather.condition}
-            </span>
-            <div className="flex items-center gap-1 text-sky-300">
-              <Waves className="w-3.5 h-3.5" />
-              <span>Gelombang: {weather.waveHeightMeters}m</span>
-            </div>
-            {getSafetyBadge(weather.safetyStatus)}
+      <div className="bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-full px-3 sm:px-4 py-2 shadow-2xl text-white">
+        {/* Flat Icon Bar: Strictly Minimal Wording, Flat Icons All */}
+        <div className="flex items-center gap-2 sm:gap-2.5 text-xs whitespace-nowrap overflow-x-auto scrollbar-none">
+          {/* BMKG Flat Branding Indicator */}
+          <div
+            className="flex items-center gap-1 text-amber-400 font-bold shrink-0"
+            title="BMKG SATU PETA MKG Telemetri Cuaca Geospasial"
+          >
+            <CloudSun className="w-4 h-4 text-amber-400" />
+            <span className="text-[10px] uppercase tracking-wider font-mono">BMKG</span>
           </div>
 
-          {/* Right: Pulsing Cultural Event Radar */}
+          <div className="w-px h-3.5 bg-white/20 shrink-0" />
+
+          {/* Region / Map Location Indicator */}
           <div
-            className="flex items-center gap-2 border-t md:border-t-0 md:border-l border-white/10 pt-1.5 md:pt-0 md:pl-3 cursor-pointer hover:text-amber-300 transition"
-            onClick={() => onSelectEventLocation && onSelectEventLocation(primaryEvent.coordinates)}
-            title="Klik untuk pusatkan peta ke event budaya ini"
+            className="flex items-center gap-1 text-slate-200 shrink-0"
+            title={`Stasiun: ${station.name} • Koordinat: [${currentCoords[0].toFixed(2)}, ${currentCoords[1].toFixed(2)}]`}
           >
-            <div className="relative flex items-center justify-center">
-              <Radio className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
-              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-            </div>
-            <div className="flex items-center gap-1.5 truncate">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-300">
-                📡 Radar:
-              </span>
-              <span className="font-semibold text-white truncate max-w-[200px] sm:max-w-[280px]">
-                {primaryEvent.name}
-              </span>
-              <span className="text-[9px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded font-mono font-bold">
-                {primaryEvent.daysRemaining === 0 ? "HARI INI" : `${primaryEvent.daysRemaining} HARI LAGI`}
-              </span>
-            </div>
+            <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="font-semibold text-xs text-amber-100">{station.shortName}</span>
+          </div>
+
+          {/* Weather Condition & Temperature */}
+          <div
+            className="flex items-center gap-1 shrink-0"
+            title={`Kondisi Cuaca: ${station.condition} (${station.temperature}°C)`}
+          >
+            {getWeatherIcon(station.condition)}
+            <Thermometer className="w-3.5 h-3.5 text-amber-400 shrink-0 -mr-0.5" />
+            <span className="font-mono font-bold text-xs text-white">{station.temperature}°</span>
+          </div>
+
+          {/* Wind Speed (Flat Icon) */}
+          <div
+            className="flex items-center gap-0.5 text-teal-300 shrink-0"
+            title={`Kecepatan Angin: ${station.windSpeedKmh} km/jam`}
+          >
+            <Wind className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+            <span className="font-mono text-xs">{station.windSpeedKmh}k</span>
+          </div>
+
+          {/* Maritime Wave Height (Flat Icon) */}
+          <div
+            className="flex items-center gap-0.5 text-sky-300 shrink-0"
+            title={`Tinggi Gelombang Maritim: ${station.waveHeightMeters} meter`}
+          >
+            <Waves className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+            <span className="font-mono text-xs">{station.waveHeightMeters}m</span>
+          </div>
+
+          {/* Safety Status (Flat Icon) */}
+          <div className="shrink-0">
+            {getSafetyIcon(station.safetyStatus)}
+          </div>
+
+          <div className="w-px h-3.5 bg-white/20 shrink-0" />
+
+          {/* Pulsing Cultural Event Radar (Flat Icon) */}
+          <div
+            className="flex items-center gap-1.5 shrink-0 cursor-pointer hover:text-amber-300 transition"
+            onClick={() => onSelectEventLocation?.(nearestEvent.coordinates)}
+            title={`📡 Radar Event: ${nearestEvent.name} (${nearestEvent.daysRemaining === 0 ? "HARI INI" : `${nearestEvent.daysRemaining} hari lagi`}) • Klik untuk pusatkan peta`}
+          >
+            <Radio className="w-3.5 h-3.5 text-rose-400 animate-pulse shrink-0" />
+            <span className="text-xs font-medium text-rose-200 max-w-[120px] sm:max-w-[180px] truncate shrink-0">
+              {nearestEvent.name}
+            </span>
+            <span className="text-[9px] bg-rose-500/20 text-rose-300 px-1 py-0.2 rounded font-mono font-bold shrink-0">
+              {nearestEvent.daysRemaining === 0 ? "HARI INI" : `${nearestEvent.daysRemaining}h`}
+            </span>
           </div>
         </div>
       </div>
-    </aside>
+    </div>
   );
 }

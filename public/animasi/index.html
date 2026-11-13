@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nusa Antara — Bar Hala Ai Animated Bot</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/bot-base-transparent.png" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/character.css" />
+  <link rel="stylesheet" href="css/chat.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="app-header">
+    <div class="brand-group">
+      <div class="brand-icon">🧭</div>
+      <div>
+        <h1 class="brand-title">Nusa Antara</h1>
+      </div>
+      <span class="brand-badge">Bar Hala Ai</span>
+    </div>
+
+    <div class="header-controls">
+      <!-- Layout Mode Switcher -->
+      <div class="mode-toggle-group">
+        <button type="button" class="btn-mode active" id="btn-mode-studio">
+          🖥️ Studio
+        </button>
+        <button type="button" class="btn-mode" id="btn-mode-floating">
+          💬 Widget
+        </button>
+      </div>
+
+      <!-- Sound Mute/Unmute Toggle -->
+      <button type="button" class="btn-icon" id="btn-sound-toggle" title="Toggle Gamelan Audio">
+        🔊
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       STUDIO VIEW (FULLSCREEN DUAL COLUMN)
+       ======================================================================== -->
+  <main class="studio-main" id="studio-view">
+    
+    <!-- Left Column: Character Stage & Controls -->
+    <section class="avatar-showcase">
+      <div class="character-card">
+        
+        <!-- Speech Bubble Overlay -->
+        <div class="speech-bubble-overlay" id="barong-speech-bubble">
+          Rahajeng! Saya Bar Hala Ai, penjaga petualangan budaya Nusa Antara.
+        </div>
+
+        <!-- 3D/Interactive Character Stage -->
+        <div class="barong-stage" id="barong-character-stage">
+          <!-- 2 Lapisan Radiasi Shading Bergelombang Warna-Warni (Transparan & Lambat) -->
+          <div class="barong-wave-layer-1" aria-hidden="true"></div>
+          <div class="barong-wave-layer-2" aria-hidden="true"></div>
+          <div class="barong-radiate-ring ring-1" aria-hidden="true"></div>
+          <div class="barong-radiate-ring ring-2" aria-hidden="true"></div>
+          <div class="barong-shadow"></div>
+          
+          <div class="barong-character">
+            <!-- 1 Gambar Tunggal Barong (Tanpa Lapisan Gambar Ganda) -->
+            <img class="barong-art-base" src="assets/bot-base-transparent.png" alt="Bar Hala Ai Mask" />
+            
+            <!-- Efek Resonansi Suara Mulut Saat Bicara (Glow Soundwave) -->
+            <div class="barong-speech-pulse" aria-hidden="true"></div>
+
+            <!-- Left Eye Socket -->
+            <div class="barong-eye-socket left" data-eye="left">
+              <div class="barong-sclera"></div>
+              <div class="barong-eyeball">
+                <div class="barong-iris">
+                  <div class="barong-pupil">
+                    <div class="barong-catchlight"></div>
+                    <div class="barong-catchlight-sub"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="barong-eyelid-top"></div>
+              <div class="barong-eyelid-bottom"></div>
+            </div>
+
+            <!-- Right Eye Socket -->
+            <div class="barong-eye-socket right" data-eye="right">
+              <div class="barong-sclera"></div>
+              <div class="barong-eyeball">
+                <div class="barong-iris">
+                  <div class="barong-pupil">
+                    <div class="barong-catchlight"></div>
+                    <div class="barong-catchlight-sub"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="barong-eyelid-top"></div>
+              <div class="barong-eyelid-bottom"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Character Identity -->
+        <div class="character-identity">
+          <h2>Bar Hala Ai</h2>
+          <p>Penjaga Kebajikan (Dharma) & Pemandu Budaya Nusantara</p>
+        </div>
+
+        <!-- Animation Test Controls -->
+        <div class="test-controls-bar">
+          <span class="test-controls-title">🎮 Uji Coba Gerak Animasi</span>
+          <div class="test-buttons-grid">
+            <button type="button" class="btn-test" id="test-blink" title="Kedipkan Mata">
+              <span>👁️</span>
+              <span>Kedip</span>
+            </button>
+            <button type="button" class="btn-test" id="test-speak" title="Gerakan Mulut Bicara">
+              <span>🗣️</span>
+              <span>Bicara</span>
+            </button>
+            <button type="button" class="btn-test" id="test-happy" title="Ekspresi Senang">
+              <span>✨</span>
+              <span>Senang</span>
+            </button>
+            <button type="button" class="btn-test" id="test-surprised" title="Ekspresi Kaget">
+              <span>😲</span>
+              <span>Kaget</span>
+            </button>
+            <button type="button" class="btn-test" id="test-think" title="Ekspresi Berpikir">
+              <span>💭</span>
+              <span>Pikir</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Right Column: Interactive Chatbox -->
+    <section class="chat-showcase">
+      <div class="chat-window" id="barong-chat-container">
+        
+        <!-- Header -->
+        <div class="chat-header">
+          <div class="chat-header-info">
+            <div class="chat-header-titles">
+              <h3>Bar Hala Ai <span class="chat-status-dot"></span></h3>
+              <p>Aktif · Siap Menjawab Tanya Budaya</p>
+            </div>
+          </div>
+          <div class="chat-header-actions">
+            <button type="button" class="btn-clear-chat" id="btn-clear-chat" title="Bersihkan Percakapan">
+              Hapus
+            </button>
+          </div>
+        </div>
+
+        <!-- Scrollable Messages Area -->
+        <div class="chat-messages" id="barong-chat-messages"></div>
+
+        <!-- Quick Prompt Chips -->
+        <div class="chat-quick-chips" id="barong-quick-chips"></div>
+
+        <!-- Chat Input Bar -->
+        <div class="chat-input-bar">
+          <form class="chat-input-form" id="barong-chat-form">
+            <input 
+              type="text" 
+              class="chat-input-field" 
+              id="barong-chat-input" 
+              placeholder="Tanyakan destinasi budaya, festival adat, atau cuaca BMKG..." 
+              autocomplete="off"
+            />
+            <button type="submit" class="chat-send-btn" id="btn-send" title="Kirim Pesan">
+              Kirim
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================
+       FLOATING WIDGET VIEW (MINIMIZED EMBEDDABLE MODE)
+       ======================================================================== -->
+  <div class="floating-widget-wrapper" id="floating-widget-container">
+    
+    <!-- Expanded Floating Chat Panel -->
+    <div class="floating-chat-panel" id="floating-chat-panel" style="display: none;">
+      <!-- Cloned or targeted chat window will be docked here -->
+    </div>
+
+    <!-- Circular Floating Toggle Button -->
+    <div class="floating-widget-trigger" id="floating-widget-btn" title="Buka Bar Hala Ai Chatbot">
+      <img src="assets/bot-base-transparent.png" alt="Bar Hala Ai Bot" />
+      <span class="floating-badge"></span>
+    </div>
+  </div>
+
+  <!-- JavaScript Modules -->
+  <script src="js/knowledge.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/character.js"></script>
+  <script src="js/chatbot.js"></script>
+
+  <!-- Main Application Bootstrap -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Initialize Character Animation Controller
+      const character = new BarongCharacter('barong-character-stage');
+      character.init();
+
+      // 2. Initialize Audio Synthesizer
+      const audio = new BarongAudio();
+
+      // 3. Initialize Cultural Chatbot
+      const chatbot = new BarongChatbot(character, audio, {
+        containerId: 'barong-chat-container',
+        messagesId: 'barong-chat-messages',
+        inputId: 'barong-chat-input',
+        formId: 'barong-chat-form',
+        speechBubbleId: 'barong-speech-bubble',
+        quickChipsId: 'barong-quick-chips'
+      });
+      chatbot.init();
+
+      // 4. Wire Audio Button
+      const btnSound = document.getElementById('btn-sound-toggle');
+      if (btnSound) {
+        btnSound.textContent = audio.isMuted ? '🔇' : '🔊';
+        btnSound.addEventListener('click', () => {
+          const isMuted = audio.toggleMute();
+          btnSound.textContent = isMuted ? '🔇' : '🔊';
+          if (!isMuted) audio.playReceiveSound();
+        });
+      }
+
+      // 5. Wire Clear Chat Button
+      const btnClear = document.getElementById('btn-clear-chat');
+      if (btnClear) {
+        btnClear.addEventListener('click', () => {
+          chatbot.clear();
+          character.triggerBlink();
+        });
+      }
+
+      // 6. Wire Animation Test Buttons
+      document.getElementById('test-blink')?.addEventListener('click', () => {
+        character.triggerBlink();
+      });
+
+      document.getElementById('test-speak')?.addEventListener('click', () => {
+        character.setSpeaking(!character.isSpeaking);
+        if (character.isSpeaking) {
+          audio.playSpeechBlip();
+          setTimeout(() => character.setSpeaking(false), 2400);
+        }
+      });
+
+      document.getElementById('test-happy')?.addEventListener('click', () => {
+        character.triggerBlink();
+        character.createSparkles();
+        audio.playReceiveSound();
+      });
+
+      document.getElementById('test-surprised')?.addEventListener('click', () => {
+        character.setExpression('surprised', 2500);
+      });
+
+      document.getElementById('test-think')?.addEventListener('click', () => {
+        character.setExpression('thinking', 2500);
+      });
+
+      // 7. Layout Mode Switcher (Studio vs Floating Widget)
+      const btnStudio = document.getElementById('btn-mode-studio');
+      const btnFloating = document.getElementById('btn-mode-floating');
+      const floatingWidgetBtn = document.getElementById('floating-widget-btn');
+      const floatingChatPanel = document.getElementById('floating-chat-panel');
+      const chatWindow = document.getElementById('barong-chat-container');
+      const chatShowcase = document.querySelector('.chat-showcase');
+
+      function setMode(mode) {
+        if (mode === 'floating') {
+          document.body.classList.add('mode-floating');
+          btnFloating.classList.add('active');
+          btnStudio.classList.remove('active');
+          // Move chat window into floating panel
+          if (chatWindow && floatingChatPanel) {
+            floatingChatPanel.appendChild(chatWindow);
+            floatingChatPanel.style.display = 'block';
+          }
+        } else {
+          document.body.classList.remove('mode-floating');
+          btnStudio.classList.add('active');
+          btnFloating.classList.remove('active');
+          // Return chat window to studio showcase
+          if (chatWindow && chatShowcase) {
+            chatShowcase.appendChild(chatWindow);
+          }
+          if (floatingChatPanel) {
+            floatingChatPanel.style.display = 'none';
+          }
+        }
+      }
+
+      btnStudio?.addEventListener('click', () => setMode('studio'));
+      btnFloating?.addEventListener('click', () => setMode('floating'));
+
+      // Toggle floating popup on widget click
+      floatingWidgetBtn?.addEventListener('click', () => {
+        if (floatingChatPanel) {
+          const isVisible = floatingChatPanel.style.display === 'block';
+          floatingChatPanel.style.display = isVisible ? 'none' : 'block';
+          if (!isVisible) {
+            audio.playReceiveSound();
+            character.triggerBlink();
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+

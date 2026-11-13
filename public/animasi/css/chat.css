@@ -1,0 +1,384 @@
+/* ==========================================================================
+   Nusa Antara — Bar Hala Ai Chatbox & UI Styling
+   ========================================================================== */
+
+/* Chat Window Container */
+.chat-window {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 640px;
+  background: rgba(8, 8, 8, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(244, 180, 26, 0.22);
+  border-radius: 20px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8), 0 0 24px rgba(244, 180, 26, 0.08);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Chat Header */
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: rgba(0, 0, 0, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.chat-header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-header-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--barong-gold);
+  background: #000000;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(244, 180, 26, 0.35);
+}
+
+.chat-header-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.chat-header-titles h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-header-titles p {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: #56a0d3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #06d6a0;
+  box-shadow: 0 0 8px #06d6a0;
+  display: inline-block;
+  animation: pulseGreen 2s infinite;
+}
+
+.chat-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-icon {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.btn-icon:hover {
+  background: rgba(244, 180, 26, 0.15);
+  border-color: var(--barong-gold);
+  color: var(--barong-gold);
+  transform: translateY(-1px);
+}
+
+/* Chat Messages Scrollable Area */
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-behavior: smooth;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(244, 180, 26, 0.2);
+  border-radius: 4px;
+}
+
+/* Chat Message Row */
+.chat-message {
+  display: flex;
+  max-width: 84%;
+  animation: messageSlideIn 0.28s ease-out;
+}
+
+.chat-message.user {
+  align-self: flex-end;
+}
+
+.chat-message.bot {
+  align-self: flex-start;
+}
+
+/* Message Bubble */
+.chat-bubble {
+  padding: 14px 18px;
+  border-radius: 18px;
+  position: relative;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+}
+
+.chat-message.bot .chat-bubble {
+  background: rgba(16, 16, 16, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top-left-radius: 4px;
+  color: #f1f5f9;
+}
+
+/* User Chat Bubble: Warna Putih Bersih & Kontras Elegan */
+.chat-message.user .chat-bubble {
+  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-top-right-radius: 4px;
+  color: #0a0a0a;
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.1), 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.chat-message.user .chat-bubble strong {
+  color: #000000;
+}
+
+.chat-message.user .chat-time {
+  color: #777777;
+}
+
+.chat-sender-name {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--barong-gold);
+  margin-bottom: 4px;
+}
+
+.chat-message-text {
+  word-break: break-word;
+}
+
+.chat-message-text strong {
+  color: var(--barong-gold);
+}
+
+.chat-time {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: right;
+  margin-top: 6px;
+}
+
+/* Floating Speech Bubble Above Avatar */
+.speech-bubble-overlay {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid var(--barong-gold);
+  border-radius: 16px;
+  padding: 10px 16px;
+  max-width: 320px;
+  font-size: 0.82rem;
+  color: #ffffff;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7), 0 0 16px rgba(244, 180, 26, 0.3);
+  z-index: 25;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.speech-bubble-overlay.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.speech-bubble-overlay::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 8px 8px 0;
+  border-style: solid;
+  border-color: var(--barong-gold) transparent transparent transparent;
+}
+
+/* Quick Suggestion Chips */
+.chat-quick-chips {
+  display: flex;
+  gap: 8px;
+  padding: 10px 20px;
+  overflow-x: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(7, 12, 30, 0.5);
+}
+
+.chat-quick-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.chat-quick-chip {
+  background: rgba(244, 180, 26, 0.1);
+  border: 1px solid rgba(244, 180, 26, 0.3);
+  color: var(--barong-gold);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chat-quick-chip:hover {
+  background: var(--barong-gold);
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(244, 180, 26, 0.3);
+}
+
+/* Chat Input Bar */
+.chat-input-bar {
+  padding: 14px 20px;
+  background: rgba(0, 0, 0, 0.98);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.chat-input-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(20, 20, 20, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  padding: 4px 6px 4px 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chat-input-form:focus-within {
+  border-color: var(--barong-gold);
+  box-shadow: 0 0 12px rgba(244, 180, 26, 0.25);
+}
+
+.chat-input-field {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-family: inherit;
+}
+
+.chat-input-field::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.chat-send-btn {
+  background: linear-gradient(135deg, var(--barong-gold) 0%, #e59d00 100%);
+  color: #000000;
+  border: none;
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  flex-shrink: 0;
+}
+
+.chat-send-btn:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 14px rgba(244, 180, 26, 0.45);
+}
+
+.chat-send-btn:active {
+  transform: scale(0.97);
+}
+
+/* Clear Chat Button */
+.btn-clear-chat {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-clear-chat:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+@keyframes messageSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGreen {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.85);
+  }
+}
+
