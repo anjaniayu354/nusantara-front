@@ -69,7 +69,7 @@ export function BrandWidget() {
           />
         </div>
 
-        {/* Brand Title and Subtitle: Font Hitam & Tipografi Estetik Tidak Kaku */}
+        {/* Brand Title and Subtitle: Font Hitam & Tipografi Budaya Nusantara */}
         <div className="flex flex-col justify-center items-start">
           <h1
             ref={titleRef}
@@ -77,7 +77,7 @@ export function BrandWidget() {
               color: "#000000",
               textShadow: "0 1px 3px rgba(255,255,255,0.95), 0 0 10px rgba(255,255,255,0.75)",
             }}
-            className="font-aesthetic text-2xl sm:text-[27px] font-normal tracking-normal leading-tight text-black drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]"
+            className="font-nusantara text-2xl sm:text-[30px] font-normal tracking-wide leading-tight text-black drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]"
           >
             Nusa Antara
           </h1>

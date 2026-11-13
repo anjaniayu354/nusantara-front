@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Fraunces, Cinzel } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,6 +25,12 @@ const cinzel = Cinzel({
   display: "swap",
 });
 
+const nusantara = localFont({
+  src: "./fonts/NUSANTARA.ttf",
+  variable: "--font-nusantara",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Nusa Antara — Peta Petualangan Wisata & Trip Plan Budaya Nusantara",
   description:
@@ -41,7 +48,7 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${cinzel.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${cinzel.variable} ${nusantara.variable} h-full antialiased`}
     >
       <body className="h-full w-full overflow-hidden bg-slate-950 text-white select-none">
         {children}
