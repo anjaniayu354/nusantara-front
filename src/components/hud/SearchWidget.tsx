@@ -113,155 +113,145 @@ export function SearchWidget({
       ref={containerRef}
       className="absolute top-4 right-4 z-20 flex items-center gap-2 max-w-[95vw] select-none"
     >
-      {/* Unified Floating Bar: Trip Icon | Flat Icon Dropdown Filter | Search Bar */}
-      <div className="flex items-center bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-2xl px-2.5 py-1.5 shadow-2xl text-white">
-        {/* Trip Plan: Icon Only Button */}
+      {/* 1. Trip Plan: Standalone Floating Button */}
+      <button
+        type="button"
+        onClick={onOpenTripPlanner}
+        aria-label="Rencana Perjalanan (Trip Plan)"
+        title="Rencana Perjalanan (Trip Plan)"
+        className="relative flex items-center justify-center p-2.5 bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-2xl text-amber-300 hover:text-amber-200 hover:bg-slate-800/90 hover:border-amber-400 active:scale-95 shadow-2xl transition shrink-0"
+      >
+        <Route className="w-4 h-4" />
+        {tripItemCount > 0 && (
+          <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-amber-500 text-slate-950 font-black text-[9px] shadow-md">
+            {tripItemCount}
+          </span>
+        )}
+      </button>
+
+      {/* 2. Dropdown Filter: Standalone Floating Button & Menu */}
+      <div className="relative shrink-0" ref={dropdownRef}>
         <button
           type="button"
-          onClick={onOpenTripPlanner}
-          aria-label="Rencana Perjalanan (Trip Plan)"
-          title="Rencana Perjalanan (Trip Plan)"
-          className="relative p-2 rounded-xl text-amber-300 hover:text-amber-200 hover:bg-white/10 active:scale-95 transition"
+          onClick={() => setIsDropdownOpen((prev) => !prev)}
+          aria-expanded={isDropdownOpen}
+          aria-label="Filter Kategori"
+          title={`Filter Kategori: ${activeCategory.label}`}
+          className="flex items-center gap-1.5 px-3 py-2 bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-2xl hover:bg-slate-800/90 hover:border-amber-400 text-xs font-medium text-slate-200 shadow-2xl transition group"
         >
-          <Route className="w-4 h-4" />
-          {tripItemCount > 0 && (
-            <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-amber-500 text-slate-950 font-black text-[9px] shadow-md">
-              {tripItemCount}
-            </span>
-          )}
+          <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400 shrink-0 group-hover:rotate-180 transition-transform duration-300" />
+          <span className="flex items-center gap-1 text-amber-300 font-semibold">
+            <ActiveIcon className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+            <span className="hidden sm:inline text-xs">{activeCategory.label}</span>
+          </span>
+          <ChevronDown
+            className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+          />
         </button>
 
-        {/* Separator between Trip Icon and Filter Dropdown */}
-        <div className="w-px h-5 bg-white/20 mx-1.5 shrink-0" />
+        {/* Flat Icon Dropdown Menu */}
+        {isDropdownOpen && (
+          <div className="absolute top-full mt-2 right-0 sm:left-0 min-w-[190px] bg-slate-900/95 backdrop-blur-md border border-amber-500/30 rounded-xl p-1.5 shadow-2xl z-30 max-h-80 overflow-y-auto">
+            {CATEGORIES.map((cat) => {
+              const IconComponent = cat.icon;
+              const isSelected =
+                selectedCategory === cat.id ||
+                (cat.id === "laut" && selectedCategory === "pantai");
 
-        {/* Dropdown Filter: Flat Icon Only / Crisp Flat UI */}
-        <div className="relative" ref={dropdownRef}>
-          <button
-            type="button"
-            onClick={() => setIsDropdownOpen((prev) => !prev)}
-            aria-expanded={isDropdownOpen}
-            aria-label="Filter Kategori"
-            title={`Filter Kategori: ${activeCategory.label}`}
-            className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl hover:bg-white/10 text-xs font-medium text-slate-200 transition group"
-          >
-            {/* Flat Sliders / Filter Icon */}
-            <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400 shrink-0 group-hover:rotate-180 transition-transform duration-300" />
-            <span className="flex items-center gap-1 text-amber-300 font-semibold">
-              <ActiveIcon className="w-3.5 h-3.5 shrink-0 text-amber-400" />
-              <span className="hidden sm:inline text-xs">{activeCategory.label}</span>
-            </span>
-            <ChevronDown
-              className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
-            />
-          </button>
-
-          {/* Flat Icon Dropdown Menu */}
-          {isDropdownOpen && (
-            <div className="absolute top-full mt-2 left-0 min-w-[190px] bg-slate-900/95 backdrop-blur-md border border-amber-500/30 rounded-xl p-1.5 shadow-2xl z-30 max-h-80 overflow-y-auto">
-              {CATEGORIES.map((cat) => {
-                const IconComponent = cat.icon;
-                const isSelected =
-                  selectedCategory === cat.id ||
-                  (cat.id === "laut" && selectedCategory === "pantai");
-
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => {
-                      onSelectCategory(cat.id);
-                      setIsDropdownOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs text-left transition ${
-                      isSelected
-                        ? "bg-amber-500/20 text-amber-300 font-bold"
-                        : "text-slate-300 hover:bg-white/10 hover:text-white"
-                    }`}
-                  >
-                    <IconComponent
-                      className={`w-4 h-4 shrink-0 ${isSelected ? "text-amber-400" : "text-slate-400"}`}
-                    />
-                    <span>{cat.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Separator between Filter and Search Input */}
-        <div className="w-px h-5 bg-white/20 mx-1.5 shrink-0" />
-
-        {/* Search Input Bar */}
-        <div className="relative flex items-center">
-          <Search className="w-4 h-4 text-amber-400 mr-2 shrink-0" />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setIsAutocompleteOpen(true);
-            }}
-            onFocus={() => setIsAutocompleteOpen(true)}
-            placeholder={
-              language === "ID"
-                ? "Cari Bulukumba, Lampung, kopi, tapis..."
-                : "Search Bulukumba, Lampung, coffee, tapis..."
-            }
-            className="w-32 sm:w-52 md:w-64 bg-transparent text-xs text-white placeholder:text-slate-400 focus:outline-none"
-          />
-          {query && (
-            <button
-              type="button"
-              onClick={() => {
-                setQuery("");
-                setIsAutocompleteOpen(false);
-              }}
-              aria-label="Bersihkan pencarian"
-              className="text-slate-400 hover:text-white p-1 ml-1"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
-
-          {/* Autocomplete Dropdown */}
-          {isAutocompleteOpen && filtered.length > 0 && (
-            <div className="absolute top-full mt-3 right-0 w-72 sm:w-80 md:w-96 bg-slate-900/95 backdrop-blur-md border border-amber-500/30 rounded-2xl p-2 shadow-2xl max-h-72 overflow-y-auto z-40">
-              {filtered.map((d) => (
+              return (
                 <button
-                  key={d.id}
+                  key={cat.id}
                   type="button"
                   onClick={() => {
-                    onSelectDestination(d);
-                    setIsAutocompleteOpen(false);
-                    setQuery("");
+                    onSelectCategory(cat.id);
+                    setIsDropdownOpen(false);
                   }}
-                  className="w-full text-left p-2 rounded-xl hover:bg-white/10 flex items-start gap-2.5 transition text-white"
+                  className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs text-left transition ${
+                    isSelected
+                      ? "bg-amber-500/20 text-amber-300 font-bold"
+                      : "text-slate-300 hover:bg-white/10 hover:text-white"
+                  }`}
                 >
-                  <div className="p-1.5 rounded-lg bg-amber-500/20 text-amber-400 mt-0.5 shrink-0">
-                    <MapPin className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-amber-300 truncate">{d.name}</p>
-                    <p className="text-[10px] text-slate-300 truncate">
-                      {d.province} • {d.subtitle}
-                    </p>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {d.tags.slice(0, 3).map((t) => (
-                        <span key={t} className="text-[9px] bg-white/5 text-slate-400 px-1.5 py-0.5 rounded">
-                          #{t}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                  <IconComponent
+                    className={`w-4 h-4 shrink-0 ${isSelected ? "text-amber-400" : "text-slate-400"}`}
+                  />
+                  <span>{cat.label}</span>
                 </button>
-              ))}
-            </div>
-          )}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {/* Bar Hala Ai Trigger Button (Barong Character Icon without Box, Animated with Interactive Eyes & 2-Layer Wavy Shadow) */}
+      {/* 3. Search Bar: Standalone Floating Search Bar */}
+      <div className="relative flex items-center bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-2xl px-3 py-2 shadow-2xl text-white shrink-0">
+        <Search className="w-4 h-4 text-amber-400 mr-2 shrink-0" />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setIsAutocompleteOpen(true);
+          }}
+          onFocus={() => setIsAutocompleteOpen(true)}
+          placeholder={
+            language === "ID"
+              ? "Cari Bulukumba, Lampung, kopi, tapis..."
+              : "Search Bulukumba, Lampung, coffee, tapis..."
+          }
+          className="w-28 sm:w-48 md:w-56 bg-transparent text-xs text-white placeholder:text-slate-400 focus:outline-none"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => {
+              setQuery("");
+              setIsAutocompleteOpen(false);
+            }}
+            aria-label="Bersihkan pencarian"
+            className="text-slate-400 hover:text-white p-1 ml-1"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
+
+        {/* Autocomplete Dropdown */}
+        {isAutocompleteOpen && filtered.length > 0 && (
+          <div className="absolute top-full mt-3 right-0 w-72 sm:w-80 md:w-96 bg-slate-900/95 backdrop-blur-md border border-amber-500/30 rounded-2xl p-2 shadow-2xl max-h-72 overflow-y-auto z-40">
+            {filtered.map((d) => (
+              <button
+                key={d.id}
+                type="button"
+                onClick={() => {
+                  onSelectDestination(d);
+                  setIsAutocompleteOpen(false);
+                  setQuery("");
+                }}
+                className="w-full text-left p-2 rounded-xl hover:bg-white/10 flex items-start gap-2.5 transition text-white"
+              >
+                <div className="p-1.5 rounded-lg bg-amber-500/20 text-amber-400 mt-0.5 shrink-0">
+                  <MapPin className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-amber-300 truncate">{d.name}</p>
+                  <p className="text-[10px] text-slate-300 truncate">
+                    {d.province} • {d.subtitle}
+                  </p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {d.tags.slice(0, 3).map((t) => (
+                      <span key={t} className="text-[9px] bg-white/5 text-slate-400 px-1.5 py-0.5 rounded">
+                        #{t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 4. Bar Hala Ai Trigger Button (Barong Character Icon without Box, Animated with Interactive Eyes & 2-Layer Wavy Shadow) */}
       <button
         type="button"
         onClick={onOpenAiConcierge}

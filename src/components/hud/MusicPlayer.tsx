@@ -49,9 +49,27 @@ export function MusicPlayer({
   const activeTrackItemRef = useRef<HTMLButtonElement | null>(null);
   const queuedNextTrackRef = useRef<string | null>(null);
   const lastGeoTrackIdRef = useRef<string | undefined>(undefined);
+  const userPausedRef = useRef<boolean>(false);
 
   const currentTrack: AudioTrack =
     AUDIO_TRACKS[currentTrackIndex] || AUDIO_TRACKS[0];
+
+  const playAudio = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    userPausedRef.current = false;
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          setIsPlaying(true);
+          setHasInteracted(true);
+        })
+        .catch((err) => {
+          console.log("Audio play awaiting gesture:", err);
+        });
+    }
+  };
 
   // Initialize and handle volume/loop state
   useEffect(() => {
@@ -89,46 +107,65 @@ export function MusicPlayer({
     }
   }, [isExpanded, currentTrackIndex]);
 
-  // Autoplay default song immediately on page load, with robust fallback on first user gesture
+  // Autoplay default song immediately on page load, with capture-phase fallback on any user gesture
   useEffect(() => {
     let isDisposed = false;
 
-    const playSong = () => {
-      if (!audioRef.current || isDisposed) return;
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            if (!isDisposed) {
-              setIsPlaying(true);
-              setHasInteracted(true);
-            }
-          })
-          .catch((err) => {
-            console.log("Autoplay on mount awaiting user gesture:", err);
-          });
+    const tryAutoPlay = () => {
+      if (isDisposed) return;
+      const audio = audioRef.current;
+      if (!audio) return;
+      if (!userPausedRef.current) {
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              if (!isDisposed) {
+                setIsPlaying(true);
+                setHasInteracted(true);
+              }
+            })
+            .catch(() => {
+              // Browser autoplay policy awaiting user gesture
+            });
+        }
       }
     };
 
-    // Attempt playback immediately upon page load
-    playSong();
+    // 1. Attempt playback immediately upon page load
+    tryAutoPlay();
 
-    // Fallback: start automatically on any first user gesture across the window
+    // 2. Short staggered retries in case media is still buffering
+    const t1 = setTimeout(tryAutoPlay, 100);
+    const t2 = setTimeout(tryAutoPlay, 500);
+    const t3 = setTimeout(tryAutoPlay, 1200);
+
+    // 3. Capture-phase listeners across the entire document so map drags/clicks aren't suppressed by stopPropagation
+    const gestureEvents = [
+      "pointerdown",
+      "mousedown",
+      "touchstart",
+      "click",
+      "keydown",
+      "wheel",
+    ];
+
     const handleGesture = () => {
-      playSong();
+      tryAutoPlay();
     };
 
-    window.addEventListener("pointerdown", handleGesture, { once: true, passive: true });
-    window.addEventListener("click", handleGesture, { once: true, passive: true });
-    window.addEventListener("keydown", handleGesture, { once: true, passive: true });
-    window.addEventListener("touchstart", handleGesture, { once: true, passive: true });
+    gestureEvents.forEach((evt) => {
+      document.addEventListener(evt, handleGesture, { capture: true, passive: true });
+    });
 
     return () => {
       isDisposed = true;
-      window.removeEventListener("pointerdown", handleGesture);
-      window.removeEventListener("click", handleGesture);
-      window.removeEventListener("keydown", handleGesture);
-      window.removeEventListener("touchstart", handleGesture);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      gestureEvents.forEach((evt) => {
+        document.removeEventListener(evt, handleGesture, { capture: true } as any);
+      });
     };
   }, []);
 
@@ -137,14 +174,10 @@ export function MusicPlayer({
     if (isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
+      userPausedRef.current = true;
     } else {
-      audioRef.current
-        .play()
-        .then(() => {
-          setIsPlaying(true);
-          setHasInteracted(true);
-        })
-        .catch((err) => console.error("Playback failed:", err));
+      userPausedRef.current = false;
+      playAudio();
     }
   };
 
@@ -173,20 +206,9 @@ export function MusicPlayer({
   };
 
   const switchTrack = (index: number) => {
+    userPausedRef.current = false;
     setCurrentTrackIndex(index);
     setCurrentTime(0);
-    const newTrack = AUDIO_TRACKS[index];
-    if (audioRef.current) {
-      audioRef.current.src = encodeURI(newTrack.src);
-      audioRef.current.load();
-      audioRef.current
-        .play()
-        .then(() => {
-          setIsPlaying(true);
-          setHasInteracted(true);
-        })
-        .catch((err) => console.warn("Track play on switch failed:", err));
-    }
   };
 
   // Sync with dynamic geographical location track
@@ -196,10 +218,19 @@ export function MusicPlayer({
     if (geoTrackId !== lastGeoTrackIdRef.current) {
       lastGeoTrackIdRef.current = geoTrackId;
       const targetIndex = AUDIO_TRACKS.findIndex((t) => t.id === geoTrackId);
-      if (targetIndex !== -1 && targetIndex !== currentTrackIndex) {
+      if (targetIndex !== -1) {
         setQueuedNextTrackId(geoNextTrackId || null);
         queuedNextTrackRef.current = geoNextTrackId || null;
-        switchTrack(targetIndex);
+        userPausedRef.current = false; // Unpause and automatically play regional track
+
+        if (targetIndex !== currentTrackIndex) {
+          switchTrack(targetIndex);
+        } else {
+          // Track is already active, ensure it is playing
+          if (audioRef.current && audioRef.current.paused) {
+            playAudio();
+          }
+        }
       }
     } else if (geoNextTrackId !== queuedNextTrackRef.current) {
       setQueuedNextTrackId(geoNextTrackId || null);
@@ -207,19 +238,19 @@ export function MusicPlayer({
     }
   }, [geoTrackId, geoNextTrackId, currentTrackIndex]);
 
-  // Reload track when changed externally
+  // Update audio source and play when track changes
   useEffect(() => {
-    if (!audioRef.current) return;
+    const audio = audioRef.current;
+    if (!audio) return;
     const targetSrc = encodeURI(currentTrack.src);
-    if (!audioRef.current.src.endsWith(targetSrc)) {
-      audioRef.current.src = targetSrc;
-      audioRef.current.load();
-      if (isPlaying || hasInteracted) {
-        audioRef.current
-          .play()
-          .then(() => setIsPlaying(true))
-          .catch((err) => console.warn("Track switch autoplay blocked:", err));
-      }
+
+    if (audio.getAttribute("src") !== targetSrc) {
+      audio.src = targetSrc;
+      audio.load();
+    }
+
+    if (!userPausedRef.current) {
+      playAudio();
     }
   }, [currentTrackIndex]);
 
@@ -271,11 +302,17 @@ export function MusicPlayer({
         ref={audioRef}
         src={encodeURI(currentTrack.src)}
         autoPlay
+        playsInline
         loop={!queuedNextTrackId && isLooping}
         preload="auto"
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onTimeUpdate={handleTimeUpdate}
+        onCanPlay={() => {
+          if (!userPausedRef.current) {
+            playAudio();
+          }
+        }}
         onEnded={() => {
           if (queuedNextTrackRef.current) {
             const nextId = queuedNextTrackRef.current;
@@ -289,7 +326,7 @@ export function MusicPlayer({
           }
           if (isLooping && audioRef.current) {
             audioRef.current.currentTime = 0;
-            audioRef.current.play().catch(console.error);
+            playAudio();
           } else {
             handleNextTrack();
           }

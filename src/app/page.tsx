@@ -141,20 +141,6 @@ export default function Home() {
         {/* Floating HUD: Top-Left Brand (Transparent, Logo & Thin Title) */}
         <BrandWidget />
 
-        {/* Contextual Region & Music Indicator (Top Center) */}
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none select-none max-w-[90vw]">
-          <div className="bg-slate-900/90 backdrop-blur-md border border-amber-500/40 rounded-full px-3.5 py-1.5 shadow-2xl flex items-center gap-2 text-white pointer-events-auto transition hover:border-amber-400">
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping shrink-0"></span>
-            <span className="text-xs font-semibold text-amber-200 whitespace-nowrap">
-              {detectedGeo.isOverview ? "🗺️ Seluruh Nusantara" : `📍 ${detectedGeo.regionName}`}
-            </span>
-            <span className="text-[10px] text-slate-300 border-l border-white/20 pl-2 whitespace-nowrap hidden sm:inline">
-              {detectedGeo.isOverview
-                ? "7 Event Budaya Aktif • Lagu: Rising of Nusantara"
-                : `${detectedGeo.destinationCount ? `${detectedGeo.destinationCount} Destinasi • ` : ""}${detectedGeo.badgeText.split("•")[1]?.trim() || ""}`}
-            </span>
-          </div>
-        </div>
 
         {/* Floating HUD: Top-Right Trip Plan Icon, Category Dropdown, Search & Bar Hala Ai */}
         <SearchWidget
