@@ -18,7 +18,6 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     region: "Kalimantan",
     src: "/lagu/🐍 Spirit of Borneo Black Rainforest The Legend of Nabau.mp3",
     duration: "3:27",
-    isDefault: true,
   },
   {
     id: "rising-of-nusantara",
@@ -28,6 +27,7 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     region: "Nusantara",
     src: "/lagu/Rising of Nusantara Musik Gamelan Modern Indonesia Cocok Untuk Video Sinematik & Backsound.mp3",
     duration: "6:55",
+    isDefault: true,
   },
   {
     id: "dance-of-nusantara",

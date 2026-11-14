@@ -17,7 +17,19 @@ import {
   Music2,
 } from "lucide-react";
 
-export function MusicPlayer() {
+interface MusicPlayerProps {
+  geoTrackId?: string;
+  geoNextTrackId?: string | null;
+  geoRegionName?: string;
+  isOverview?: boolean;
+}
+
+export function MusicPlayer({
+  geoTrackId,
+  geoNextTrackId,
+  geoRegionName,
+  isOverview,
+}: MusicPlayerProps = {}) {
   const defaultIndex = AUDIO_TRACKS.findIndex((t) => t.isDefault);
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(
     defaultIndex !== -1 ? defaultIndex : 0
@@ -30,10 +42,13 @@ export function MusicPlayer() {
   const [duration, setDuration] = useState<number>(0);
   const [isExpanded, setIsExpanded] = useState<boolean>(false); // Upward drop-up card state
   const [hasInteracted, setHasInteracted] = useState<boolean>(false);
+  const [queuedNextTrackId, setQueuedNextTrackId] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const activeTrackItemRef = useRef<HTMLButtonElement | null>(null);
+  const queuedNextTrackRef = useRef<string | null>(null);
+  const lastGeoTrackIdRef = useRef<string | undefined>(undefined);
 
   const currentTrack: AudioTrack =
     AUDIO_TRACKS[currentTrackIndex] || AUDIO_TRACKS[0];
@@ -134,11 +149,24 @@ export function MusicPlayer() {
   };
 
   const handleNextTrack = () => {
+    // If a chained transition track was queued (e.g. Jawa Barat: Pajajaran -> Pencak Silat)
+    if (queuedNextTrackRef.current) {
+      const nextId = queuedNextTrackRef.current;
+      queuedNextTrackRef.current = null;
+      setQueuedNextTrackId(null);
+      const nextIdx = AUDIO_TRACKS.findIndex((t) => t.id === nextId);
+      if (nextIdx !== -1) {
+        switchTrack(nextIdx);
+        return;
+      }
+    }
     const nextIndex = (currentTrackIndex + 1) % AUDIO_TRACKS.length;
     switchTrack(nextIndex);
   };
 
   const handlePrevTrack = () => {
+    queuedNextTrackRef.current = null;
+    setQueuedNextTrackId(null);
     const prevIndex =
       (currentTrackIndex - 1 + AUDIO_TRACKS.length) % AUDIO_TRACKS.length;
     switchTrack(prevIndex);
@@ -160,6 +188,24 @@ export function MusicPlayer() {
         .catch((err) => console.warn("Track play on switch failed:", err));
     }
   };
+
+  // Sync with dynamic geographical location track
+  useEffect(() => {
+    if (!geoTrackId) return;
+
+    if (geoTrackId !== lastGeoTrackIdRef.current) {
+      lastGeoTrackIdRef.current = geoTrackId;
+      const targetIndex = AUDIO_TRACKS.findIndex((t) => t.id === geoTrackId);
+      if (targetIndex !== -1 && targetIndex !== currentTrackIndex) {
+        setQueuedNextTrackId(geoNextTrackId || null);
+        queuedNextTrackRef.current = geoNextTrackId || null;
+        switchTrack(targetIndex);
+      }
+    } else if (geoNextTrackId !== queuedNextTrackRef.current) {
+      setQueuedNextTrackId(geoNextTrackId || null);
+      queuedNextTrackRef.current = geoNextTrackId || null;
+    }
+  }, [geoTrackId, geoNextTrackId, currentTrackIndex]);
 
   // Reload track when changed externally
   useEffect(() => {
@@ -225,12 +271,22 @@ export function MusicPlayer() {
         ref={audioRef}
         src={encodeURI(currentTrack.src)}
         autoPlay
-        loop={isLooping}
+        loop={!queuedNextTrackId && isLooping}
         preload="auto"
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onTimeUpdate={handleTimeUpdate}
         onEnded={() => {
+          if (queuedNextTrackRef.current) {
+            const nextId = queuedNextTrackRef.current;
+            queuedNextTrackRef.current = null;
+            setQueuedNextTrackId(null);
+            const nextIdx = AUDIO_TRACKS.findIndex((t) => t.id === nextId);
+            if (nextIdx !== -1) {
+              switchTrack(nextIdx);
+              return;
+            }
+          }
           if (isLooping && audioRef.current) {
             audioRef.current.currentTime = 0;
             audioRef.current.play().catch(console.error);
@@ -267,6 +323,21 @@ export function MusicPlayer() {
               <ChevronDown className="w-4 h-4" />
             </button>
           </div>
+
+          {/* Dynamic Map DJ Location Indicator */}
+          {geoRegionName && (
+            <div className="flex items-center justify-between px-2 py-1 mb-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[10px]">
+              <span className="text-amber-300 font-medium flex items-center gap-1.5 truncate">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping shrink-0"></span>
+                Auto-DJ: <span className="font-bold text-white truncate">{geoRegionName}</span>
+              </span>
+              {queuedNextTrackId && (
+                <span className="text-[9px] text-amber-200 font-mono bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-500/30 shrink-0 ml-1">
+                  ➔ Lanjut: Pencak Silat
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Current Playing Mini Bar */}
           <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500/10 via-slate-900/80 to-slate-950 border border-amber-500/20 mb-3 shadow-inner">

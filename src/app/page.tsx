@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { Plus, Minus } from "lucide-react";
 import { DESTINATIONS, CulturalDestination, Category } from "@/data/destinations";
@@ -13,6 +13,7 @@ import { TripPlannerDrawer } from "@/components/hud/TripPlannerDrawer";
 import { AiConciergeDrawer } from "@/components/hud/AiConciergeDrawer";
 import { MapLayersWidget } from "@/components/hud/MapLayersWidget";
 import { MapBaseStyle, MapLayerOptions } from "@/data/mapStyles";
+import { detectRegionFromCoordinates } from "@/utils/regionAudioDetector";
 
 // Dynamically import Leaflet AdventureMap with SSR disabled
 const AdventureMap = dynamic(
@@ -43,14 +44,25 @@ export default function Home() {
   const [isAiConciergeOpen, setIsAiConciergeOpen] = useState<boolean>(false);
   const [flyToCoords, setFlyToCoords] = useState<[number, number] | null>(null);
   const [mapCenterCoords, setMapCenterCoords] = useState<[number, number]>([-2.5489, 118.0149]);
+  const [mapZoom, setMapZoom] = useState<number>(5);
   const [zoomTrigger, setZoomTrigger] = useState<{ type: "in" | "out"; id: number } | null>(null);
-  const [mapStyle, setMapStyle] = useState<MapBaseStyle>("osm");
+  const [mapStyle, setMapStyle] = useState<MapBaseStyle>("kontur");
   const [layerOptions, setLayerOptions] = useState<MapLayerOptions>({
     contourOverlay: false,
     labelsOverlay: true,
     seaMarksOverlay: false,
     culturalRadar: true,
   });
+
+  // Calculate live geographic region and associated cultural soundtrack
+  const detectedGeo = useMemo(() => {
+    return detectRegionFromCoordinates(mapCenterCoords, mapZoom);
+  }, [mapCenterCoords, mapZoom]);
+
+  const handleMapMove = (coords: [number, number], zoom: number) => {
+    setMapCenterCoords(coords);
+    setMapZoom(zoom);
+  };
 
   const handleToggleLayerOption = (key: keyof MapLayerOptions) => {
     setLayerOptions((prev) => ({
@@ -120,7 +132,7 @@ export default function Home() {
           activeDestination={activeDestination}
           tripItems={tripItems}
           flyToCoords={flyToCoords}
-          onMapMove={setMapCenterCoords}
+          onMapMove={handleMapMove}
           zoomTrigger={zoomTrigger}
           mapStyle={mapStyle}
           layerOptions={layerOptions}
@@ -128,6 +140,21 @@ export default function Home() {
 
         {/* Floating HUD: Top-Left Brand (Transparent, Logo & Thin Title) */}
         <BrandWidget />
+
+        {/* Contextual Region & Music Indicator (Top Center) */}
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none select-none max-w-[90vw]">
+          <div className="bg-slate-900/90 backdrop-blur-md border border-amber-500/40 rounded-full px-3.5 py-1.5 shadow-2xl flex items-center gap-2 text-white pointer-events-auto transition hover:border-amber-400">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping shrink-0"></span>
+            <span className="text-xs font-semibold text-amber-200 whitespace-nowrap">
+              {detectedGeo.isOverview ? "🗺️ Seluruh Nusantara" : `📍 ${detectedGeo.regionName}`}
+            </span>
+            <span className="text-[10px] text-slate-300 border-l border-white/20 pl-2 whitespace-nowrap hidden sm:inline">
+              {detectedGeo.isOverview
+                ? "7 Event Budaya Aktif • Lagu: Rising of Nusantara"
+                : `${detectedGeo.destinationCount ? `${detectedGeo.destinationCount} Destinasi • ` : ""}${detectedGeo.badgeText.split("•")[1]?.trim() || ""}`}
+            </span>
+          </div>
+        </div>
 
         {/* Floating HUD: Top-Right Trip Plan Icon, Category Dropdown, Search & Bar Hala Ai */}
         <SearchWidget
@@ -145,7 +172,12 @@ export default function Home() {
         <div className="absolute bottom-3 inset-x-0 z-20 px-3 sm:px-4 flex items-center justify-between gap-2.5 pointer-events-none select-none">
           {/* Left: Background Music Player */}
           <div className="pointer-events-auto shrink-0">
-            <MusicPlayer />
+            <MusicPlayer
+              geoTrackId={detectedGeo.trackId}
+              geoNextTrackId={detectedGeo.nextTrackId}
+              geoRegionName={detectedGeo.regionName}
+              isOverview={detectedGeo.isOverview}
+            />
           </div>
 
           {/* Right: Map Layers Widget, BMKG Flat Telemetry & Zoom In/Out Buttons */}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { CulturalDestination, Category } from "@/data/destinations";
@@ -14,7 +14,7 @@ interface AdventureMapProps {
   activeDestination: CulturalDestination | null;
   tripItems: CulturalDestination[];
   flyToCoords?: [number, number] | null;
-  onMapMove?: (coords: [number, number]) => void;
+  onMapMove?: (coords: [number, number], zoom: number) => void;
   zoomTrigger?: { type: "in" | "out"; id: number } | null;
   mapStyle?: MapBaseStyle;
   layerOptions?: MapLayerOptions;
@@ -54,7 +54,7 @@ export function AdventureMap({
   flyToCoords,
   onMapMove,
   zoomTrigger,
-  mapStyle = "osm",
+  mapStyle = "kontur",
   layerOptions,
 }: AdventureMapProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
@@ -83,17 +83,19 @@ export function AdventureMap({
 
     mapRef.current = map;
 
-    // Listen to map center movements to dynamically update BMKG telemetry
+    // Listen to map center & zoom movements to dynamically update BMKG telemetry and geo-soundtrack
     const handleMapMove = () => {
       if (map) {
         const center = map.getCenter();
+        const zoom = map.getZoom();
         if (onMapMove) {
-          onMapMove([center.lat, center.lng]);
+          onMapMove([center.lat, center.lng], zoom);
         }
       }
     };
 
     map.on("moveend", handleMapMove);
+    map.on("zoomend", handleMapMove);
     handleMapMove();
 
     // Observe container resizing for smooth layout shifting
@@ -109,6 +111,7 @@ export function AdventureMap({
 
     return () => {
       map.off("moveend", handleMapMove);
+      map.off("zoomend", handleMapMove);
       resizeObserver.disconnect();
       map.remove();
       mapRef.current = null;
@@ -297,31 +300,10 @@ export function AdventureMap({
     }
   }, [layerOptions?.seaMarksOverlay]);
 
-  // Update Markers when destinations or category filter change
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    // Remove existing destination markers
-    Object.values(markersRef.current).forEach((marker) => marker.remove());
-    markersRef.current = {};
-
-    const filtered =
-      selectedCategory === "all"
-        ? destinations
-        : destinations.filter(
-            (d) =>
-              d.category === selectedCategory ||
-              (selectedCategory === "laut" && d.category === "pantai")
-          );
-
-    filtered.forEach((dest) => {
-      const isSelected = activeDestination?.id === dest.id;
-      const isInTrip = tripItems.some((t) => t.id === dest.id);
-
-      // Flat SVG Icon for map pin
+  // Helper to render a single destination marker on the map
+  const renderSingleDestMarker = useCallback(
+    (map: L.Map, dest: CulturalDestination, isSelected: boolean, isInTrip: boolean) => {
       const categoryIconSvg = getCategoryFlatSvg(dest.category);
-
       const iconHtml = `
         <div class="relative group cursor-pointer">
           ${
@@ -359,8 +341,72 @@ export function AdventureMap({
 
       marker.addTo(map);
       markersRef.current[dest.id] = marker;
+    },
+    [onSelectDestination]
+  );
+
+  // Update Markers when zoom, viewport, destinations, or category filter change
+  // "buatkan default jangan menampilkan marker apapun kecuali marker event, fokus data di lampung dan bulukumba saja data2 nya"
+  const updateDestinationMarkers = useCallback(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const zoom = map.getZoom();
+    const bounds = map.getBounds();
+
+    // Clear existing destination markers
+    Object.values(markersRef.current).forEach((marker) => marker.remove());
+    markersRef.current = {};
+
+    // In default wide overview (zoom < 7), do NOT show destination markers unless an active destination is being inspected
+    if (zoom < 7) {
+      if (activeDestination) {
+        renderSingleDestMarker(
+          map,
+          activeDestination,
+          true,
+          tripItems.some((t) => t.id === activeDestination.id)
+        );
+      }
+      return;
+    }
+
+    const filtered =
+      selectedCategory === "all"
+        ? destinations
+        : destinations.filter(
+            (d) =>
+              d.category === selectedCategory ||
+              (selectedCategory === "laut" && d.category === "pantai")
+          );
+
+    // Only render markers that fall within the current padded viewport bounds
+    const paddedBounds = bounds.pad(0.15);
+    const visibleDestinations = filtered.filter((dest) =>
+      paddedBounds.contains(dest.coordinates)
+    );
+
+    visibleDestinations.forEach((dest) => {
+      const isSelected = activeDestination?.id === dest.id;
+      const isInTrip = tripItems.some((t) => t.id === dest.id);
+      renderSingleDestMarker(map, dest, isSelected, isInTrip);
     });
-  }, [destinations, selectedCategory, activeDestination, tripItems]);
+  }, [destinations, selectedCategory, activeDestination, tripItems, renderSingleDestMarker]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    updateDestinationMarkers();
+
+    map.on("moveend", updateDestinationMarkers);
+    map.on("zoomend", updateDestinationMarkers);
+
+    return () => {
+      map.off("moveend", updateDestinationMarkers);
+      map.off("zoomend", updateDestinationMarkers);
+    };
+  }, [updateDestinationMarkers]);
 
   // Render Radar Event Pulsing Beacons
   useEffect(() => {

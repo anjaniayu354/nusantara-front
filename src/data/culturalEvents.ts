@@ -73,27 +73,27 @@ export const CULTURAL_EVENTS: CulturalEvent[] = [
     culturalEssence: "Edukasi kesadaran pelestarian satwa langka Gajah Sumatera dan keharmonisan interaksi manusia dengan alam liar."
   },
   {
-    id: "labuhan-merapi",
-    name: "Upacara Labuhan Merapi & Parangkusumo",
-    location: "Lereng Gunung Merapi & Pantai Parangkusumo",
-    province: "DI Yogyakarta",
-    coordinates: [-7.5407, 110.4457],
-    dateRange: "15 - 17 November 2026",
-    daysRemaining: 2,
-    status: "ACTIVE_TODAY",
-    description: "Prosesi persembahan ubo rampe sakral dari Keraton Ngayogyakarta Hadiningrat kepada penguasa Gunung Merapi (Kyai Sapu Jagad) dan Ratu Laut Selatan.",
-    culturalEssence: "Harmonisasi kosmik dan permohonan keselamatan bagi seluruh rakyat Yogyakarta dari bahaya erupsi."
+    id: "festival-teluk-stabas",
+    name: "Festival Pesona Teluk Stabas & Krui Surf Heritage",
+    location: "Pantai Labuhan Jukung, Pesisir Barat",
+    province: "Lampung",
+    coordinates: [-5.1950, 103.9350],
+    dateRange: "28 - 30 Desember 2026",
+    daysRemaining: 44,
+    status: "PREPARATION",
+    description: "Festival bahari akbar pesisir barat Lampung yang memadukan kejuaraan selancar ombak Krui bertaraf dunia dengan parade Ngunduh Damar dan arak-arakan kain Tapis Pesisir.",
+    culturalEssence: "Harmoni kearifan bahari adat Saibatin dengan olahraga peselancar samudera internasional."
   },
   {
-    id: "yadnya-kasada",
-    name: "Upacara Yadnya Kasada Bromo",
-    location: "Lautan Pasir & Kawah Gunung Bromo",
-    province: "Jawa Timur",
-    coordinates: [-7.9425, 112.9530],
-    dateRange: "22 - 24 November 2026",
-    daysRemaining: 9,
-    status: "UPCOMING",
-    description: "Masyarakat suku Tengger berbondong-bondong melempar sesaji hasil bumi, ternak, dan bunga ke dalam kawah Bromo pada malam bulan purnama.",
-    culturalEssence: "Penggenapan janji suci Roro Anteng dan Joko Seger atas kelahiran 25 putera kepada Sang Hyang Widhi."
+    id: "parade-panrita-lopi",
+    name: "Parade Bahari Panrita Lopi & Lomba Layar Bira",
+    location: "Kawasan Wisata Bahari Tanjung Bira & Liukang Loe",
+    province: "Sulawesi Selatan",
+    coordinates: [-5.6120, 120.4560],
+    dateRange: "5 - 7 Januari 2027",
+    daysRemaining: 52,
+    status: "PREPARATION",
+    description: "Parade puluhan perahu layar tradisional Lopi Sandeq dan kapal Pinisi mengarungi Selat Selayar, dimeriahkan ritual Appasili keselamatan bahari di Tanjung Bira.",
+    culturalEssence: "Penghormatan atas ketangguhan pelaut Bugis-Konjo Panrita Lopi dalam menaklukkan samudera raya."
   }
 ];
