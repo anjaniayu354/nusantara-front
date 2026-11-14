@@ -31,6 +31,8 @@ import {
   Navigation,
   Award,
   Plane,
+  Home,
+  SlidersHorizontal,
 } from "lucide-react";
 import { DESTINATIONS, CulturalDestination, Category } from "@/data/destinations";
 import { CULTURAL_EVENTS, CulturalEvent } from "@/data/culturalEvents";
@@ -79,9 +81,9 @@ export default function PortalLandingPage() {
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
 
-  // Province Dropdown state (in Header)
-  const [isProvinceDropdownOpen, setIsProvinceDropdownOpen] = useState(false);
-  const provinceDropdownRef = useRef<HTMLDivElement | null>(null);
+  // Filter Dropdown state (in Header)
+  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
+  const filterDropdownRef = useRef<HTMLDivElement | null>(null);
 
   // Profile Dropdown state
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
@@ -121,10 +123,10 @@ export default function PortalLandingPage() {
         setIsProfileDropdownOpen(false);
       }
       if (
-        provinceDropdownRef.current &&
-        !provinceDropdownRef.current.contains(event.target as Node)
+        filterDropdownRef.current &&
+        !filterDropdownRef.current.contains(event.target as Node)
       ) {
-        setIsProvinceDropdownOpen(false);
+        setIsFilterDropdownOpen(false);
       }
     };
 
@@ -382,50 +384,42 @@ export default function PortalLandingPage() {
     }
   };
 
+  const getFilterButtonLabel = () => {
+    if (selectedProvince === "all" && categoryFilter === "all") {
+      return t.nav.allProvinces;
+    }
+    const provLabel =
+      selectedProvince === "sulawesi"
+        ? lang === "ID"
+          ? "Sulsel"
+          : "Sulawesi"
+        : selectedProvince === "lampung"
+        ? "Lampung"
+        : "";
+
+    const catLabel =
+      categoryFilter === "laut"
+        ? lang === "ID"
+          ? "Bahari"
+          : "Marine"
+        : categoryFilter === "budaya"
+        ? lang === "ID"
+          ? "Budaya"
+          : "Culture"
+        : categoryFilter === "hutan"
+        ? lang === "ID"
+          ? "Hutan"
+          : "Forest"
+        : "";
+
+    if (provLabel && catLabel) return `${provLabel} • ${catLabel}`;
+    if (provLabel) return selectedProvince === "sulawesi" ? t.nav.sulawesi : t.nav.lampung;
+    if (catLabel) return catLabel;
+    return t.nav.allProvinces;
+  };
+
   return (
     <div className="min-h-screen w-full flex flex-col font-sans bg-[var(--bx-bg)] text-[var(--bx-ink)] selection:bg-[var(--gold)] selection:text-[var(--brand)]">
-      {/* ======================================================== */}
-      {/* 1. TOP UTILITY BAR (Contact Info & Socials) */}
-      {/* ======================================================== */}
-      <div className="w-full bg-[var(--bx-surface)] border-b border-[var(--bx-border)] py-2 px-4 sm:px-8 text-xs text-[var(--bx-muted)] transition-colors">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-          {/* Left: Contact Info */}
-          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-            <a
-              href="tel:+6281234567890"
-              className="flex items-center gap-1.5 hover:text-[var(--gold)] transition-colors"
-            >
-              <Phone className="w-3.5 h-3.5 text-[var(--gold)]" />
-              <span>+62 812-3456-7890</span>
-            </a>
-            <a
-              href="mailto:info@nusa-antara.id"
-              className="flex items-center gap-1.5 hover:text-[var(--gold)] transition-colors"
-            >
-              <Mail className="w-3.5 h-3.5 text-[var(--gold)]" />
-              <span>info@nusa-antara.id</span>
-            </a>
-            <div className="hidden md:flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-[var(--gold)]" />
-              <span>{t.topBar.location}</span>
-            </div>
-          </div>
-
-          {/* Right: BMKG Telemetry, Language Toggle & Theme Mode */}
-          <div className="flex items-center gap-2.5 sm:gap-3.5 ml-auto">
-            <span className="hidden sm:inline-block text-[11px] font-mono text-[var(--gold)]">
-              {selectedProvince === "sulawesi"
-                ? t.topBar.bmkgSulawesi
-                : selectedProvince === "lampung"
-                ? t.topBar.bmkgLampung
-                : t.topBar.bmkgAll}
-            </span>
-            <div className="h-3 w-px bg-[var(--bx-border)] hidden sm:block" />
-            <LanguageToggle />
-            <ThemeToggle />
-          </div>
-        </div>
-      </div>
 
       {/* ======================================================== */}
       {/* 2. MAIN NAVIGATION HEADER (Institutional Sticky Navbar) */}
@@ -454,177 +448,256 @@ export default function PortalLandingPage() {
             </div>
           </Link>
 
-          {/* Center Navigation Links (Menu Utama Header) */}
-          <nav className="hidden xl:flex items-center gap-5 2xl:gap-7 text-xs xl:text-sm font-semibold text-[var(--bx-ink)]">
-            <Link
-              href="/"
-              className="text-[var(--gold)] border-b-2 border-[var(--gold)] pb-1 transition-colors"
-            >
-              {t.nav.home}
-            </Link>
-            <a
-              href="#destinasi"
-              className="hover:text-[var(--gold)] pb-1 transition-colors"
-            >
-              {t.nav.destinations}
-            </a>
-            <a
-              href="#radar-event"
-              className="hover:text-[var(--gold)] pb-1 transition-colors"
-            >
-              {t.nav.eventRadar}
-            </a>
-            <button
-              type="button"
-              onClick={() => setIsAiModalOpen(true)}
-              className="hover:text-[var(--gold)] pb-1 transition-colors flex items-center gap-1.5"
-            >
-              <span>{t.nav.barHalaAi}</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            </button>
-            <a
-              href="#mengapa-kami"
-              className="hover:text-[var(--gold)] pb-1 transition-colors"
-            >
-              {t.nav.highlights}
-            </a>
-            <a
-              href="#ulasan"
-              className="hover:text-[var(--gold)] pb-1 transition-colors"
-            >
-              {t.nav.testimonials}
-            </a>
-            <a
-              href="#kontak"
-              className="hover:text-[var(--gold)] pb-1 transition-colors"
-            >
-              {t.nav.contact}
-            </a>
-          </nav>
-
-          {/* Right Action: Sesi Pemilihan Provinsi + Tombol Ke Peta Petualangan + Avatar Dropdown */}
+          {/* Right Action: Filter Dropdown + Language/Theme + Peta Petualangan + Profile */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Sesi Pemilihan Provinsi di Header (Dropdown Interaktif) */}
-            <div className="relative" ref={provinceDropdownRef}>
+            {/* Filter Dropdown (Wilayah & Kategori) */}
+            <div className="relative" ref={filterDropdownRef}>
               <button
                 type="button"
-                onClick={() => setIsProvinceDropdownOpen((prev) => !prev)}
+                onClick={() => setIsFilterDropdownOpen((prev) => !prev)}
                 className="h-10 px-2.5 sm:px-3 rounded-xl bg-[var(--bx-bg)] hover:bg-[var(--gold)]/10 border border-[var(--bx-border)] hover:border-[var(--gold)]/60 text-[var(--bx-ink)] transition-all flex items-center gap-1.5 sm:gap-2 shadow-xs group"
-                title={t.nav.selectProvince}
-                aria-label={t.nav.selectProvince}
+                title={lang === "ID" ? "Filter Destinasi" : "Filter Destinations"}
+                aria-label={lang === "ID" ? "Filter Destinasi" : "Filter Destinations"}
               >
                 <div className="w-6 h-6 rounded-lg bg-[var(--gold)]/15 border border-[var(--gold)]/30 flex items-center justify-center text-[var(--gold)] shrink-0">
-                  <MapPin className="w-3.5 h-3.5 text-[var(--gold)]" />
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-[var(--gold)]" />
                 </div>
                 <div className="flex flex-col text-left">
                   <span className="text-[9px] uppercase tracking-wider font-bold text-[var(--gold)] leading-none hidden sm:block">
-                    {t.nav.selectProvince}
+                    {lang === "ID" ? "Filter" : "Filter"}
                   </span>
-                  <span className="text-xs sm:text-sm font-bold font-serif text-[var(--bx-ink-bright)] leading-tight truncate max-w-[85px] sm:max-w-[125px] xl:max-w-none">
-                    {selectedProvince === "sulawesi"
-                      ? t.nav.sulawesi
-                      : selectedProvince === "lampung"
-                      ? t.nav.lampung
-                      : t.nav.allProvinces}
+                  <span className="text-xs sm:text-sm font-bold font-serif text-[var(--bx-ink-bright)] leading-tight truncate max-w-[85px] sm:max-w-[130px] xl:max-w-none">
+                    {getFilterButtonLabel()}
                   </span>
                 </div>
+                {(selectedProvince !== "all" || categoryFilter !== "all") && (
+                  <span className="w-2 h-2 rounded-full bg-[var(--gold)] shrink-0 animate-pulse" />
+                )}
                 <ChevronDown
                   className={`w-3.5 h-3.5 text-[var(--bx-muted)] transition-transform duration-200 shrink-0 ${
-                    isProvinceDropdownOpen ? "rotate-180 text-[var(--gold)]" : "group-hover:text-[var(--gold)]"
+                    isFilterDropdownOpen ? "rotate-180 text-[var(--gold)]" : "group-hover:text-[var(--gold)]"
                   }`}
                 />
               </button>
 
-              {/* Dropdown Menu Provinsi */}
-              {isProvinceDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-72 sm:w-80 rounded-2xl bg-[var(--bx-surface)] border border-[var(--bx-border)] shadow-2xl p-2.5 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="px-3 py-2 border-b border-[var(--bx-border)] mb-1.5 flex items-center justify-between">
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--gold)] font-mono">
-                      {t.nav.targetProvince}
-                    </span>
-                    <span className="text-[10px] text-[var(--bx-muted)]">
-                      {t.nav.filterPortal}
-                    </span>
+              {/* Dropdown Menu Filter */}
+              {isFilterDropdownOpen && (
+                <div className="absolute right-0 sm:right-auto sm:left-0 mt-2 w-76 sm:w-88 rounded-2xl bg-[var(--bx-surface)] border border-[var(--bx-border)] shadow-2xl p-3 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="px-2 py-2 border-b border-[var(--bx-border)] mb-2 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <SlidersHorizontal className="w-3.5 h-3.5 text-[var(--gold)]" />
+                      <span className="text-[11px] uppercase font-bold tracking-wider text-[var(--gold)] font-mono">
+                        {lang === "ID" ? "Filter Destinasi" : "Destination Filter"}
+                      </span>
+                    </div>
+                    {(selectedProvince !== "all" || categoryFilter !== "all") && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedProvince("all");
+                          setCategoryFilter("all");
+                        }}
+                        className="text-[11px] text-[var(--gold)] hover:underline font-semibold"
+                      >
+                        {lang === "ID" ? "Reset Semua" : "Reset All"}
+                      </button>
+                    )}
                   </div>
 
-                  <div className="space-y-1">
-                    {/* Option 1: Semua Provinsi */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedProvince("all");
-                        setIsProvinceDropdownOpen(false);
-                      }}
-                      className={`w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-3 ${
-                        selectedProvince === "all"
-                          ? "bg-[var(--gold)]/15 border border-[var(--gold)]/60 text-[var(--bx-ink-bright)] font-semibold"
-                          : "hover:bg-[var(--bx-bg)] text-[var(--bx-ink)] border border-transparent"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="text-base sm:text-lg shrink-0">🇮🇩</span>
-                        <div className="min-w-0">
-                          <p className="text-xs sm:text-sm font-bold truncate font-serif">{t.nav.allProvinces}</p>
-                          <p className="text-[10px] text-[var(--bx-muted)] truncate">{t.nav.allProvincesSub}</p>
+                  {/* Section 1: Wilayah / Provinsi */}
+                  <div className="mb-2.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--bx-muted)] px-2 mb-1 block">
+                      {lang === "ID" ? "Pilih Provinsi" : "Select Province"}
+                    </span>
+                    <div className="space-y-1">
+                      {/* Option 1: Semua Provinsi */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedProvince("all");
+                          setIsFilterDropdownOpen(false);
+                          const el = document.getElementById("destinasi");
+                          if (el) el.scrollIntoView({ behavior: "smooth" });
+                        }}
+                        className={`w-full p-2 rounded-xl text-left transition flex items-center justify-between gap-2.5 ${
+                          selectedProvince === "all"
+                            ? "bg-[var(--gold)]/15 border border-[var(--gold)]/60 text-[var(--bx-ink-bright)] font-semibold"
+                            : "hover:bg-[var(--bx-bg)] text-[var(--bx-ink)] border border-transparent"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-base shrink-0">🇮🇩</span>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold truncate font-serif">{t.nav.allProvinces}</p>
+                            <p className="text-[10px] text-[var(--bx-muted)] truncate">{t.nav.allProvincesSub}</p>
+                          </div>
                         </div>
-                      </div>
-                      {selectedProvince === "all" && (
-                        <Check className="w-4 h-4 text-[var(--gold)] shrink-0" />
-                      )}
-                    </button>
+                        {selectedProvince === "all" && (
+                          <Check className="w-4 h-4 text-[var(--gold)] shrink-0" />
+                        )}
+                      </button>
 
-                    {/* Option 2: Sulawesi Selatan */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedProvince("sulawesi");
-                        setIsProvinceDropdownOpen(false);
-                      }}
-                      className={`w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-3 ${
-                        selectedProvince === "sulawesi"
-                          ? "bg-[var(--gold)]/15 border border-[var(--gold)]/60 text-[var(--bx-ink-bright)] font-semibold"
-                          : "hover:bg-[var(--bx-bg)] text-[var(--bx-ink)] border border-transparent"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="text-base sm:text-lg shrink-0">⛵</span>
-                        <div className="min-w-0">
-                          <p className="text-xs sm:text-sm font-bold truncate font-serif">{t.nav.sulawesi}</p>
-                          <p className="text-[10px] text-[var(--bx-muted)] truncate">{t.nav.sulawesiSub}</p>
+                      {/* Option 2: Sulawesi Selatan */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedProvince("sulawesi");
+                          setIsFilterDropdownOpen(false);
+                          const el = document.getElementById("destinasi");
+                          if (el) el.scrollIntoView({ behavior: "smooth" });
+                        }}
+                        className={`w-full p-2 rounded-xl text-left transition flex items-center justify-between gap-2.5 ${
+                          selectedProvince === "sulawesi"
+                            ? "bg-[var(--gold)]/15 border border-[var(--gold)]/60 text-[var(--bx-ink-bright)] font-semibold"
+                            : "hover:bg-[var(--bx-bg)] text-[var(--bx-ink)] border border-transparent"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-base shrink-0">⛵</span>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold truncate font-serif">{t.nav.sulawesi}</p>
+                            <p className="text-[10px] text-[var(--bx-muted)] truncate">{t.nav.sulawesiSub}</p>
+                          </div>
                         </div>
-                      </div>
-                      {selectedProvince === "sulawesi" && (
-                        <Check className="w-4 h-4 text-[var(--gold)] shrink-0" />
-                      )}
-                    </button>
+                        {selectedProvince === "sulawesi" && (
+                          <Check className="w-4 h-4 text-[var(--gold)] shrink-0" />
+                        )}
+                      </button>
 
-                    {/* Option 3: Lampung */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedProvince("lampung");
-                        setIsProvinceDropdownOpen(false);
-                      }}
-                      className={`w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-3 ${
-                        selectedProvince === "lampung"
-                          ? "bg-[var(--gold)]/15 border border-[var(--gold)]/60 text-[var(--bx-ink-bright)] font-semibold"
-                          : "hover:bg-[var(--bx-bg)] text-[var(--bx-ink)] border border-transparent"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="text-base sm:text-lg shrink-0">🌋</span>
-                        <div className="min-w-0">
-                          <p className="text-xs sm:text-sm font-bold truncate font-serif">{t.nav.lampung}</p>
-                          <p className="text-[10px] text-[var(--bx-muted)] truncate">{t.nav.lampungSub}</p>
+                      {/* Option 3: Lampung */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedProvince("lampung");
+                          setIsFilterDropdownOpen(false);
+                          const el = document.getElementById("destinasi");
+                          if (el) el.scrollIntoView({ behavior: "smooth" });
+                        }}
+                        className={`w-full p-2 rounded-xl text-left transition flex items-center justify-between gap-2.5 ${
+                          selectedProvince === "lampung"
+                            ? "bg-[var(--gold)]/15 border border-[var(--gold)]/60 text-[var(--bx-ink-bright)] font-semibold"
+                            : "hover:bg-[var(--bx-bg)] text-[var(--bx-ink)] border border-transparent"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-base shrink-0">🌋</span>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold truncate font-serif">{t.nav.lampung}</p>
+                            <p className="text-[10px] text-[var(--bx-muted)] truncate">{t.nav.lampungSub}</p>
+                          </div>
                         </div>
-                      </div>
-                      {selectedProvince === "lampung" && (
-                        <Check className="w-4 h-4 text-[var(--gold)] shrink-0" />
-                      )}
-                    </button>
+                        {selectedProvince === "lampung" && (
+                          <Check className="w-4 h-4 text-[var(--gold)] shrink-0" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Section 2: Kategori Wisata */}
+                  <div className="pt-2 border-t border-[var(--bx-border)]">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--bx-muted)] px-2 mb-1 block">
+                      {lang === "ID" ? "Kategori Wisata" : "Travel Category"}
+                    </span>
+                    <div className="grid grid-cols-2 gap-1">
+                      {/* Semua Kategori */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCategoryFilter("all");
+                          setIsFilterDropdownOpen(false);
+                          const el = document.getElementById("destinasi");
+                          if (el) el.scrollIntoView({ behavior: "smooth" });
+                        }}
+                        className={`p-2 rounded-xl text-left transition flex items-center justify-between gap-1.5 ${
+                          categoryFilter === "all"
+                            ? "bg-[var(--gold)]/15 border border-[var(--gold)]/60 text-[var(--bx-ink-bright)] font-semibold"
+                            : "hover:bg-[var(--bx-bg)] text-[var(--bx-ink)] border border-transparent"
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <Compass className="w-3.5 h-3.5 text-[var(--gold)] shrink-0" />
+                          <span className="text-xs font-medium truncate">{lang === "ID" ? "Semua" : "All"}</span>
+                        </div>
+                        {categoryFilter === "all" && <Check className="w-3 h-3 text-[var(--gold)] shrink-0" />}
+                      </button>
+
+                      {/* Bahari */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCategoryFilter("laut");
+                          setIsFilterDropdownOpen(false);
+                          const el = document.getElementById("destinasi");
+                          if (el) el.scrollIntoView({ behavior: "smooth" });
+                        }}
+                        className={`p-2 rounded-xl text-left transition flex items-center justify-between gap-1.5 ${
+                          categoryFilter === "laut"
+                            ? "bg-cyan-500/15 border border-cyan-500/60 text-cyan-600 dark:text-cyan-400 font-semibold"
+                            : "hover:bg-[var(--bx-bg)] text-[var(--bx-ink)] border border-transparent"
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <Waves className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
+                          <span className="text-xs font-medium truncate">{lang === "ID" ? "Bahari" : "Marine"}</span>
+                        </div>
+                        {categoryFilter === "laut" && <Check className="w-3 h-3 text-cyan-500 shrink-0" />}
+                      </button>
+
+                      {/* Budaya */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCategoryFilter("budaya");
+                          setIsFilterDropdownOpen(false);
+                          const el = document.getElementById("destinasi");
+                          if (el) el.scrollIntoView({ behavior: "smooth" });
+                        }}
+                        className={`p-2 rounded-xl text-left transition flex items-center justify-between gap-1.5 ${
+                          categoryFilter === "budaya"
+                            ? "bg-amber-500/15 border border-amber-500/60 text-amber-600 dark:text-amber-400 font-semibold"
+                            : "hover:bg-[var(--bx-bg)] text-[var(--bx-ink)] border border-transparent"
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <Landmark className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                          <span className="text-xs font-medium truncate">{lang === "ID" ? "Budaya" : "Culture"}</span>
+                        </div>
+                        {categoryFilter === "budaya" && <Check className="w-3 h-3 text-amber-500 shrink-0" />}
+                      </button>
+
+                      {/* Hutan */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCategoryFilter("hutan");
+                          setIsFilterDropdownOpen(false);
+                          const el = document.getElementById("destinasi");
+                          if (el) el.scrollIntoView({ behavior: "smooth" });
+                        }}
+                        className={`p-2 rounded-xl text-left transition flex items-center justify-between gap-1.5 ${
+                          categoryFilter === "hutan"
+                            ? "bg-emerald-500/15 border border-emerald-500/60 text-emerald-600 dark:text-emerald-400 font-semibold"
+                            : "hover:bg-[var(--bx-bg)] text-[var(--bx-ink)] border border-transparent"
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <TreePine className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                          <span className="text-xs font-medium truncate">{lang === "ID" ? "Hutan" : "Forest"}</span>
+                        </div>
+                        {categoryFilter === "hutan" && <Check className="w-3 h-3 text-emerald-500 shrink-0" />}
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
+            </div>
+
+            <div className="h-4 w-px bg-[var(--bx-border)] hidden sm:block" />
+
+            {/* Language & Theme Mode Toggles */}
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <LanguageToggle />
+              <ThemeToggle />
             </div>
 
             {/* Primary Action Button: Peta Petualangan 🧭 */}
@@ -762,141 +835,74 @@ export default function PortalLandingPage() {
       </header>
 
       {/* ======================================================== */}
-      {/* 2b. SUB MENU ROW NAV (Sub Menu di Bawah Menu Utama) */}
+      {/* 2b. MAIN MENU ROW (Menu Utama Navigasi di Bawah Logo) */}
       {/* ======================================================== */}
       <div className="sticky top-18 sm:top-20 z-30 w-full bg-[var(--bx-surface)]/95 backdrop-blur-md border-b border-[var(--bx-border)] px-4 sm:px-8 shadow-xs transition-colors">
         <div className="max-w-7xl mx-auto h-11 sm:h-12 flex items-center justify-between gap-4 overflow-x-auto scrollbar-none">
-          <nav className="flex items-center gap-1.5 sm:gap-2 text-xs font-semibold whitespace-nowrap">
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedProvince("all");
-                setCategoryFilter("all");
-                const el = document.getElementById("destinasi");
-                if (el) el.scrollIntoView({ behavior: "smooth" });
-              }}
-              className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 border ${
-                selectedProvince === "all" && categoryFilter === "all"
-                  ? "bg-[var(--gold)]/20 border-[var(--gold)] text-[var(--bx-ink-bright)] font-bold shadow-xs"
-                  : "bg-[var(--bx-bg)] hover:bg-[var(--gold)]/10 hover:text-[var(--gold)] text-[var(--bx-ink)] border-[var(--bx-border)]"
-              }`}
+          <nav className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+            {/* Beranda */}
+            <Link
+              href="/"
+              className="px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 text-[var(--gold)] font-bold bg-[var(--gold)]/10 border border-[var(--gold)]/40 shadow-xs"
+            >
+              <Home className="w-3.5 h-3.5 text-[var(--gold)]" />
+              <span>{t.nav.home}</span>
+            </Link>
+
+            {/* Destinasi Budaya */}
+            <a
+              href="#destinasi"
+              className="px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 hover:text-[var(--gold)] hover:bg-[var(--gold)]/10 text-[var(--bx-ink)] border border-transparent hover:border-[var(--gold)]/30"
             >
               <Compass className="w-3.5 h-3.5 text-[var(--gold)]" />
-              <span>{t.subNav.allDestinations}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedProvince("sulawesi");
-                const el = document.getElementById("destinasi");
-                if (el) el.scrollIntoView({ behavior: "smooth" });
-              }}
-              className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 border ${
-                selectedProvince === "sulawesi"
-                  ? "bg-[var(--gold)]/20 border-[var(--gold)] text-[var(--bx-ink-bright)] font-bold shadow-xs"
-                  : "bg-[var(--bx-bg)] hover:bg-[var(--gold)]/10 hover:text-[var(--gold)] text-[var(--bx-ink)] border-[var(--bx-border)]"
-              }`}
-            >
-              <span>{t.subNav.bulukumba}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedProvince("lampung");
-                const el = document.getElementById("destinasi");
-                if (el) el.scrollIntoView({ behavior: "smooth" });
-              }}
-              className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 border ${
-                selectedProvince === "lampung"
-                  ? "bg-[var(--gold)]/20 border-[var(--gold)] text-[var(--bx-ink-bright)] font-bold shadow-xs"
-                  : "bg-[var(--bx-bg)] hover:bg-[var(--gold)]/10 hover:text-[var(--gold)] text-[var(--bx-ink)] border-[var(--bx-border)]"
-              }`}
-            >
-              <span>{t.subNav.lampung}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setCategoryFilter("laut");
-                const el = document.getElementById("destinasi");
-                if (el) el.scrollIntoView({ behavior: "smooth" });
-              }}
-              className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 border ${
-                categoryFilter === "laut"
-                  ? "bg-cyan-500/20 border-cyan-500/60 text-cyan-600 dark:text-cyan-400 font-bold shadow-xs"
-                  : "bg-[var(--bx-bg)] hover:bg-[var(--gold)]/10 hover:text-[var(--gold)] text-[var(--bx-ink)] border-[var(--bx-border)]"
-              }`}
-            >
-              <Waves className="w-3.5 h-3.5 text-cyan-500" />
-              <span>{t.subNav.marine}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setCategoryFilter("budaya");
-                const el = document.getElementById("destinasi");
-                if (el) el.scrollIntoView({ behavior: "smooth" });
-              }}
-              className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 border ${
-                categoryFilter === "budaya"
-                  ? "bg-amber-500/20 border-amber-500/60 text-amber-600 dark:text-amber-400 font-bold shadow-xs"
-                  : "bg-[var(--bx-bg)] hover:bg-[var(--gold)]/10 hover:text-[var(--gold)] text-[var(--bx-ink)] border-[var(--bx-border)]"
-              }`}
-            >
-              <Landmark className="w-3.5 h-3.5 text-amber-500" />
-              <span>{t.subNav.indigenous}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setCategoryFilter("hutan");
-                const el = document.getElementById("destinasi");
-                if (el) el.scrollIntoView({ behavior: "smooth" });
-              }}
-              className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 border ${
-                categoryFilter === "hutan"
-                  ? "bg-emerald-500/20 border-emerald-500/60 text-emerald-600 dark:text-emerald-400 font-bold shadow-xs"
-                  : "bg-[var(--bx-bg)] hover:bg-[var(--gold)]/10 hover:text-[var(--gold)] text-[var(--bx-ink)] border-[var(--bx-border)]"
-              }`}
-            >
-              <TreePine className="w-3.5 h-3.5 text-emerald-600" />
-              <span>{t.subNav.forests}</span>
-            </button>
-            <a
-              href="#mengapa-kami"
-              className="px-3 py-1.5 rounded-lg bg-[var(--bx-bg)] hover:bg-[var(--gold)]/10 hover:text-[var(--gold)] text-[var(--bx-ink)] transition flex items-center gap-1.5 border border-[var(--bx-border)]"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-              <span>{t.subNav.highlights}</span>
+              <span>{t.nav.destinations}</span>
             </a>
+
+            {/* Radar Event & Festival */}
             <a
               href="#radar-event"
-              className="px-3 py-1.5 rounded-lg bg-[var(--bx-bg)] hover:bg-[var(--gold)]/10 hover:text-[var(--gold)] text-[var(--bx-ink)] transition flex items-center gap-1.5 border border-[var(--bx-border)]"
+              className="px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 hover:text-[var(--gold)] hover:bg-[var(--gold)]/10 text-[var(--bx-ink)] border border-transparent hover:border-[var(--gold)]/30"
             >
               <Calendar className="w-3.5 h-3.5 text-rose-500" />
-              <span>{t.subNav.eventRadar}</span>
+              <span>{t.nav.eventRadar}</span>
             </a>
+
+            {/* Bar Hala AI */}
             <button
               type="button"
               onClick={() => setIsAiModalOpen(true)}
-              className="px-3 py-1.5 rounded-lg bg-[var(--bx-bg)] hover:bg-[var(--gold)]/10 hover:text-[var(--gold)] text-[var(--bx-ink)] transition flex items-center gap-1.5 border border-[var(--bx-border)]"
+              className="px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 hover:text-[var(--gold)] hover:bg-[var(--gold)]/10 text-[var(--bx-ink)] border border-transparent hover:border-[var(--gold)]/30"
             >
               <Bot className="w-3.5 h-3.5 text-emerald-500" />
-              <span>{t.subNav.askAi}</span>
+              <span>{t.nav.barHalaAi}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             </button>
+
+            {/* Keunggulan */}
+            <a
+              href="#mengapa-kami"
+              className="px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 hover:text-[var(--gold)] hover:bg-[var(--gold)]/10 text-[var(--bx-ink)] border border-transparent hover:border-[var(--gold)]/30"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+              <span>{t.nav.highlights}</span>
+            </a>
+
+            {/* Suara Penjelajah */}
             <a
               href="#ulasan"
-              className="px-3 py-1.5 rounded-lg bg-[var(--bx-bg)] hover:bg-[var(--gold)]/10 hover:text-[var(--gold)] text-[var(--bx-ink)] transition flex items-center gap-1.5 border border-[var(--bx-border)]"
+              className="px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 hover:text-[var(--gold)] hover:bg-[var(--gold)]/10 text-[var(--bx-ink)] border border-transparent hover:border-[var(--gold)]/30"
             >
               <Star className="w-3.5 h-3.5 text-amber-400" />
-              <span>{t.subNav.travelerVoices}</span>
+              <span>{t.nav.testimonials}</span>
             </a>
+
+            {/* Kontak & Informasi */}
             <a
               href="#kontak"
-              className="px-3 py-1.5 rounded-lg bg-[var(--bx-bg)] hover:bg-[var(--gold)]/10 hover:text-[var(--gold)] text-[var(--bx-ink)] transition flex items-center gap-1.5 border border-[var(--bx-border)]"
+              className="px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 hover:text-[var(--gold)] hover:bg-[var(--gold)]/10 text-[var(--bx-ink)] border border-transparent hover:border-[var(--gold)]/30"
             >
               <Phone className="w-3.5 h-3.5 text-[var(--gold)]" />
-              <span>{t.subNav.contactInfo}</span>
+              <span>{t.nav.contact}</span>
             </a>
           </nav>
         </div>
