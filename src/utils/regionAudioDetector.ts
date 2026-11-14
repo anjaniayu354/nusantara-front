@@ -27,7 +27,7 @@ export interface DetectedGeoAudio {
  * resolving the culturally appropriate soundtrack and contextual data indicators.
  *
  * Rules:
- * - Zoom < 7: Target awal buka seluruh Nusantara -> lagu Nusantara ("Rising of Nusantara")
+ * - Zoom < 7: Target awal buka seluruh Nusantara -> default lagu PURWASWARA ("PURWASWARA 🌿")
  * - Aceh: Lagu kebanggaan Aceh ("Bungong Jeumpa (Orchestral Cover)")
  * - Padang / Sumbar: Lagu Minangkabau ("Spirit of Sumatra - Mystical Saluang Flute Journey")
  * - Riau / Melayu: Lagu Melayu Riau ("Selayang Pandang (Orchestral Cover)")
@@ -39,7 +39,7 @@ export interface DetectedGeoAudio {
  * - Bali: Gamelan Barong & Kecak ("Spirit of Bali Barong" ➔ "Spirit of Bali Kecak")
  * - Kalimantan: Lagu Borneo ("Spirit of Borneo - Legend of Nabau")
  * - Papua: Lagu Papua ("Spirit of Papua - The Last Paradise")
- * - Fallback: Lagu Nusantara ("Rising of Nusantara")
+ * - Fallback / Daerah belum ada lagu: Lagu PURWASWARA ("PURWASWARA 🌿")
  */
 export function detectRegionFromCoordinates(
   coords: [number, number],
@@ -47,15 +47,15 @@ export function detectRegionFromCoordinates(
 ): DetectedGeoAudio {
   const [lat, lng] = coords;
 
-  // 1. National Overview (Zoom < 7): Target awal buka karena lihat seluruh Indonesia
+  // 1. National Overview (Zoom < 7): Target awal buka default lagu PURWASWARA
   if (zoom < 7) {
     return {
       regionId: "nusantara",
       regionName: "Seluruh Nusantara",
-      trackId: "rising-of-nusantara",
-      badgeText: "Seluruh Nusantara • Musik Gamelan Modern",
+      trackId: "purwaswara-first-sound",
+      badgeText: "Seluruh Nusantara • PURWASWARA 🌿",
       isOverview: true,
-      destinationCount: 18,
+      destinationCount: 35,
     };
   }
 
@@ -112,19 +112,7 @@ export function detectRegionFromCoordinates(
     };
   }
 
-  // 6. Sumatera Umum (Sumut / Jambi / Bengkulu fallback)
-  if (lat >= -6.1 && lat <= 6.2 && lng >= 94.8 && lng <= 106.5) {
-    return {
-      regionId: "sumatera",
-      regionName: "Sumatera",
-      trackId: "spirit-of-sumatra-flower",
-      nextTrackId: "vibes-of-sriwijaya",
-      badgeText: "Sumatera • Spirit of Sumatra",
-      isOverview: false,
-    };
-  }
-
-  // 7. Banyuwangi (Suku Osing): Lat -8.85 to -7.7, Lng 113.85 to 114.65
+  // 6. Banyuwangi (Suku Osing): Lat -8.85 to -7.7, Lng 113.85 to 114.65
   // "di banyuwangi juga sudah ada lagu osing"
   if (lat >= -8.85 && lat <= -7.7 && lng >= 113.85 && lng <= 114.65) {
     return {
@@ -137,7 +125,7 @@ export function detectRegionFromCoordinates(
     };
   }
 
-  // 8. Jawa Barat (Sunda / Pajajaran): Lat -7.9 to -5.8, Lng 105.8 to 108.85
+  // 7. Jawa Barat (Sunda / Pajajaran): Lat -7.9 to -5.8, Lng 105.8 to 108.85
   // "ketika di jawa barat lagu pajajaran lalu di lanjut ke pencaksilat"
   if (lat >= -7.9 && lat <= -5.8 && lng >= 105.8 && lng <= 108.85) {
     return {
@@ -150,7 +138,7 @@ export function detectRegionFromCoordinates(
     };
   }
 
-  // 9. Jawa (Jawa Tengah, DI Yogyakarta, Jawa Timur): Lat -8.8 to -5.8, Lng 108.85 to 114.6
+  // 8. Jawa (Jawa Tengah, DI Yogyakarta, Jawa Timur): Lat -8.8 to -5.8, Lng 108.85 to 114.6
   // "di jawa ada gending gunakan itu"
   if (lat >= -8.8 && lat <= -5.8 && lng > 108.85 && lng <= 114.6) {
     return {
@@ -163,7 +151,7 @@ export function detectRegionFromCoordinates(
     };
   }
 
-  // 10. Bulukumba: Lat -5.85 to -5.1, Lng 119.8 to 120.75
+  // 9. Bulukumba: Lat -5.85 to -5.1, Lng 119.8 to 120.75
   // "ketika di sulawesi atau bulukumba lagu sulawesi"
   if (lat >= -5.85 && lat <= -5.1 && lng >= 119.8 && lng <= 120.75) {
     return {
@@ -177,7 +165,7 @@ export function detectRegionFromCoordinates(
     };
   }
 
-  // 11. Sulawesi (General): Lat -6.5 to 2.5, Lng 118.5 to 125.5
+  // 10. Sulawesi (General): Lat -6.5 to 2.5, Lng 118.5 to 125.5
   // "ketika di sulawesi atau bulukumba lagu sulawesi"
   if (lat >= -6.5 && lat <= 2.5 && lng >= 118.5 && lng <= 125.5) {
     return {
@@ -191,11 +179,11 @@ export function detectRegionFromCoordinates(
     };
   }
 
-  // 12. Bali & Nusa Tenggara: Lat -9.5 to -8.0, Lng 114.4 to 125.0
-  if (lat >= -9.5 && lat <= -8.0 && lng >= 114.4 && lng <= 125.0) {
+  // 11. Bali (Pulau Dewata): Lat -8.95 to -8.0, Lng 114.4 to 115.75
+  if (lat >= -8.95 && lat <= -8.0 && lng >= 114.4 && lng <= 115.75) {
     return {
       regionId: "bali",
-      regionName: "Bali & Kepulauan Nusa Tenggara",
+      regionName: "Pulau Bali",
       trackId: "spirit-of-bali-barong",
       nextTrackId: "spirit-of-bali-kecak",
       badgeText: "Bali • Spirit of Bali & Kecak",
@@ -203,7 +191,7 @@ export function detectRegionFromCoordinates(
     };
   }
 
-  // 13. Kalimantan: Lat -4.5 to 4.5, Lng 108.8 to 119.2
+  // 12. Kalimantan: Lat -4.5 to 4.5, Lng 108.8 to 119.2
   // "ketika di kalimantan lagu borneo"
   if (lat >= -4.5 && lat <= 4.5 && lng >= 108.8 && lng <= 119.2) {
     return {
@@ -216,7 +204,7 @@ export function detectRegionFromCoordinates(
     };
   }
 
-  // 14. Papua: Lat -9.2 to 0.5, Lng 130.0 to 141.2
+  // 13. Papua: Lat -9.2 to 0.5, Lng 130.0 to 141.2
   // "ketika di papua lagu papua"
   if (lat >= -9.2 && lat <= 0.5 && lng >= 130.0 && lng <= 141.2) {
     return {
@@ -228,13 +216,13 @@ export function detectRegionFromCoordinates(
     };
   }
 
-  // 15. Fallback / Unidentified / Samudera
-  // "kalau tidak teridentifikasi lagu nusantara"
+  // 14. Fallback / Daerah belum memiliki lagu khusus / Samudera
+  // "termasuk jika daerah nya belum ada lagu nya maka jalankan lagu tersebut (PURWASWARA)"
   return {
     regionId: "nusantara",
     regionName: "Nusantara",
-    trackId: "rising-of-nusantara",
-    badgeText: "Nusantara • Rising of Nusantara",
+    trackId: "purwaswara-first-sound",
+    badgeText: "Nusantara • PURWASWARA 🌿",
     isOverview: true,
   };
 }

@@ -12,6 +12,16 @@ export interface AudioTrack {
 export const AUDIO_TRACKS: AudioTrack[] = [
   // --- Kategori: Nusantara & Kebangsaan ---
   {
+    id: "purwaswara-first-sound",
+    title: "PURWASWARA 🌿",
+    subtitle: "The Journey to The First Sound Cinematic",
+    artist: "Donkgedank",
+    region: "Nusantara",
+    src: "/lagu/Donkgedank - PURWASWARA 🌿 The Journey to The First Sound Cinematic, Sad, Epic.mp3",
+    duration: "4:51",
+    isDefault: true,
+  },
+  {
     id: "rising-of-nusantara",
     title: "Rising of Nusantara",
     subtitle: "Musik Gamelan Modern Indonesia Sinematik",
@@ -19,7 +29,6 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     region: "Nusantara",
     src: "/lagu/Rising of Nusantara Musik Gamelan Modern Indonesia Cocok Untuk Video Sinematik & Backsound.mp3",
     duration: "6:55",
-    isDefault: true,
   },
   {
     id: "dance-of-nusantara",
@@ -47,15 +56,6 @@ export const AUDIO_TRACKS: AudioTrack[] = [
     region: "Nusantara",
     src: "/lagu/Donkgedank - DEWANTARA 🌿 The Sacred Forest.mp3",
     duration: "4:38",
-  },
-  {
-    id: "purwaswara-first-sound",
-    title: "PURWASWARA 🌿",
-    subtitle: "The Journey to The First Sound Cinematic",
-    artist: "Donkgedank",
-    region: "Nusantara",
-    src: "/lagu/Donkgedank - PURWASWARA 🌿 The Journey to The First Sound Cinematic, Sad, Epic.mp3",
-    duration: "4:51",
   },
 
   // --- Kategori: Pulau Jawa & Banyuwangi ---

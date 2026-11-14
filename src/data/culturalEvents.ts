@@ -95,5 +95,77 @@ export const CULTURAL_EVENTS: CulturalEvent[] = [
     status: "PREPARATION",
     description: "Parade puluhan perahu layar tradisional Lopi Sandeq dan kapal Pinisi mengarungi Selat Selayar, dimeriahkan ritual Appasili keselamatan bahari di Tanjung Bira.",
     culturalEssence: "Penghormatan atas ketangguhan pelaut Bugis-Konjo Panrita Lopi dalam menaklukkan samudera raya."
+  },
+  {
+    id: "festival-gandrung-sewu",
+    name: "Festival Gandrung Sewu Banyuwangi",
+    location: "Pantai Boom Marina, Banyuwangi",
+    province: "Jawa Timur",
+    coordinates: [-8.2045, 114.3912],
+    dateRange: "14 - 16 Januari 2027",
+    daysRemaining: 61,
+    status: "PREPARATION",
+    description: "Pertunjukan tari kolosal seribu lebih penari Gandrung di tepi Selat Bali dengan busana khas bermahkota Omprog, mengisahkan sejarah perjuangan dan rasa syukur masyarakat Blambangan.",
+    culturalEssence: "Perayaan identitas kearifan budaya suku Osing Banyuwangi dan penghormatan kepada Dewi Sri."
+  },
+  {
+    id: "sekaten-yogyakarta",
+    name: "Upacara Adat Sekaten & Grebeg Mulud",
+    location: "Alun-Alun Utara & Keraton Yogyakarta",
+    province: "DI Yogyakarta",
+    coordinates: [-7.8053, 110.3642],
+    dateRange: "22 - 25 Januari 2027",
+    daysRemaining: 69,
+    status: "PREPARATION",
+    description: "Perhelatan budaya agung Keraton Yogyakarta dengan keluarnya gamelan pusaka Kanjeng Kyai Guntur Madu dan arak-arakan Gunungan hasil bumi dan pertanian Mataram.",
+    culturalEssence: "Perpaduan spiritualitas, syiar nilai keluhuran, dan rasa syukur atas kesuburan tanah Nusantara."
+  },
+  {
+    id: "pesta-kesenian-bali",
+    name: "Pesta Kesenian Bali (PKB) Pawai Budaya",
+    location: "Taman Budaya Art Center Denpasar",
+    province: "Bali",
+    coordinates: [-8.6572, 115.2341],
+    dateRange: "5 - 9 Februari 2027",
+    daysRemaining: 83,
+    status: "PREPARATION",
+    description: "Pawai akbar kebudayaan Bali menghadirkan ribuan seniman dengan gamelan Gong Kebyar, barong, serta peragaan busana wastra endek dan songket Bali dari sembilan kabupaten.",
+    culturalEssence: "Pelestarian seni sakral dan profan masyarakat Pulau Dewata menjaga kelestarian peradaban leluhur."
+  },
+  {
+    id: "festival-lembah-baliem",
+    name: "Festival Budaya Lembah Baliem (FBLB)",
+    location: "Distrik Usilimo, Lembah Baliem, Wamena",
+    province: "Papua",
+    coordinates: [-4.0833, 138.9500],
+    dateRange: "18 - 21 Februari 2027",
+    daysRemaining: 96,
+    status: "PREPARATION",
+    description: "Simulasi perang tradisional antarsuku Dani, Lani, dan Yali, pertunjukan tarian perang kolosal, upacara bakar batu Barapen, dan pameran noken serta tanaman herbal buah merah.",
+    culturalEssence: "Penegasan persaudaraan, kearifan damai suku pegunungan Papua, dan pelestarian identitas bumi cenderawasih."
+  },
+  {
+    id: "festival-kelimutu",
+    name: "Festival Danau Kelimutu & Ritual Pati Ka Du'a",
+    location: "Kawasan Adat Danau Kelimutu, Ende",
+    province: "Nusa Tenggara Timur",
+    coordinates: [-8.7667, 121.8167],
+    dateRange: "1 - 3 Maret 2027",
+    daysRemaining: 107,
+    status: "PREPARATION",
+    description: "Ritual adat sakral persembahan makanan untuk arwah leluhur di puncak danau kawah triwarna dipimpin tetua adat Mosalaki, diiringi tarian Gawi dan pasar tenun ikat Lio.",
+    culturalEssence: "Penghormatan sakral terhadap arwah leluhur dan penjagaan kesucian alam vulkanik Flores."
+  },
+  {
+    id: "festival-danau-gayo",
+    name: "Festival Danau Laut Tawar & Panen Kopi Gayo",
+    location: "Danau Laut Tawar, Takengon",
+    province: "Aceh",
+    coordinates: [4.6294, 96.8454],
+    dateRange: "15 - 18 Maret 2027",
+    daysRemaining: 121,
+    status: "PREPARATION",
+    description: "Perayaan panen raya kopi arabika Gayo dan pacuan kuda tradisional Gayo di tepi Danau Laut Tawar, diiringi seni vokal bertutur Didong dan lomba seduh kopi nusantara.",
+    culturalEssence: "Rasa syukur petani kopi Gayo atas anugerah kesuburan tanah dataran tinggi Aceh."
   }
 ];

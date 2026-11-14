@@ -740,3 +740,22 @@ body {
   font-family: var(--font-caveat), 'Caveat', cursive, sans-serif;
 }
 
+/* ======================================================== */
+/* macOS Liquid Frosted Glass Effect                        */
+/* ======================================================== */
+.glass-mac {
+  background: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+  border-bottom: 1px solid rgba(10, 46, 82, 0.12) !important;
+  box-shadow: 0 10px 30px -10px rgba(10, 46, 82, 0.08), 0 1px 2px 0 rgba(10, 46, 82, 0.04) !important;
+}
+
+[data-theme="dark"] .glass-mac {
+  background: rgba(14, 15, 21, 0.75) !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09) !important;
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.55), 0 1px 2px 0 rgba(255, 255, 255, 0.05) !important;
+}
+

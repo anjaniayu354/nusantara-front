@@ -457,7 +457,7 @@ export function MapLayersWidget({
 
         {/* Quick Flat Icon Buttons for Instant One-Click Switching */}
         <div className="hidden sm:flex items-center gap-1">
-          {MAP_STYLES.slice(0, 5).map((style) => {
+          {MAP_STYLES.filter((style) => style.id !== "malam").map((style) => {
             const isActive = style.id === mapStyle;
             return (
               <button

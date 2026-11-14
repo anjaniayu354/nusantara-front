@@ -32,7 +32,13 @@ import {
   Award,
   Plane,
   Home,
+  Menu,
   SlidersHorizontal,
+  RotateCcw,
+  Leaf,
+  Sprout,
+  Trees,
+  Mountain,
 } from "lucide-react";
 import { DESTINATIONS, CulturalDestination, Category } from "@/data/destinations";
 import { CULTURAL_EVENTS, CulturalEvent } from "@/data/culturalEvents";
@@ -50,21 +56,52 @@ import {
 } from "@/lib/i18n";
 import { getStoredUser, subscribeAuth, clearStoredUser, AuthUser } from "@/lib/auth";
 
+// ========================================================
+// DAFTAR PROVINSI TERKURASI NUSANTARA
+// PENTING: Sesuai instruksi khusus pengguna, provinsi TIDAK BOLEH menggunakan icon / emoji
+// ========================================================
+export const PROVINCES_LIST = [
+  { id: "aceh", name: "Aceh", desc: "Kopi Gayo & Bahari Sabang" },
+  { id: "sumatera-barat", name: "Sumatera Barat", desc: "Tambang Ombilin & Nagari Pariangan" },
+  { id: "riau", name: "Kepulauan Riau", desc: "Kepulauan Anambas & Laut Natuna" },
+  { id: "lampung", name: "Lampung", desc: "Way Kambas, Anak Krakatau & Kain Tapis" },
+  { id: "yogyakarta", name: "DI Yogyakarta & Jateng", desc: "Candi Borobudur & Sentra Jamu Nguter" },
+  { id: "jawa-timur", name: "Jawa Timur", desc: "Kawah Ijen Blue Fire & TN Baluran" },
+  { id: "bali", name: "Bali", desc: "Subak Jatiluwih & Herbal Usada Bedugul" },
+  { id: "ntt", name: "Nusa Tenggara Timur", desc: "TN Komodo & Danau Tiga Warna Kelimutu" },
+  { id: "kalimantan", name: "Kalimantan Tengah", desc: "TN Tanjung Puting Orangutan" },
+  { id: "sulawesi", name: "Sulawesi Selatan", desc: "Pinisi Tana Beru, Tanjung Bira & Adat Kajang" },
+  { id: "maluku", name: "Maluku", desc: "Banda Neira & Jalur Rempah Pala" },
+  { id: "papua", name: "Papua", desc: "Raja Ampat Segitiga Karang & Herbal Baliem" },
+];
+
 export default function PortalLandingPage() {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
 
   // Language state (defaults to "EN" with instant toggle to "ID")
   const [lang, setLang] = useState<Language>("EN");
 
-  // Province Selection & Content Filtering State
-  const [selectedProvince, setSelectedProvince] = useState<"all" | "sulawesi" | "lampung">("all");
-  const [categoryFilter, setCategoryFilter] = useState<Category | "all">("all");
+  // Province & Category Multi-Check Selection State
+  const [selectedProvinces, setSelectedProvinces] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchKeyword, setSearchKeyword] = useState<string>("");
   const [travelerCount, setTravelerCount] = useState<string>("2");
   const [seasonChoice, setSeasonChoice] = useState<string>("all");
 
-  // Bar Hala AI Modal State
-  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  // Filter Modal State (Multi-check Selection Modal)
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+
+  // Active Main Navigation Tab (Thick bottom underline style)
+  const [activeNav, setActiveNav] = useState<string>("beranda");
+
+  // Header Scroll & Frosted Glass States
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isTopBarVisible, setIsTopBarVisible] = useState(true);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const lastScrollYRef = useRef(0);
+
+  // Bar Hala AI Slider State (Slide-in Drawer from Right with Web Push)
+  const [isAiSliderOpen, setIsAiSliderOpen] = useState(false);
   const [aiChatMessages, setAiChatMessages] = useState<Array<{ sender: "ai" | "user"; text: string }>>([
     {
       sender: "ai",
@@ -72,6 +109,7 @@ export default function PortalLandingPage() {
     },
   ]);
   const [aiInputText, setAiInputText] = useState("");
+  const chatMessagesEndRef = useRef<HTMLDivElement | null>(null);
 
   // Audio preview state
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
@@ -81,13 +119,55 @@ export default function PortalLandingPage() {
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
 
-  // Filter Dropdown state (in Header)
-  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
-  const filterDropdownRef = useRef<HTMLDivElement | null>(null);
-
   // Profile Dropdown state
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement | null>(null);
+
+  // Quick helper checks
+  const getProvinceCount = (provId: string) => {
+    return DESTINATIONS.filter((d) => {
+      const p = provId.toLowerCase();
+      const dp = d.province.toLowerCase();
+      if (p === "sulawesi") return dp.includes("sulawesi");
+      if (p === "lampung") return dp.includes("lampung");
+      if (p === "yogyakarta") return dp.includes("yogyakarta") || dp.includes("jawa tengah");
+      if (p === "jawa-timur") return dp.includes("jawa timur");
+      if (p === "bali") return dp.includes("bali");
+      if (p === "aceh") return dp.includes("aceh");
+      if (p === "sumatera-barat") return dp.includes("sumatera barat");
+      if (p === "riau") return dp.includes("riau");
+      if (p === "kalimantan") return dp.includes("kalimantan");
+      if (p === "ntt") return dp.includes("nusa tenggara timur");
+      if (p === "papua") return dp.includes("papua");
+      if (p === "maluku") return dp.includes("maluku");
+      return dp.includes(p);
+    }).length;
+  };
+
+  const singleProvinceObj =
+    selectedProvinces.length === 1
+      ? PROVINCES_LIST.find((p) => p.id === selectedProvinces[0])
+      : null;
+  const isOnlySulawesi = selectedProvinces.length === 1 && selectedProvinces[0] === "sulawesi";
+  const isOnlyLampung = selectedProvinces.length === 1 && selectedProvinces[0] === "lampung";
+  const totalActiveFilters = selectedProvinces.length + selectedCategories.length;
+
+  const toggleProvince = (provId: string) => {
+    setSelectedProvinces((prev) =>
+      prev.includes(provId) ? prev.filter((p) => p !== provId) : [...prev, provId]
+    );
+  };
+
+  const toggleCategory = (catId: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(catId) ? prev.filter((c) => c !== catId) : [...prev, catId]
+    );
+  };
+
+  const handleResetFilters = () => {
+    setSelectedProvinces([]);
+    setSelectedCategories([]);
+  };
 
   // Sync language with persistent store
   useEffect(() => {
@@ -113,7 +193,60 @@ export default function PortalLandingPage() {
     });
   }, [lang]);
 
-  // Close dropdowns on outside click
+  // Auto-scroll AI chat messages when new messages arrive or drawer opens
+  useEffect(() => {
+    if (isAiSliderOpen) {
+      chatMessagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [aiChatMessages, isAiSliderOpen]);
+
+  // Scroll spy & header scroll direction handler (Glass Mac & Top Bar Collapse)
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Trigger Mac frosted glass effect when scrolled > 15px
+      setIsScrolled(currentScrollY > 15);
+
+      // Top utility bar: hide on scroll down, show on scroll up
+      if (currentScrollY <= 15) {
+        setIsTopBarVisible(true);
+      } else if (currentScrollY > lastScrollYRef.current + 8) {
+        // Scrolling down -> collapse top bar
+        setIsTopBarVisible(false);
+        setIsMobileNavOpen(false);
+      } else if (currentScrollY < lastScrollYRef.current - 8) {
+        // Scrolling up -> reveal top bar
+        setIsTopBarVisible(true);
+      }
+
+      lastScrollYRef.current = currentScrollY;
+
+      // Active section spy
+      const scrollPos = currentScrollY + 140;
+      const sections = [
+        { id: "beranda", tab: "beranda" },
+        { id: "destinasi", tab: "destinasi" },
+        { id: "radar-event", tab: "radar" },
+        { id: "mengapa-kami", tab: "keunggulan" },
+        { id: "ulasan", tab: "ulasan" },
+        { id: "kontak", tab: "kontak" },
+      ];
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sections[i].id);
+        if (el && el.offsetTop <= scrollPos) {
+          setActiveNav(sections[i].tab);
+          break;
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Close profile dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (
@@ -121,12 +254,6 @@ export default function PortalLandingPage() {
         !profileDropdownRef.current.contains(event.target as Node)
       ) {
         setIsProfileDropdownOpen(false);
-      }
-      if (
-        filterDropdownRef.current &&
-        !filterDropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsFilterDropdownOpen(false);
       }
     };
 
@@ -164,19 +291,74 @@ export default function PortalLandingPage() {
   // Active translation dictionary
   const t = DICTIONARY[lang];
 
-  // Filtered destinations based on active Province & Category filters
+  // Filtered destinations based on active Province & Category multi-checks
   const filteredDestinations = useMemo(() => {
     return DESTINATIONS.filter((d) => {
-      // Province filter (from Header session & Search Box)
-      if (selectedProvince === "sulawesi" && !d.province.toLowerCase().includes("sulawesi")) return false;
-      if (selectedProvince === "lampung" && !d.province.toLowerCase().includes("lampung")) return false;
+      // Province multi-check: Jika belum memilih provinsi, otomatis menampilkan seluruh data di Indonesia!
+      if (selectedProvinces.length > 0) {
+        const matchProv = selectedProvinces.some((p) => {
+          const pLower = p.toLowerCase();
+          const dProvLower = d.province.toLowerCase();
+          if (pLower === "sulawesi") return dProvLower.includes("sulawesi");
+          if (pLower === "lampung") return dProvLower.includes("lampung");
+          if (pLower === "yogyakarta") return dProvLower.includes("yogyakarta") || dProvLower.includes("jawa tengah");
+          if (pLower === "jawa-timur") return dProvLower.includes("jawa timur");
+          if (pLower === "bali") return dProvLower.includes("bali");
+          if (pLower === "aceh") return dProvLower.includes("aceh");
+          if (pLower === "sumatera-barat") return dProvLower.includes("sumatera barat");
+          if (pLower === "riau") return dProvLower.includes("riau");
+          if (pLower === "kalimantan") return dProvLower.includes("kalimantan");
+          if (pLower === "ntt") return dProvLower.includes("nusa tenggara timur");
+          if (pLower === "papua") return dProvLower.includes("papua");
+          if (pLower === "maluku") return dProvLower.includes("maluku");
+          return dProvLower.includes(pLower);
+        });
+        if (!matchProv) return false;
+      }
 
-      // Category filter
-      if (categoryFilter !== "all") {
-        if (categoryFilter === "laut" && d.category !== "laut" && d.category !== "pantai") return false;
-        if (categoryFilter === "budaya" && d.category !== "budaya" && d.category !== "desa" && d.category !== "pakaian") return false;
-        if (categoryFilter === "hutan" && d.category !== "hutan" && d.category !== "gunung") return false;
-        if (categoryFilter !== "laut" && categoryFilter !== "budaya" && categoryFilter !== "hutan" && d.category !== categoryFilter) return false;
+      // Category multi-check: sumber alam, pertanian, herbal, laut / ikan, flora fauna, budaya, pakaian
+      if (selectedCategories.length > 0) {
+        const matchCat = selectedCategories.some((c) => {
+          if (c === "sumber-alam") {
+            return (
+              d.category === "sumber-alam" ||
+              d.tags?.some((t) => /sumber alam|geologi|mineral|tambang|belerang|vulkanik|kawah/i.test(t))
+            );
+          }
+          if (c === "pertanian") {
+            return (
+              d.category === "pertanian" ||
+              (d.agriculturalProducts && d.agriculturalProducts.length > 0) ||
+              d.tags?.some((t) => /tani|kebun|kopi|subak|padi|rempah/i.test(t))
+            );
+          }
+          if (c === "herbal") {
+            return (
+              d.category === "herbal" ||
+              d.tags?.some((t) => /herbal|jamu|obat|usada|buah merah/i.test(t)) ||
+              d.agriculturalProducts?.some((p) => /jahe|temulawak|kunyit|kencur|buah merah|sirih|herbal/i.test(p))
+            );
+          }
+          if (c === "laut" || c === "laut-ikan") {
+            return (
+              d.category === "laut" ||
+              d.category === "pantai" ||
+              d.tags?.some((t) => /laut|ikan|bahari|karang|snorkeling|perikanan/i.test(t))
+            );
+          }
+          if (c === "flora-fauna") {
+            return (
+              d.category === "flora-fauna" ||
+              d.category === "hutan" ||
+              d.tags?.some((t) => /flora|fauna|satwa|orangutan|gajah|badak|komodo|banteng|konservasi/i.test(t))
+            );
+          }
+          if (c === "budaya") return d.category === "budaya" || d.category === "desa";
+          if (c === "pakaian") return d.category === "pakaian";
+          if (c === "gunung") return d.category === "gunung" || d.category === "darat";
+          return d.category === c;
+        });
+        if (!matchCat) return false;
       }
 
       // Search keyword
@@ -186,21 +368,40 @@ export default function PortalLandingPage() {
         const matchesSub = d.subtitle.toLowerCase().includes(q);
         const matchesProv = d.province.toLowerCase().includes(q);
         const matchesDesc = d.description.toLowerCase().includes(q);
-        if (!matchesName && !matchesSub && !matchesProv && !matchesDesc) return false;
+        const matchesTags = d.tags?.some((t) => t.toLowerCase().includes(q));
+        if (!matchesName && !matchesSub && !matchesProv && !matchesDesc && !matchesTags) return false;
       }
 
       return true;
     });
-  }, [selectedProvince, categoryFilter, searchKeyword]);
+  }, [selectedProvinces, selectedCategories, searchKeyword]);
 
-  // Filtered Cultural Events based on active Province
+  // Filtered Cultural Events based on active Province multi-checks
   const filteredEvents = useMemo(() => {
     return CULTURAL_EVENTS.filter((event) => {
-      if (selectedProvince === "sulawesi" && !event.province.toLowerCase().includes("sulawesi")) return false;
-      if (selectedProvince === "lampung" && !event.province.toLowerCase().includes("lampung")) return false;
+      if (selectedProvinces.length > 0) {
+        const match = selectedProvinces.some((p) => {
+          const pLower = p.toLowerCase();
+          const eProvLower = event.province.toLowerCase();
+          if (pLower === "sulawesi") return eProvLower.includes("sulawesi");
+          if (pLower === "lampung") return eProvLower.includes("lampung");
+          if (pLower === "yogyakarta") return eProvLower.includes("yogyakarta") || eProvLower.includes("jawa tengah");
+          if (pLower === "jawa-timur") return eProvLower.includes("jawa timur");
+          if (pLower === "bali") return eProvLower.includes("bali");
+          if (pLower === "aceh") return eProvLower.includes("aceh");
+          if (pLower === "sumatera-barat") return eProvLower.includes("sumatera barat");
+          if (pLower === "riau") return eProvLower.includes("riau");
+          if (pLower === "kalimantan") return eProvLower.includes("kalimantan");
+          if (pLower === "ntt") return eProvLower.includes("nusa tenggara timur");
+          if (pLower === "papua") return eProvLower.includes("papua");
+          if (pLower === "maluku") return eProvLower.includes("maluku");
+          return eProvLower.includes(pLower);
+        });
+        if (!match) return false;
+      }
       return true;
     });
-  }, [selectedProvince]);
+  }, [selectedProvinces]);
 
   // Testimonials dynamically reflecting active Province & Language
   const testimonials = useMemo(() => {
@@ -291,14 +492,14 @@ export default function PortalLandingPage() {
             },
           ];
 
-    if (selectedProvince === "sulawesi") {
+    if (isOnlySulawesi) {
       return allReviews.filter((r) => r.province === "sulawesi");
     }
-    if (selectedProvince === "lampung") {
+    if (isOnlyLampung) {
       return allReviews.filter((r) => r.province === "lampung");
     }
     return allReviews.slice(0, 3);
-  }, [selectedProvince, lang]);
+  }, [isOnlySulawesi, isOnlyLampung, lang]);
 
   const handleSendAiMessage = (customText?: string) => {
     const textToSend = customText || aiInputText;
@@ -385,339 +586,253 @@ export default function PortalLandingPage() {
   };
 
   const getFilterButtonLabel = () => {
-    if (selectedProvince === "all" && categoryFilter === "all") {
-      return t.nav.allProvinces;
+    if (totalActiveFilters === 0) {
+      return lang === "ID" ? "Filter Destinasi" : "Filter Destinations";
     }
-    const provLabel =
-      selectedProvince === "sulawesi"
-        ? lang === "ID"
-          ? "Sulsel"
-          : "Sulawesi"
-        : selectedProvince === "lampung"
-        ? "Lampung"
-        : "";
-
-    const catLabel =
-      categoryFilter === "laut"
-        ? lang === "ID"
-          ? "Bahari"
-          : "Marine"
-        : categoryFilter === "budaya"
-        ? lang === "ID"
-          ? "Budaya"
-          : "Culture"
-        : categoryFilter === "hutan"
-        ? lang === "ID"
-          ? "Hutan"
-          : "Forest"
-        : "";
-
-    if (provLabel && catLabel) return `${provLabel} • ${catLabel}`;
-    if (provLabel) return selectedProvince === "sulawesi" ? t.nav.sulawesi : t.nav.lampung;
-    if (catLabel) return catLabel;
-    return t.nav.allProvinces;
+    if (selectedProvinces.length === 1 && selectedCategories.length === 0) {
+      const p = PROVINCES_LIST.find((prov) => prov.id === selectedProvinces[0]);
+      return p ? p.name : selectedProvinces[0];
+    }
+    return lang === "ID" ? `Filter (${totalActiveFilters})` : `Filters (${totalActiveFilters})`;
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col font-sans bg-[var(--bx-bg)] text-[var(--bx-ink)] selection:bg-[var(--gold)] selection:text-[var(--brand)]">
+    <div className="relative min-h-screen w-full bg-[var(--bx-bg)] text-[var(--bx-ink)] overflow-x-hidden selection:bg-[var(--gold)] selection:text-[var(--brand)]">
+      {/* Main Page Container: shifts left smoothly when AI slider is open */}
+      <div
+        className={`min-h-screen w-full flex flex-col font-sans transition-transform duration-300 ease-in-out ${
+          isAiSliderOpen ? "sm:-translate-x-[420px] lg:-translate-x-[460px]" : "translate-x-0"
+        }`}
+      >
 
       {/* ======================================================== */}
-      {/* 2. MAIN NAVIGATION HEADER (Institutional Sticky Navbar) */}
+      {/* 2. STICKY HEADER WITH TOP UTILITY BAR & MAC FROSTED GLASS */}
       {/* ======================================================== */}
-      <header className="sticky top-0 z-40 w-full bg-[var(--bx-surface)]/95 backdrop-blur-md border-b border-[var(--bx-border)] px-4 sm:px-8 transition-colors shadow-xs">
-        <div className="max-w-7xl mx-auto h-18 sm:h-20 flex items-center justify-between gap-3 sm:gap-4">
+      <header
+        className={`sticky top-0 z-40 w-full transition-all duration-300 ease-in-out ${
+          isScrolled
+            ? "glass-mac"
+            : "bg-[var(--bx-surface)]/95 backdrop-blur-md border-b border-[var(--bx-border)] shadow-xs"
+        }`}
+      >
+        {/* ======================================================== */}
+        {/* 2a. TOP UTILITY BAR (Menu di Atasnya — No Telp/Email, Filter, Bahasa, Tema, Link Adventure Map) */}
+        {/* Hilang saat scroll ke bawah, Muncul saat scroll ke atas */}
+        {/* ======================================================== */}
+        <div
+          className={`w-full overflow-hidden transition-all duration-300 ease-in-out border-b border-[var(--bx-border)]/60 text-xs text-[var(--bx-muted)] ${
+            isTopBarVisible
+              ? "max-h-14 opacity-100 py-1.5 sm:py-2 px-4 sm:px-8"
+              : "max-h-0 opacity-0 py-0 px-4 sm:px-8 border-b-0 pointer-events-none"
+          }`}
+        >
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-6">
+            {/* Pojok Kiri: No Telp & Email seperti semula */}
+            <div className="flex items-center gap-3 sm:gap-6 shrink-0">
+              <a
+                href="tel:+6281234567890"
+                className="flex items-center gap-1.5 text-[11px] sm:text-xs hover:text-[var(--gold)] transition-colors font-medium"
+              >
+                <Phone className="w-3.5 h-3.5 text-[var(--gold)] shrink-0" />
+                <span>+62 812-3456-7890</span>
+              </a>
+              <a
+                href="mailto:info@nusa-antara.id"
+                className="flex items-center gap-1.5 text-[11px] sm:text-xs hover:text-[var(--gold)] transition-colors font-medium"
+              >
+                <Mail className="w-3.5 h-3.5 text-[var(--gold)] shrink-0" />
+                <span>info@nusa-antara.id</span>
+              </a>
+            </div>
+
+            {/* Pojok Kanan: Filter, Bahasa, Tema, Link Adventure Map */}
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
+              {/* Filter Button (Modal Trigger) */}
+              <button
+                type="button"
+                onClick={() => setIsFilterModalOpen(true)}
+                className={`h-7 sm:h-8 px-2 sm:px-2.5 rounded-lg text-[11px] sm:text-xs font-semibold transition-all flex items-center gap-1.5 border shadow-xs cursor-pointer ${
+                  totalActiveFilters > 0
+                    ? "bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--bx-ink-bright)]"
+                    : "bg-[var(--bx-bg)]/80 hover:bg-[var(--gold)]/10 border-[var(--bx-border)] hover:border-[var(--gold)]/60 text-[var(--bx-ink)]"
+                }`}
+                title={lang === "ID" ? "Buka Filter Destinasi" : "Open Destination Filters"}
+                aria-label={lang === "ID" ? "Filter Destinasi" : "Destination Filters"}
+              >
+                <SlidersHorizontal className="w-3 h-3 text-[var(--gold)] shrink-0" />
+                <span className="truncate max-w-[85px] sm:max-w-none">
+                  {getFilterButtonLabel()}
+                </span>
+                {totalActiveFilters > 0 && (
+                  <span className="min-w-4 h-4 px-1 rounded-full bg-[var(--gold)] text-[var(--brand)] font-bold text-[9px] flex items-center justify-center shrink-0">
+                    {totalActiveFilters}
+                  </span>
+                )}
+              </button>
+
+              <div className="h-3.5 w-px bg-[var(--bx-border)] hidden sm:block" />
+
+              {/* Bahasa & Tema Mode Toggles */}
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <LanguageToggle />
+                <ThemeToggle />
+              </div>
+
+              <div className="h-3.5 w-px bg-[var(--bx-border)] hidden sm:block" />
+
+              {/* Link Adventure Map */}
+              <Link
+                href="/peta"
+                className="portal-submit-btn-gold !h-7 sm:!h-8 !px-2.5 sm:!px-3.5 !text-[11px] sm:!text-xs flex items-center gap-1.5 shrink-0 group shadow-xs font-bold"
+                title={t.nav.interactiveMap}
+              >
+                <Compass className="w-3.5 h-3.5 transition-transform group-hover:rotate-45" />
+                <span>{t.nav.adventureMap}</span>
+                <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5 hidden sm:inline" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* ======================================================== */}
+        {/* 2b. MAIN NAVBAR (Logo & Nav Menu Sejajar Icon + Profile) */}
+        {/* ======================================================== */}
+        <div className="max-w-7xl mx-auto h-16 sm:h-18 px-4 sm:px-8 flex items-center justify-between gap-3 sm:gap-4">
           {/* Logo & Brand Identity (Tanpa Kotak, Gambar Murni) */}
           <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
             <img
               src="/mandala.png"
               alt="Logo Mandala Nusa Antara"
-              className="w-10 h-10 sm:w-11 sm:h-11 object-contain transition-transform duration-500 group-hover:rotate-45"
+              className="w-9 h-9 sm:w-10 sm:h-10 object-contain transition-transform duration-500 group-hover:rotate-45"
             />
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--bx-ink-bright)] font-serif leading-none">
+                <span className="text-lg sm:text-xl font-bold tracking-tight text-[var(--bx-ink-bright)] font-serif leading-none">
                   NUSA ANTARA
                 </span>
-                <span className="portal-badge-portal !text-[10px]">
+                <span className="portal-badge-portal !text-[9px] sm:!text-[10px]">
                   PORTAL
                 </span>
               </div>
-              <span className="text-[11px] text-[var(--bx-muted)] font-medium hidden md:inline-block">
+              <span className="text-[10px] sm:text-[11px] text-[var(--bx-muted)] font-medium hidden md:inline-block">
                 {t.nav.brandSub}
               </span>
             </div>
           </Link>
 
-          {/* Right Action: Filter Dropdown + Language/Theme + Peta Petualangan + Profile */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Filter Dropdown (Wilayah & Kategori) */}
-            <div className="relative" ref={filterDropdownRef}>
-              <button
-                type="button"
-                onClick={() => setIsFilterDropdownOpen((prev) => !prev)}
-                className="h-10 px-2.5 sm:px-3 rounded-xl bg-[var(--bx-bg)] hover:bg-[var(--gold)]/10 border border-[var(--bx-border)] hover:border-[var(--gold)]/60 text-[var(--bx-ink)] transition-all flex items-center gap-1.5 sm:gap-2 shadow-xs group"
-                title={lang === "ID" ? "Filter Destinasi" : "Filter Destinations"}
-                aria-label={lang === "ID" ? "Filter Destinasi" : "Filter Destinations"}
-              >
-                <div className="w-6 h-6 rounded-lg bg-[var(--gold)]/15 border border-[var(--gold)]/30 flex items-center justify-center text-[var(--gold)] shrink-0">
-                  <SlidersHorizontal className="w-3.5 h-3.5 text-[var(--gold)]" />
-                </div>
-                <div className="flex flex-col text-left">
-                  <span className="text-[9px] uppercase tracking-wider font-bold text-[var(--gold)] leading-none hidden sm:block">
-                    {lang === "ID" ? "Filter" : "Filter"}
-                  </span>
-                  <span className="text-xs sm:text-sm font-bold font-serif text-[var(--bx-ink-bright)] leading-tight truncate max-w-[85px] sm:max-w-[130px] xl:max-w-none">
-                    {getFilterButtonLabel()}
-                  </span>
-                </div>
-                {(selectedProvince !== "all" || categoryFilter !== "all") && (
-                  <span className="w-2 h-2 rounded-full bg-[var(--gold)] shrink-0 animate-pulse" />
-                )}
-                <ChevronDown
-                  className={`w-3.5 h-3.5 text-[var(--bx-muted)] transition-transform duration-200 shrink-0 ${
-                    isFilterDropdownOpen ? "rotate-180 text-[var(--gold)]" : "group-hover:text-[var(--gold)]"
-                  }`}
-                />
-              </button>
-
-              {/* Dropdown Menu Filter */}
-              {isFilterDropdownOpen && (
-                <div className="absolute right-0 sm:right-auto sm:left-0 mt-2 w-76 sm:w-88 rounded-2xl bg-[var(--bx-surface)] border border-[var(--bx-border)] shadow-2xl p-3 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="px-2 py-2 border-b border-[var(--bx-border)] mb-2 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <SlidersHorizontal className="w-3.5 h-3.5 text-[var(--gold)]" />
-                      <span className="text-[11px] uppercase font-bold tracking-wider text-[var(--gold)] font-mono">
-                        {lang === "ID" ? "Filter Destinasi" : "Destination Filter"}
-                      </span>
-                    </div>
-                    {(selectedProvince !== "all" || categoryFilter !== "all") && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedProvince("all");
-                          setCategoryFilter("all");
-                        }}
-                        className="text-[11px] text-[var(--gold)] hover:underline font-semibold"
-                      >
-                        {lang === "ID" ? "Reset Semua" : "Reset All"}
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Section 1: Wilayah / Provinsi */}
-                  <div className="mb-2.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--bx-muted)] px-2 mb-1 block">
-                      {lang === "ID" ? "Pilih Provinsi" : "Select Province"}
-                    </span>
-                    <div className="space-y-1">
-                      {/* Option 1: Semua Provinsi */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedProvince("all");
-                          setIsFilterDropdownOpen(false);
-                          const el = document.getElementById("destinasi");
-                          if (el) el.scrollIntoView({ behavior: "smooth" });
-                        }}
-                        className={`w-full p-2 rounded-xl text-left transition flex items-center justify-between gap-2.5 ${
-                          selectedProvince === "all"
-                            ? "bg-[var(--gold)]/15 border border-[var(--gold)]/60 text-[var(--bx-ink-bright)] font-semibold"
-                            : "hover:bg-[var(--bx-bg)] text-[var(--bx-ink)] border border-transparent"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="text-base shrink-0">🇮🇩</span>
-                          <div className="min-w-0">
-                            <p className="text-xs font-bold truncate font-serif">{t.nav.allProvinces}</p>
-                            <p className="text-[10px] text-[var(--bx-muted)] truncate">{t.nav.allProvincesSub}</p>
-                          </div>
-                        </div>
-                        {selectedProvince === "all" && (
-                          <Check className="w-4 h-4 text-[var(--gold)] shrink-0" />
-                        )}
-                      </button>
-
-                      {/* Option 2: Sulawesi Selatan */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedProvince("sulawesi");
-                          setIsFilterDropdownOpen(false);
-                          const el = document.getElementById("destinasi");
-                          if (el) el.scrollIntoView({ behavior: "smooth" });
-                        }}
-                        className={`w-full p-2 rounded-xl text-left transition flex items-center justify-between gap-2.5 ${
-                          selectedProvince === "sulawesi"
-                            ? "bg-[var(--gold)]/15 border border-[var(--gold)]/60 text-[var(--bx-ink-bright)] font-semibold"
-                            : "hover:bg-[var(--bx-bg)] text-[var(--bx-ink)] border border-transparent"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="text-base shrink-0">⛵</span>
-                          <div className="min-w-0">
-                            <p className="text-xs font-bold truncate font-serif">{t.nav.sulawesi}</p>
-                            <p className="text-[10px] text-[var(--bx-muted)] truncate">{t.nav.sulawesiSub}</p>
-                          </div>
-                        </div>
-                        {selectedProvince === "sulawesi" && (
-                          <Check className="w-4 h-4 text-[var(--gold)] shrink-0" />
-                        )}
-                      </button>
-
-                      {/* Option 3: Lampung */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedProvince("lampung");
-                          setIsFilterDropdownOpen(false);
-                          const el = document.getElementById("destinasi");
-                          if (el) el.scrollIntoView({ behavior: "smooth" });
-                        }}
-                        className={`w-full p-2 rounded-xl text-left transition flex items-center justify-between gap-2.5 ${
-                          selectedProvince === "lampung"
-                            ? "bg-[var(--gold)]/15 border border-[var(--gold)]/60 text-[var(--bx-ink-bright)] font-semibold"
-                            : "hover:bg-[var(--bx-bg)] text-[var(--bx-ink)] border border-transparent"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="text-base shrink-0">🌋</span>
-                          <div className="min-w-0">
-                            <p className="text-xs font-bold truncate font-serif">{t.nav.lampung}</p>
-                            <p className="text-[10px] text-[var(--bx-muted)] truncate">{t.nav.lampungSub}</p>
-                          </div>
-                        </div>
-                        {selectedProvince === "lampung" && (
-                          <Check className="w-4 h-4 text-[var(--gold)] shrink-0" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Section 2: Kategori Wisata */}
-                  <div className="pt-2 border-t border-[var(--bx-border)]">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--bx-muted)] px-2 mb-1 block">
-                      {lang === "ID" ? "Kategori Wisata" : "Travel Category"}
-                    </span>
-                    <div className="grid grid-cols-2 gap-1">
-                      {/* Semua Kategori */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCategoryFilter("all");
-                          setIsFilterDropdownOpen(false);
-                          const el = document.getElementById("destinasi");
-                          if (el) el.scrollIntoView({ behavior: "smooth" });
-                        }}
-                        className={`p-2 rounded-xl text-left transition flex items-center justify-between gap-1.5 ${
-                          categoryFilter === "all"
-                            ? "bg-[var(--gold)]/15 border border-[var(--gold)]/60 text-[var(--bx-ink-bright)] font-semibold"
-                            : "hover:bg-[var(--bx-bg)] text-[var(--bx-ink)] border border-transparent"
-                        }`}
-                      >
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <Compass className="w-3.5 h-3.5 text-[var(--gold)] shrink-0" />
-                          <span className="text-xs font-medium truncate">{lang === "ID" ? "Semua" : "All"}</span>
-                        </div>
-                        {categoryFilter === "all" && <Check className="w-3 h-3 text-[var(--gold)] shrink-0" />}
-                      </button>
-
-                      {/* Bahari */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCategoryFilter("laut");
-                          setIsFilterDropdownOpen(false);
-                          const el = document.getElementById("destinasi");
-                          if (el) el.scrollIntoView({ behavior: "smooth" });
-                        }}
-                        className={`p-2 rounded-xl text-left transition flex items-center justify-between gap-1.5 ${
-                          categoryFilter === "laut"
-                            ? "bg-cyan-500/15 border border-cyan-500/60 text-cyan-600 dark:text-cyan-400 font-semibold"
-                            : "hover:bg-[var(--bx-bg)] text-[var(--bx-ink)] border border-transparent"
-                        }`}
-                      >
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <Waves className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
-                          <span className="text-xs font-medium truncate">{lang === "ID" ? "Bahari" : "Marine"}</span>
-                        </div>
-                        {categoryFilter === "laut" && <Check className="w-3 h-3 text-cyan-500 shrink-0" />}
-                      </button>
-
-                      {/* Budaya */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCategoryFilter("budaya");
-                          setIsFilterDropdownOpen(false);
-                          const el = document.getElementById("destinasi");
-                          if (el) el.scrollIntoView({ behavior: "smooth" });
-                        }}
-                        className={`p-2 rounded-xl text-left transition flex items-center justify-between gap-1.5 ${
-                          categoryFilter === "budaya"
-                            ? "bg-amber-500/15 border border-amber-500/60 text-amber-600 dark:text-amber-400 font-semibold"
-                            : "hover:bg-[var(--bx-bg)] text-[var(--bx-ink)] border border-transparent"
-                        }`}
-                      >
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <Landmark className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                          <span className="text-xs font-medium truncate">{lang === "ID" ? "Budaya" : "Culture"}</span>
-                        </div>
-                        {categoryFilter === "budaya" && <Check className="w-3 h-3 text-amber-500 shrink-0" />}
-                      </button>
-
-                      {/* Hutan */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCategoryFilter("hutan");
-                          setIsFilterDropdownOpen(false);
-                          const el = document.getElementById("destinasi");
-                          if (el) el.scrollIntoView({ behavior: "smooth" });
-                        }}
-                        className={`p-2 rounded-xl text-left transition flex items-center justify-between gap-1.5 ${
-                          categoryFilter === "hutan"
-                            ? "bg-emerald-500/15 border border-emerald-500/60 text-emerald-600 dark:text-emerald-400 font-semibold"
-                            : "hover:bg-[var(--bx-bg)] text-[var(--bx-ink)] border border-transparent"
-                        }`}
-                      >
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <TreePine className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                          <span className="text-xs font-medium truncate">{lang === "ID" ? "Hutan" : "Forest"}</span>
-                        </div>
-                        {categoryFilter === "hutan" && <Check className="w-3 h-3 text-emerald-500 shrink-0" />}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="h-4 w-px bg-[var(--bx-border)] hidden sm:block" />
-
-            {/* Language & Theme Mode Toggles */}
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <LanguageToggle />
-              <ThemeToggle />
-            </div>
-
-            {/* Primary Action Button: Peta Petualangan 🧭 */}
-            <Link
-              href="/peta"
-              className="portal-submit-btn-gold !h-10 !px-3 sm:!px-4 !text-xs sm:!text-sm flex items-center gap-1.5 sm:gap-2 shrink-0 group shadow-sm"
-              title={t.nav.interactiveMap}
+          {/* Center: Nav Menu Sejajar Icon (Desktop) */}
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-xs xl:text-sm font-medium h-full">
+            {/* Beranda */}
+            <a
+              href="#beranda"
+              onClick={() => setActiveNav("beranda")}
+              className={`h-full flex items-center gap-1.5 px-2.5 xl:px-3 transition-all cursor-pointer border-b-[3px] ${
+                activeNav === "beranda"
+                  ? "border-[var(--gold)] text-[var(--gold)] font-bold bg-transparent"
+                  : "border-transparent text-[var(--bx-ink)] hover:text-[var(--gold)] hover:border-[var(--gold)]/40 font-medium"
+              }`}
             >
-              <Compass className="w-4 h-4 transition-transform group-hover:rotate-45" />
-              <span className="font-bold hidden sm:inline">{t.nav.adventureMap}</span>
-              <span className="font-bold sm:hidden">{t.nav.mapShort}</span>
-              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1 hidden sm:inline" />
-            </Link>
+              <Home className="w-3.5 h-3.5" />
+              <span>{t.nav.home}</span>
+            </a>
 
+            {/* Destinasi Budaya */}
+            <a
+              href="#destinasi"
+              onClick={() => setActiveNav("destinasi")}
+              className={`h-full flex items-center gap-1.5 px-2.5 xl:px-3 transition-all cursor-pointer border-b-[3px] ${
+                activeNav === "destinasi"
+                  ? "border-[var(--gold)] text-[var(--gold)] font-bold bg-transparent"
+                  : "border-transparent text-[var(--bx-ink)] hover:text-[var(--gold)] hover:border-[var(--gold)]/40 font-medium"
+              }`}
+            >
+              <Compass className="w-3.5 h-3.5" />
+              <span>{t.nav.destinations}</span>
+            </a>
+
+            {/* Radar Event & Festival */}
+            <a
+              href="#radar-event"
+              onClick={() => setActiveNav("radar")}
+              className={`h-full flex items-center gap-1.5 px-2.5 xl:px-3 transition-all cursor-pointer border-b-[3px] ${
+                activeNav === "radar"
+                  ? "border-[var(--gold)] text-[var(--gold)] font-bold bg-transparent"
+                  : "border-transparent text-[var(--bx-ink)] hover:text-[var(--gold)] hover:border-[var(--gold)]/40 font-medium"
+              }`}
+            >
+              <Calendar className="w-3.5 h-3.5 text-rose-500" />
+              <span>{t.nav.eventRadar}</span>
+            </a>
+
+            {/* Bar Hala AI */}
+            <button
+              type="button"
+              onClick={() => {
+                setActiveNav("bar-hala");
+                setIsAiSliderOpen(true);
+              }}
+              className={`h-full flex items-center gap-1.5 px-2.5 xl:px-3 transition-all cursor-pointer border-b-[3px] ${
+                activeNav === "bar-hala" || isAiSliderOpen
+                  ? "border-[var(--gold)] text-[var(--gold)] font-bold bg-transparent"
+                  : "border-transparent text-[var(--bx-ink)] hover:text-[var(--gold)] hover:border-[var(--gold)]/40 font-medium"
+              }`}
+            >
+              <Bot className="w-3.5 h-3.5 text-emerald-500" />
+              <span>{t.nav.barHalaAi}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            </button>
+
+            {/* Keunggulan */}
+            <a
+              href="#mengapa-kami"
+              onClick={() => setActiveNav("keunggulan")}
+              className={`h-full flex items-center gap-1.5 px-2.5 xl:px-3 transition-all cursor-pointer border-b-[3px] ${
+                activeNav === "keunggulan"
+                  ? "border-[var(--gold)] text-[var(--gold)] font-bold bg-transparent"
+                  : "border-transparent text-[var(--bx-ink)] hover:text-[var(--gold)] hover:border-[var(--gold)]/40 font-medium"
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+              <span>{t.nav.highlights}</span>
+            </a>
+
+            {/* Suara Penjelajah */}
+            <a
+              href="#ulasan"
+              onClick={() => setActiveNav("ulasan")}
+              className={`h-full flex items-center gap-1.5 px-2.5 xl:px-3 transition-all cursor-pointer border-b-[3px] ${
+                activeNav === "ulasan"
+                  ? "border-[var(--gold)] text-[var(--gold)] font-bold bg-transparent"
+                  : "border-transparent text-[var(--bx-ink)] hover:text-[var(--gold)] hover:border-[var(--gold)]/40 font-medium"
+              }`}
+            >
+              <Star className="w-3.5 h-3.5 text-amber-400" />
+              <span>{t.nav.testimonials}</span>
+            </a>
+
+            {/* Kontak & Informasi */}
+            <a
+              href="#kontak"
+              onClick={() => setActiveNav("kontak")}
+              className={`h-full flex items-center gap-1.5 px-2.5 xl:px-3 transition-all cursor-pointer border-b-[3px] ${
+                activeNav === "kontak"
+                  ? "border-[var(--gold)] text-[var(--gold)] font-bold bg-transparent"
+                  : "border-transparent text-[var(--bx-ink)] hover:text-[var(--gold)] hover:border-[var(--gold)]/40 font-medium"
+              }`}
+            >
+              <Phone className="w-3.5 h-3.5 text-[var(--gold)]" />
+              <span>{t.nav.contact}</span>
+            </a>
+          </nav>
+
+          {/* Right: Avatar Profile Button with Dropdown & Mobile Nav Button */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Avatar Profile Button with Dropdown (Paling Kanan) */}
             <div className="relative" ref={profileDropdownRef}>
               <button
                 type="button"
                 onClick={() => setIsProfileDropdownOpen((prev) => !prev)}
-                className="relative flex items-center justify-center w-10 h-10 rounded-full border-2 border-[var(--gold)]/60 hover:border-[var(--gold)] bg-[var(--bx-bg)] p-0.5 transition-all shadow-xs hover:scale-105 active:scale-95 focus:outline-hidden"
+                className="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-[var(--gold)]/60 hover:border-[var(--gold)] bg-[var(--bx-bg)] p-0.5 transition-all shadow-xs hover:scale-105 active:scale-95 focus:outline-hidden cursor-pointer"
                 title={authUser ? `Profil: ${authUser.name}` : t.nav.guestUser}
                 aria-label="User Profile Menu"
               >
@@ -733,7 +848,7 @@ export default function PortalLandingPage() {
                   </div>
                 ) : (
                   <div className="w-full h-full rounded-full bg-[var(--bx-surface)] text-[var(--bx-muted)] hover:text-[var(--gold)] flex items-center justify-center">
-                    <User className="w-5 h-5" />
+                    <User className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                 )}
                 {authUser && (
@@ -790,9 +905,9 @@ export default function PortalLandingPage() {
                       type="button"
                       onClick={() => {
                         setIsProfileDropdownOpen(false);
-                        setIsAiModalOpen(true);
+                        setIsAiSliderOpen(true);
                       }}
-                      className="w-full px-3 py-2 rounded-xl text-xs font-semibold text-[var(--bx-ink)] hover:text-[var(--gold)] hover:bg-[var(--bx-bg)] transition flex items-center justify-between group"
+                      className="w-full px-3 py-2 rounded-xl text-xs font-semibold text-[var(--bx-ink)] hover:text-[var(--gold)] hover:bg-[var(--bx-bg)] transition flex items-center justify-between group cursor-pointer"
                     >
                       <div className="flex items-center gap-2.5">
                         <Bot className="w-4 h-4 text-emerald-500" />
@@ -811,7 +926,7 @@ export default function PortalLandingPage() {
                           handleLogout();
                           setIsProfileDropdownOpen(false);
                         }}
-                        className="w-full px-3 py-2 rounded-xl text-xs font-bold text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-400/30 transition flex items-center gap-2 active:scale-95"
+                        className="w-full px-3 py-2 rounded-xl text-xs font-bold text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-400/30 transition flex items-center gap-2 active:scale-95 cursor-pointer"
                       >
                         <LogOut className="w-4 h-4" />
                         <span>{t.nav.logout}</span>
@@ -830,88 +945,139 @@ export default function PortalLandingPage() {
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      </header>
 
-      {/* ======================================================== */}
-      {/* 2b. MAIN MENU ROW (Menu Utama Navigasi di Bawah Logo) */}
-      {/* ======================================================== */}
-      <div className="sticky top-18 sm:top-20 z-30 w-full bg-[var(--bx-surface)]/95 backdrop-blur-md border-b border-[var(--bx-border)] px-4 sm:px-8 shadow-xs transition-colors">
-        <div className="max-w-7xl mx-auto h-11 sm:h-12 flex items-center justify-between gap-4 overflow-x-auto scrollbar-none">
-          <nav className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-            {/* Beranda */}
-            <Link
-              href="/"
-              className="px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 text-[var(--gold)] font-bold bg-[var(--gold)]/10 border border-[var(--gold)]/40 shadow-xs"
-            >
-              <Home className="w-3.5 h-3.5 text-[var(--gold)]" />
-              <span>{t.nav.home}</span>
-            </Link>
-
-            {/* Destinasi Budaya */}
-            <a
-              href="#destinasi"
-              className="px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 hover:text-[var(--gold)] hover:bg-[var(--gold)]/10 text-[var(--bx-ink)] border border-transparent hover:border-[var(--gold)]/30"
-            >
-              <Compass className="w-3.5 h-3.5 text-[var(--gold)]" />
-              <span>{t.nav.destinations}</span>
-            </a>
-
-            {/* Radar Event & Festival */}
-            <a
-              href="#radar-event"
-              className="px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 hover:text-[var(--gold)] hover:bg-[var(--gold)]/10 text-[var(--bx-ink)] border border-transparent hover:border-[var(--gold)]/30"
-            >
-              <Calendar className="w-3.5 h-3.5 text-rose-500" />
-              <span>{t.nav.eventRadar}</span>
-            </a>
-
-            {/* Bar Hala AI */}
+            {/* Mobile Menu Hamburger Button (screens < lg) */}
             <button
               type="button"
-              onClick={() => setIsAiModalOpen(true)}
-              className="px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 hover:text-[var(--gold)] hover:bg-[var(--gold)]/10 text-[var(--bx-ink)] border border-transparent hover:border-[var(--gold)]/30"
+              onClick={() => setIsMobileNavOpen((prev) => !prev)}
+              className="lg:hidden p-2 rounded-xl border border-[var(--bx-border)] hover:border-[var(--gold)]/50 bg-[var(--bx-bg)] text-[var(--bx-ink)] hover:text-[var(--gold)] transition cursor-pointer"
+              aria-label="Toggle Navigation Menu"
             >
-              <Bot className="w-3.5 h-3.5 text-emerald-500" />
-              <span>{t.nav.barHalaAi}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              {isMobileNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
+          </div>
+        </div>
 
-            {/* Keunggulan */}
+        {/* Mobile Navigation Dropdown (< lg) */}
+        {isMobileNavOpen && (
+          <div className="lg:hidden w-full border-t border-[var(--bx-border)] bg-[var(--bx-surface)]/98 backdrop-blur-xl px-4 py-3 space-y-1 animate-in fade-in slide-in-from-top-1 duration-150 shadow-lg">
+            <a
+              href="#beranda"
+              onClick={() => {
+                setActiveNav("beranda");
+                setIsMobileNavOpen(false);
+              }}
+              className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition ${
+                activeNav === "beranda"
+                  ? "bg-[var(--gold)]/15 text-[var(--gold)] font-bold"
+                  : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
+              }`}
+            >
+              <Home className="w-4 h-4 text-[var(--gold)]" />
+              <span>{t.nav.home}</span>
+            </a>
+            <a
+              href="#destinasi"
+              onClick={() => {
+                setActiveNav("destinasi");
+                setIsMobileNavOpen(false);
+              }}
+              className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition ${
+                activeNav === "destinasi"
+                  ? "bg-[var(--gold)]/15 text-[var(--gold)] font-bold"
+                  : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
+              }`}
+            >
+              <Compass className="w-4 h-4 text-[var(--gold)]" />
+              <span>{t.nav.destinations}</span>
+            </a>
+            <a
+              href="#radar-event"
+              onClick={() => {
+                setActiveNav("radar");
+                setIsMobileNavOpen(false);
+              }}
+              className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition ${
+                activeNav === "radar"
+                  ? "bg-[var(--gold)]/15 text-[var(--gold)] font-bold"
+                  : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
+              }`}
+            >
+              <Calendar className="w-4 h-4 text-rose-500" />
+              <span>{t.nav.eventRadar}</span>
+            </a>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveNav("bar-hala");
+                setIsMobileNavOpen(false);
+                setIsAiSliderOpen(true);
+              }}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${
+                activeNav === "bar-hala" || isAiSliderOpen
+                  ? "bg-[var(--gold)]/15 text-[var(--gold)] font-bold"
+                  : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <Bot className="w-4 h-4 text-emerald-500" />
+                <span>{t.nav.barHalaAi}</span>
+              </div>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            </button>
             <a
               href="#mengapa-kami"
-              className="px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 hover:text-[var(--gold)] hover:bg-[var(--gold)]/10 text-[var(--bx-ink)] border border-transparent hover:border-[var(--gold)]/30"
+              onClick={() => {
+                setActiveNav("keunggulan");
+                setIsMobileNavOpen(false);
+              }}
+              className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition ${
+                activeNav === "keunggulan"
+                  ? "bg-[var(--gold)]/15 text-[var(--gold)] font-bold"
+                  : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
+              }`}
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+              <ShieldCheck className="w-4 h-4 text-emerald-500" />
               <span>{t.nav.highlights}</span>
             </a>
-
-            {/* Suara Penjelajah */}
             <a
               href="#ulasan"
-              className="px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 hover:text-[var(--gold)] hover:bg-[var(--gold)]/10 text-[var(--bx-ink)] border border-transparent hover:border-[var(--gold)]/30"
+              onClick={() => {
+                setActiveNav("ulasan");
+                setIsMobileNavOpen(false);
+              }}
+              className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition ${
+                activeNav === "ulasan"
+                  ? "bg-[var(--gold)]/15 text-[var(--gold)] font-bold"
+                  : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
+              }`}
             >
-              <Star className="w-3.5 h-3.5 text-amber-400" />
+              <Star className="w-4 h-4 text-amber-400" />
               <span>{t.nav.testimonials}</span>
             </a>
-
-            {/* Kontak & Informasi */}
             <a
               href="#kontak"
-              className="px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 hover:text-[var(--gold)] hover:bg-[var(--gold)]/10 text-[var(--bx-ink)] border border-transparent hover:border-[var(--gold)]/30"
+              onClick={() => {
+                setActiveNav("kontak");
+                setIsMobileNavOpen(false);
+              }}
+              className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition ${
+                activeNav === "kontak"
+                  ? "bg-[var(--gold)]/15 text-[var(--gold)] font-bold"
+                  : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
+              }`}
             >
-              <Phone className="w-3.5 h-3.5 text-[var(--gold)]" />
+              <Phone className="w-4 h-4 text-[var(--gold)]" />
               <span>{t.nav.contact}</span>
             </a>
-          </nav>
-        </div>
-      </div>
+          </div>
+        )}
+      </header>
 
       {/* ======================================================== */}
       {/* 3. HERO SECTION (Fit Height, 60% Left Column, Tanpa Shading Kelap-Kelip) */}
       {/* ======================================================== */}
-      <section className="relative w-full min-h-[calc(100dvh-7.5rem)] lg:h-[calc(100dvh-7.5rem)] flex items-center justify-center overflow-hidden">
+      <section className="relative w-full min-h-[calc(100dvh-5.5rem)] lg:h-[calc(100dvh-5.5rem)] flex items-center justify-center overflow-hidden">
         {/* Background Scenic Image (Solid & Statis, Tanpa Shading Kelap-Kelip) */}
         <div className="absolute inset-0 z-0">
           <img
@@ -969,9 +1135,9 @@ export default function PortalLandingPage() {
 
             {/* Subtitle Paragraph */}
             <p className="text-slate-200 text-sm sm:text-base lg:text-lg leading-relaxed max-w-2xl font-normal">
-              {selectedProvince === "sulawesi"
+              {isOnlySulawesi
                 ? t.hero.descSulawesi
-                : selectedProvince === "lampung"
+                : isOnlyLampung
                 ? t.hero.descLampung
                 : t.hero.descAll}
             </p>
@@ -988,8 +1154,8 @@ export default function PortalLandingPage() {
 
               <button
                 type="button"
-                onClick={() => setIsAiModalOpen(true)}
-                className="h-12 px-5 rounded-xl bg-slate-900/80 hover:bg-slate-900 backdrop-blur-md border border-white/25 hover:border-[var(--gold)] text-white text-sm font-bold transition flex items-center gap-2.5 shadow-md active:scale-95"
+                onClick={() => setIsAiSliderOpen(true)}
+                className="h-12 px-5 rounded-xl bg-slate-900/80 hover:bg-slate-900 backdrop-blur-md border border-white/25 hover:border-[var(--gold)] text-white text-sm font-bold transition flex items-center gap-2.5 shadow-md active:scale-95 cursor-pointer"
               >
                 <div className="w-7 h-7 rounded-full bg-[var(--gold)]/20 border border-[var(--gold)] flex items-center justify-center text-[var(--gold)]">
                   <Play className="w-3.5 h-3.5 fill-[var(--gold)]" />
@@ -1006,6 +1172,22 @@ export default function PortalLandingPage() {
       {/* ======================================================== */}
       <section className="relative z-20 max-w-7xl w-full mx-auto px-4 sm:px-8 -mt-16 sm:-mt-20">
         <div className="w-full rounded-2xl bg-[var(--bx-surface)] border border-[var(--bx-border)] shadow-2xl p-4 sm:p-6 transition-colors">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-[var(--gold)] font-mono flex items-center gap-1.5">
+              <Compass className="w-3.5 h-3.5 text-[var(--gold)]" />
+              <span>{lang === "ID" ? "Pencarian Cepat Destinasi" : "Quick Search"}</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsFilterModalOpen(true)}
+              className="text-xs text-[var(--gold)] hover:underline font-bold flex items-center gap-1 cursor-pointer"
+            >
+              <SlidersHorizontal className="w-3 h-3" />
+              <span>{lang === "ID" ? "Buka Filter Modal (Multi-Pilih)" : "Advanced Filter Modal"}</span>
+              {totalActiveFilters > 0 && ` (${totalActiveFilters})`}
+            </button>
+          </div>
+
           {/* Form Search Row (5 Columns) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 items-end">
             {/* Column 1: Wilayah / Asal */}
@@ -1015,13 +1197,34 @@ export default function PortalLandingPage() {
                 <span>{t.searchBox.regionLabel}</span>
               </label>
               <select
-                value={selectedProvince}
-                onChange={(e) => setSelectedProvince(e.target.value as any)}
+                value={
+                  selectedProvinces.length === 0
+                    ? "all"
+                    : selectedProvinces.length === 1
+                    ? selectedProvinces[0]
+                    : "multi"
+                }
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "all") setSelectedProvinces([]);
+                  else if (val === "multi") setIsFilterModalOpen(true);
+                  else setSelectedProvinces([val]);
+                }}
                 className="w-full h-11 px-3 rounded-xl bg-[var(--bx-bg)] border border-[var(--bx-border)] text-xs sm:text-sm font-medium text-[var(--bx-ink)] focus:outline-hidden focus:border-[var(--gold)]"
               >
                 <option value="all">{t.searchBox.regionAll}</option>
-                <option value="sulawesi">{t.searchBox.regionSulawesi}</option>
-                <option value="lampung">{t.searchBox.regionLampung}</option>
+                {PROVINCES_LIST.map((prov) => (
+                  <option key={prov.id} value={prov.id}>
+                    {prov.name}
+                  </option>
+                ))}
+                {selectedProvinces.length > 1 && (
+                  <option value="multi">
+                    {lang === "ID"
+                      ? `${selectedProvinces.length} Provinsi Dipilih`
+                      : `${selectedProvinces.length} Provinces Selected`}
+                  </option>
+                )}
               </select>
             </div>
 
@@ -1032,16 +1235,36 @@ export default function PortalLandingPage() {
                 <span>{t.searchBox.categoryLabel}</span>
               </label>
               <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value as any)}
+                value={
+                  selectedCategories.length === 0
+                    ? "all"
+                    : selectedCategories.length === 1
+                    ? selectedCategories[0]
+                    : "multi"
+                }
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "all") setSelectedCategories([]);
+                  else if (val === "multi") setIsFilterModalOpen(true);
+                  else setSelectedCategories([val]);
+                }}
                 className="w-full h-11 px-3 rounded-xl bg-[var(--bx-bg)] border border-[var(--bx-border)] text-xs sm:text-sm font-medium text-[var(--bx-ink)] focus:outline-hidden focus:border-[var(--gold)]"
               >
                 <option value="all">{t.searchBox.categoryAll}</option>
-                <option value="laut">{t.searchBox.categorySea}</option>
-                <option value="budaya">{t.searchBox.categoryCulture}</option>
-                <option value="hutan">{t.searchBox.categoryForest}</option>
-                <option value="gunung">{t.searchBox.categoryMountain}</option>
-                <option value="pertanian">{t.searchBox.categoryAgro}</option>
+                <option value="sumber-alam">{lang === "ID" ? "Sumber Alam" : "Natural Resources"}</option>
+                <option value="pertanian">{lang === "ID" ? "Pertanian" : "Agriculture"}</option>
+                <option value="herbal">{lang === "ID" ? "Herbal" : "Herbal & Medicine"}</option>
+                <option value="laut">{lang === "ID" ? "Laut / Ikan" : "Marine & Fisheries"}</option>
+                <option value="flora-fauna">{lang === "ID" ? "Flora Fauna" : "Flora & Fauna"}</option>
+                <option value="budaya">{lang === "ID" ? "Budaya & Adat" : "Culture & Heritage"}</option>
+                <option value="pakaian">{lang === "ID" ? "Wastra & Busana" : "Textile & Attire"}</option>
+                {selectedCategories.length > 1 && (
+                  <option value="multi">
+                    {lang === "ID"
+                      ? `${selectedCategories.length} Kategori Dipilih`
+                      : `${selectedCategories.length} Categories Selected`}
+                  </option>
+                )}
               </select>
             </div>
 
@@ -1171,10 +1394,10 @@ export default function PortalLandingPage() {
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
               <span className="portal-badge-gold">
-                {selectedProvince === "sulawesi"
-                  ? t.destinations.badgeSulawesi
-                  : selectedProvince === "lampung"
-                  ? t.destinations.badgeLampung
+                {singleProvinceObj
+                  ? singleProvinceObj.name.toUpperCase()
+                  : selectedProvinces.length > 1
+                  ? `${selectedProvinces.length} PROVINSI DIPILIH`
                   : t.destinations.badgeAll}
               </span>
               <span className="text-xs font-mono text-[var(--bx-muted)]">
@@ -1182,17 +1405,25 @@ export default function PortalLandingPage() {
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-serif text-[var(--bx-ink-bright)]">
-              {selectedProvince === "sulawesi"
-                ? t.destinations.titleSulawesi
-                : selectedProvince === "lampung"
-                ? t.destinations.titleLampung
+              {singleProvinceObj
+                ? lang === "ID"
+                  ? `Destinasi di ${singleProvinceObj.name}`
+                  : `Destinations in ${singleProvinceObj.name}`
+                : selectedProvinces.length > 1
+                ? lang === "ID"
+                  ? "Eksplorasi Lintas Wilayah Nusantara"
+                  : "Cross-Regional Archipelago Exploration"
                 : t.destinations.titleAll}
             </h2>
             <p className="text-xs sm:text-sm text-[var(--bx-muted)] max-w-xl">
-              {selectedProvince === "sulawesi"
-                ? t.destinations.descSulawesi
-                : selectedProvince === "lampung"
-                ? t.destinations.descLampung
+              {singleProvinceObj
+                ? lang === "ID"
+                  ? `Rekomendasi destinasi pilihan di ${singleProvinceObj.name} dengan ${singleProvinceObj.desc}.`
+                  : `Curated destination highlights in ${singleProvinceObj.name} featuring ${singleProvinceObj.desc}.`
+                : selectedProvinces.length > 1
+                ? lang === "ID"
+                  ? `Menampilkan ${filteredDestinations.length} destinasi dari ${selectedProvinces.length} provinsi pilihan di Indonesia.`
+                  : `Displaying ${filteredDestinations.length} destinations from ${selectedProvinces.length} selected provinces across Indonesia.`
                 : t.destinations.descAll}
             </p>
           </div>
@@ -1207,7 +1438,7 @@ export default function PortalLandingPage() {
           </Link>
         </div>
 
-        {/* 5-Card Responsive Grid */}
+        {/* Responsive Grid */}
         {filteredDestinations.length === 0 ? (
           <div className="w-full py-12 text-center rounded-2xl bg-[var(--bx-surface)] border border-[var(--bx-border)] p-6 space-y-3">
             <Compass className="w-10 h-10 text-[var(--gold)] mx-auto opacity-70" />
@@ -1215,18 +1446,17 @@ export default function PortalLandingPage() {
             <button
               type="button"
               onClick={() => {
-                setSelectedProvince("all");
-                setCategoryFilter("all");
+                handleResetFilters();
                 setSearchKeyword("");
               }}
-              className="portal-submit-btn-gold !h-9 !px-4 !text-xs inline-flex items-center gap-1.5"
+              className="portal-submit-btn-gold !h-9 !px-4 !text-xs inline-flex items-center gap-1.5 cursor-pointer"
             >
               <span>{t.destinations.resetFilter}</span>
             </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
-            {filteredDestinations.slice(0, selectedProvince === "all" ? 5 : 10).map((dest) => {
+            {filteredDestinations.slice(0, selectedProvinces.length === 0 && selectedCategories.length === 0 ? 10 : 25).map((dest) => {
               const localized = lang === "EN" && DESTINATION_TRANSLATIONS_EN[dest.id] ? DESTINATION_TRANSLATIONS_EN[dest.id] : null;
               const destName = localized?.name || dest.name;
               const destSubtitle = localized?.subtitle || dest.subtitle;
@@ -1249,7 +1479,7 @@ export default function PortalLandingPage() {
 
                     {/* Province Pill */}
                     <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-md text-[10px] font-bold text-amber-300 border border-white/20">
-                      {dest.province.includes("Sulawesi") ? t.destinations.sulselPill : t.destinations.lampungPill}
+                      {dest.province}
                     </span>
 
                     {/* Weather Badge */}
@@ -1333,9 +1563,9 @@ export default function PortalLandingPage() {
             {/* Top Badge */}
             <div className="relative z-10">
               <span className="px-3 py-1 rounded-full bg-amber-400 text-slate-950 font-bold text-xs uppercase tracking-wider">
-                {selectedProvince === "sulawesi"
+                {isOnlySulawesi
                   ? t.specialOffer.badgeSulawesi
-                  : selectedProvince === "lampung"
+                  : isOnlyLampung
                   ? t.specialOffer.badgeLampung
                   : t.specialOffer.badgeAll}
               </span>
@@ -1344,24 +1574,24 @@ export default function PortalLandingPage() {
             {/* Bottom Content */}
             <div className="relative z-10 space-y-4">
               <h2 className="text-3xl sm:text-4xl font-serif font-black leading-tight text-white">
-                {selectedProvince === "sulawesi"
+                {isOnlySulawesi
                   ? t.specialOffer.headingSulawesi
-                  : selectedProvince === "lampung"
+                  : isOnlyLampung
                   ? t.specialOffer.headingLampung
                   : t.specialOffer.headingAll}
               </h2>
               <p className="text-slate-200 text-xs sm:text-sm leading-relaxed max-w-sm">
-                {selectedProvince === "sulawesi"
+                {isOnlySulawesi
                   ? t.specialOffer.descSulawesi
-                  : selectedProvince === "lampung"
+                  : isOnlyLampung
                   ? t.specialOffer.descLampung
                   : t.specialOffer.descAll}
               </p>
               <Link
                 href={
-                  selectedProvince === "sulawesi"
+                  isOnlySulawesi
                     ? "/peta?dest=bulukumba-bira"
-                    : selectedProvince === "lampung"
+                    : isOnlyLampung
                     ? "/peta?dest=lampung-way-kambas"
                     : "/peta"
                 }
@@ -1369,11 +1599,11 @@ export default function PortalLandingPage() {
               >
                 <span>
                   {t.specialOffer.exploreRoute}{" "}
-                  {selectedProvince === "sulawesi"
+                  {isOnlySulawesi
                     ? lang === "EN"
                       ? "S. Sulawesi"
                       : "Sulsel"
-                    : selectedProvince === "lampung"
+                    : isOnlyLampung
                     ? "Lampung"
                     : lang === "EN"
                     ? "Cultural"
@@ -1545,21 +1775,21 @@ export default function PortalLandingPage() {
               </div>
               <h3 className="text-xl sm:text-2xl font-bold font-serif text-[var(--bx-ink-bright)] mt-1">
                 {t.radarEvent.title}{" "}
-                {selectedProvince === "sulawesi"
+                {singleProvinceObj
+                  ? singleProvinceObj.name
+                  : selectedProvinces.length > 1
                   ? lang === "EN"
-                    ? "South Sulawesi"
-                    : "Sulawesi Selatan"
-                  : selectedProvince === "lampung"
-                  ? "Lampung"
+                    ? `${selectedProvinces.length} Selected Regions`
+                    : `${selectedProvinces.length} Wilayah Pilihan`
                   : lang === "EN"
-                  ? "Archipelago"
-                  : "Nusantara"}
+                  ? "Across Indonesia"
+                  : "Seluruh Nusantara"}
               </h3>
               <p className="text-xs text-[var(--bx-muted)] mt-0.5">
-                {selectedProvince === "sulawesi"
-                  ? t.radarEvent.descSulawesi
-                  : selectedProvince === "lampung"
-                  ? t.radarEvent.descLampung
+                {singleProvinceObj
+                  ? lang === "EN"
+                    ? `Curated cultural agenda and traditional ceremonies in ${singleProvinceObj.name}.`
+                    : `Agenda festival kebudayaan dan upacara adat terkurasi di ${singleProvinceObj.name}.`
                   : t.radarEvent.descAll}
               </p>
             </div>
@@ -1744,8 +1974,8 @@ export default function PortalLandingPage() {
                 <li>
                   <button
                     type="button"
-                    onClick={() => setIsAiModalOpen(true)}
-                    className="hover:text-[var(--gold)] transition-colors text-left"
+                    onClick={() => setIsAiSliderOpen(true)}
+                    className="hover:text-[var(--gold)] transition-colors text-left cursor-pointer"
                   >
                     {t.footer.aiAssistant}
                   </button>
@@ -1887,116 +2117,438 @@ export default function PortalLandingPage() {
         </div>
       </footer>
 
+      </div> {/* End of Shifting Main Page Container */}
+
       {/* ======================================================== */}
-      {/* 12. BAR HALA AI MODAL / DRAWER */}
+      {/* 12. STICKY FLOATING BAR HALA AI TRIGGER (Kanan Bawah) */}
+      {/* Muncul lagi dengan animasi ketika chat AI ditutup */}
       {/* ======================================================== */}
-      {isAiModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-lg rounded-2xl bg-[var(--bx-surface)] border border-[var(--bx-border)] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      {!isAiSliderOpen && (
+        <div className="fixed bottom-6 right-6 z-40 animate-in fade-in zoom-in-75 slide-in-from-bottom-4 duration-300">
+          <button
+            type="button"
+            onClick={() => {
+              setIsAiSliderOpen(true);
+              setActiveNav("bar-hala");
+            }}
+            className="group relative flex items-center gap-2.5 p-1.5 sm:p-2 rounded-full bg-[var(--bx-surface)]/95 backdrop-blur-md border-2 border-[var(--gold)] shadow-2xl hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            title={lang === "ID" ? "Buka Bar Hala AI • Tanya Budaya" : "Open Bar Hala AI • Cultural Guide"}
+            aria-label="Bar Hala AI"
+          >
+            {/* Ambient Glow Aura */}
+            <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-amber-500/30 via-[var(--gold)]/40 to-emerald-500/30 blur-md -z-10 group-hover:blur-lg transition-all" />
+
+            {/* Animated Barong Avatar dengan Mata Mengikuti Kursor & Berkedip */}
+            <div className="relative shrink-0">
+              <BarongAvatar size={54} isActive={true} />
+              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-[var(--bx-surface)] animate-pulse" />
+            </div>
+
+            {/* Text Callout Badge (Tablet & Desktop) */}
+            <div className="hidden sm:flex flex-col text-left pr-3">
+              <span className="text-[12px] font-bold text-[var(--gold)] font-serif leading-tight">
+                Bar Hala AI
+              </span>
+              <span className="text-[10px] text-[var(--bx-muted)] flex items-center gap-1 leading-tight">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                {lang === "ID" ? "Tanya Budaya" : "Ask Heritage"}
+              </span>
+            </div>
+          </button>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* 13. SLIDE-IN BAR HALA AI CHAT DRAWER (Slider dari Kanan) */}
+      {/* Menggeser web ke kiri saat terbuka, dan menutup kembali */}
+      {/* ======================================================== */}
+      {/* Mobile Backdrop Overlay */}
+      {isAiSliderOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-xs z-40 sm:hidden animate-in fade-in duration-200"
+          onClick={() => setIsAiSliderOpen(false)}
+        />
+      )}
+
+      {/* Slider Drawer from Right */}
+      <aside
+        aria-label="Bar Hala AI Chat"
+        className={`fixed top-0 bottom-0 right-0 z-50 w-full sm:w-[420px] lg:w-[460px] bg-[var(--bx-surface)]/98 backdrop-blur-2xl border-l border-[var(--bx-border)] shadow-2xl flex flex-col text-[var(--bx-ink)] transform transition-transform duration-300 ease-in-out ${
+          isAiSliderOpen ? "translate-x-0" : "translate-x-full pointer-events-none"
+        }`}
+      >
+        {/* Drawer Header */}
+        <div className="p-4 bg-[var(--brand)] text-white flex items-center justify-between shrink-0 shadow-md">
+          <div className="flex items-center gap-3">
+            <div className="relative shrink-0">
+              <BarongAvatar size={44} isActive={true} />
+              <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-[var(--brand)] animate-pulse" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-serif font-bold text-base text-white leading-tight">
+                  Bar Hala AI
+                </h3>
+                <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                  Aktif
+                </span>
+              </div>
+              <p className="text-[11px] text-amber-200/90 leading-tight">
+                {lang === "ID" ? "Pemandu Etika & Budaya Nusantara" : "Heritage Guide & Local Etiquette"}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                setAiChatMessages([
+                  {
+                    sender: "ai",
+                    text: DICTIONARY[lang].aiModal.greeting,
+                  },
+                ]);
+              }}
+              title={lang === "ID" ? "Bersihkan Percakapan" : "Clear Chat"}
+              className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition text-xs flex items-center gap-1 cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsAiSliderOpen(false)}
+              title={lang === "ID" ? "Tutup Chat" : "Close Chat"}
+              className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Quick Prompt Chips */}
+        <div className="p-2.5 sm:p-3 bg-[var(--bx-bg)] border-b border-[var(--bx-border)] flex items-center gap-2 overflow-x-auto scrollbar-none text-[11px] shrink-0">
+          <button
+            type="button"
+            onClick={() =>
+              handleSendAiMessage(
+                lang === "EN"
+                  ? "What is the customary etiquette when visiting Ammatoa Kajang village in Bulukumba?"
+                  : "Bagaimana etika saat berkunjung ke Desa Adat Kajang Bulukumba?"
+              )
+            }
+            className="px-2.5 py-1 rounded-full bg-[var(--bx-surface)] hover:bg-[var(--gold)]/15 border border-[var(--bx-border)] hover:border-[var(--gold)] text-[var(--bx-ink)] whitespace-nowrap transition cursor-pointer"
+          >
+            {t.aiModal.promptKajang}
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              handleSendAiMessage(
+                lang === "EN"
+                  ? "What is the philosophical meaning behind Lampung Tapis weaving?"
+                  : "Apa makna filosofis kain Tapis Lampung?"
+              )
+            }
+            className="px-2.5 py-1 rounded-full bg-[var(--bx-surface)] hover:bg-[var(--gold)]/15 border border-[var(--bx-border)] hover:border-[var(--gold)] text-[var(--bx-ink)] whitespace-nowrap transition cursor-pointer"
+          >
+            {t.aiModal.promptTapis}
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              handleSendAiMessage(
+                lang === "EN"
+                  ? "How are Pinisi wooden schooners constructed in Tana Beru?"
+                  : "Bagaimana tradisi pembuatan perahu Pinisi di Tana Beru?"
+              )
+            }
+            className="px-2.5 py-1 rounded-full bg-[var(--bx-surface)] hover:bg-[var(--gold)]/15 border border-[var(--bx-border)] hover:border-[var(--gold)] text-[var(--bx-ink)] whitespace-nowrap transition cursor-pointer"
+          >
+            {t.aiModal.promptPinisi}
+          </button>
+        </div>
+
+        {/* Scrollable Chat Messages Area */}
+        <div className="p-4 space-y-3.5 flex-1 overflow-y-auto">
+          {aiChatMessages.map((msg, idx) => (
+            <div
+              key={idx}
+              className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+            >
+              <div
+                className={`max-w-[85%] p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+                  msg.sender === "user"
+                    ? "bg-[var(--gold)] text-[var(--brand)] font-semibold rounded-br-none shadow-xs"
+                    : "bg-[var(--bx-bg)] border border-[var(--bx-border)] text-[var(--bx-ink)] rounded-bl-none shadow-xs"
+                }`}
+              >
+                {msg.text}
+              </div>
+            </div>
+          ))}
+          <div ref={chatMessagesEndRef} />
+        </div>
+
+        {/* Chat Input Bar */}
+        <div className="p-3 bg-[var(--bx-surface)] border-t border-[var(--bx-border)] flex items-center gap-2 shrink-0">
+          <input
+            type="text"
+            value={aiInputText}
+            onChange={(e) => setAiInputText(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSendAiMessage()}
+            placeholder={t.aiModal.placeholder}
+            className="flex-1 h-10 px-3 rounded-xl bg-[var(--bx-bg)] border border-[var(--bx-border)] text-xs text-[var(--bx-ink)] focus:outline-hidden focus:border-[var(--gold)]"
+          />
+          <button
+            type="button"
+            onClick={() => handleSendAiMessage()}
+            className="portal-submit-btn-gold !h-10 !px-3.5 !text-xs font-bold cursor-pointer"
+          >
+            <Send className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </aside>
+
+      {/* ======================================================== */}
+      {/* 14. FILTER MODAL (Bentuk Modal Saja, Multi-Check Ceklis) */}
+      {/* ======================================================== */}
+      {isFilterModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsFilterModalOpen(false);
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Filter Destinasi Budaya"
+            className="w-full max-w-lg rounded-2xl bg-[var(--bx-surface)] border border-[var(--bx-border)] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200"
+          >
             {/* Modal Header */}
-            <div className="p-4 bg-[var(--brand)] text-white flex items-center justify-between">
+            <div className="p-4 sm:p-5 bg-[var(--brand)] text-white flex items-center justify-between shrink-0 shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 p-1 flex items-center justify-center">
-                  <BarongAvatar size={34} />
+                <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-[var(--gold)]">
+                  <SlidersHorizontal className="w-5 h-5 text-amber-300" />
                 </div>
                 <div>
-                  <h3 className="font-serif font-bold text-base leading-tight">
-                    {t.aiModal.title}
+                  <h3 className="font-serif font-bold text-base sm:text-lg text-white leading-tight">
+                    {lang === "ID" ? "Filter Destinasi Budaya" : "Filter Cultural Destinations"}
                   </h3>
-                  <p className="text-[11px] text-amber-300">
-                    {t.aiModal.sub}
+                  <p className="text-[11px] text-amber-200/90 leading-tight">
+                    {lang === "ID"
+                      ? "Pilih provinsi & kategori (bisa multi-ceklis)"
+                      : "Select provinces & categories (multi-check)"}
                   </p>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsAiModalOpen(false)}
-                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Prompt Chips */}
-            <div className="p-3 bg-[var(--bx-bg)] border-b border-[var(--bx-border)] flex items-center gap-2 overflow-x-auto scrollbar-none text-[11px]">
-              <button
-                type="button"
-                onClick={() =>
-                  handleSendAiMessage(
-                    lang === "EN"
-                      ? "What is the customary etiquette when visiting Ammatoa Kajang village in Bulukumba?"
-                      : "Bagaimana etika saat berkunjung ke Desa Adat Kajang Bulukumba?"
-                  )
-                }
-                className="px-2.5 py-1 rounded-full bg-[var(--bx-surface)] hover:bg-[var(--gold)]/15 border border-[var(--bx-border)] hover:border-[var(--gold)] text-[var(--bx-ink)] whitespace-nowrap transition"
-              >
-                {t.aiModal.promptKajang}
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  handleSendAiMessage(
-                    lang === "EN"
-                      ? "What is the philosophical meaning behind Lampung Tapis weaving?"
-                      : "Apa makna filosofis kain Tapis Lampung?"
-                  )
-                }
-                className="px-2.5 py-1 rounded-full bg-[var(--bx-surface)] hover:bg-[var(--gold)]/15 border border-[var(--bx-border)] hover:border-[var(--gold)] text-[var(--bx-ink)] whitespace-nowrap transition"
-              >
-                {t.aiModal.promptTapis}
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  handleSendAiMessage(
-                    lang === "EN"
-                      ? "How are Pinisi wooden schooners constructed in Tana Beru?"
-                      : "Bagaimana tradisi pembuatan perahu Pinisi di Tana Beru?"
-                  )
-                }
-                className="px-2.5 py-1 rounded-full bg-[var(--bx-surface)] hover:bg-[var(--gold)]/15 border border-[var(--bx-border)] hover:border-[var(--gold)] text-[var(--bx-ink)] whitespace-nowrap transition"
-              >
-                {t.aiModal.promptPinisi}
-              </button>
-            </div>
-
-            {/* Chat Body */}
-            <div className="p-4 space-y-3 flex-1 overflow-y-auto max-h-80">
-              {aiChatMessages.map((msg, idx) => (
-                <div
-                  key={idx}
-                  className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`max-w-[85%] p-3 rounded-2xl text-xs sm:text-sm leading-relaxed ${
-                      msg.sender === "user"
-                        ? "bg-[var(--gold)] text-[var(--brand)] font-semibold rounded-br-none shadow-xs"
-                        : "bg-[var(--bx-bg)] border border-[var(--bx-border)] text-[var(--bx-ink)] rounded-bl-none"
-                    }`}
+              <div className="flex items-center gap-2">
+                {totalActiveFilters > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleResetFilters}
+                    className="text-xs text-amber-300 hover:text-white underline font-semibold transition cursor-pointer"
                   >
-                    {msg.text}
-                  </div>
-                </div>
-              ))}
+                    {lang === "ID" ? "Reset" : "Clear"}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setIsFilterModalOpen(false)}
+                  className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
-            {/* Chat Input */}
-            <div className="p-3 bg-[var(--bx-surface)] border-t border-[var(--bx-border)] flex items-center gap-2">
-              <input
-                type="text"
-                value={aiInputText}
-                onChange={(e) => setAiInputText(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSendAiMessage()}
-                placeholder={t.aiModal.placeholder}
-                className="flex-1 h-10 px-3 rounded-xl bg-[var(--bx-bg)] border border-[var(--bx-border)] text-xs text-[var(--bx-ink)] focus:outline-hidden focus:border-[var(--gold)]"
-              />
-              <button
-                type="button"
-                onClick={() => handleSendAiMessage()}
-                className="portal-submit-btn-gold !h-10 !px-3.5 !text-xs font-bold"
-              >
-                <Send className="w-3.5 h-3.5" />
-              </button>
+            {/* Modal Body (Scrollable) */}
+            <div className="p-4 sm:p-5 overflow-y-auto space-y-5 flex-1 custom-scrollbar">
+              {/* Section 1: Wilayah / Provinsi (Multi-check) — Tanpa Icon Sesuai Aturan Khusus */}
+              <div>
+                <div className="flex items-center justify-between mb-2.5">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[var(--gold)] font-mono flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-[var(--gold)]" />
+                    <span>{lang === "ID" ? "Wilayah & Provinsi" : "Region & Province"}</span>
+                  </span>
+                  <span className="text-[11px] text-[var(--bx-muted)] font-mono">
+                    {selectedProvinces.length === 0
+                      ? (lang === "ID" ? "Seluruh Indonesia (Semua)" : "All Indonesia")
+                      : `${selectedProvinces.length} ${lang === "ID" ? "Dipilih" : "Selected"}`}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
+                  {PROVINCES_LIST.map((prov) => {
+                    const isChecked = selectedProvinces.includes(prov.id);
+                    const count = getProvinceCount(prov.id);
+                    return (
+                      <label
+                        key={prov.id}
+                        className={`p-2.5 sm:p-3 rounded-xl border transition-all flex items-start gap-3 cursor-pointer select-none ${
+                          isChecked
+                            ? "bg-[var(--gold)]/15 border-[var(--gold)] shadow-xs"
+                            : "bg-[var(--bx-bg)] hover:bg-[var(--gold)]/5 border-[var(--bx-border)] hover:border-[var(--gold)]/40"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleProvince(prov.id)}
+                          className="mt-0.5 w-4 h-4 rounded text-[var(--gold)] focus:ring-[var(--gold)] border-[var(--bx-border)] cursor-pointer accent-[var(--gold)]"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-1">
+                            {/* Nama Provinsi Murni Tanpa Ikon Sesuai Instruksi User */}
+                            <span className="text-xs font-bold text-[var(--bx-ink-bright)]">
+                              {prov.name}
+                            </span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-[var(--bx-surface)] border border-[var(--bx-border)] text-[var(--bx-muted)] font-mono">
+                              {count}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-[var(--bx-muted)] mt-0.5 line-clamp-1">
+                            {prov.desc}
+                          </p>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Section 2: Kategori Wisata & Warisan (Multi-check) — Termasuk Sumber Alam, Pertanian, Herbal, Laut / Ikan, Flora Fauna */}
+              <div>
+                <div className="flex items-center justify-between mb-2.5">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[var(--gold)] font-mono flex items-center gap-1.5">
+                    <Compass className="w-3.5 h-3.5 text-[var(--gold)]" />
+                    <span>{lang === "ID" ? "Kategori Wisata & Warisan" : "Heritage Categories"}</span>
+                  </span>
+                  <span className="text-[11px] text-[var(--bx-muted)] font-mono">
+                    {selectedCategories.length === 0
+                      ? (lang === "ID" ? "Semua Terpilih" : "All Selected")
+                      : `${selectedCategories.length} ${lang === "ID" ? "Dipilih" : "Selected"}`}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {[
+                    {
+                      id: "sumber-alam",
+                      label: lang === "ID" ? "Sumber Alam" : "Natural Resources",
+                      icon: Mountain,
+                      color: "text-amber-500",
+                      desc: lang === "ID" ? "Geologi bumi, mineral, danau vulkanik & lanskap alam" : "Geology, mineral reserves & volcanic lakes",
+                    },
+                    {
+                      id: "pertanian",
+                      label: lang === "ID" ? "Pertanian" : "Agriculture",
+                      icon: Sprout,
+                      color: "text-lime-500",
+                      desc: lang === "ID" ? "Agrowisata, kopi gayo, terasering subak & perkebunan" : "Agrotourism, coffee, subak terraces & crops",
+                    },
+                    {
+                      id: "herbal",
+                      label: lang === "ID" ? "Herbal" : "Herbal & Jamu",
+                      icon: Leaf,
+                      color: "text-emerald-500",
+                      desc: lang === "ID" ? "Tanaman obat nusantara, jamu tradisional & usada" : "Medicinal herbs, traditional jamu & usada",
+                    },
+                    {
+                      id: "laut",
+                      label: lang === "ID" ? "Laut / Ikan" : "Marine & Fisheries",
+                      icon: Waves,
+                      color: "text-cyan-500",
+                      desc: lang === "ID" ? "Kekayaan laut, ikan karang, pelagis & pesisir bahari" : "Reef fish, marine biodiversity & coastal atolls",
+                    },
+                    {
+                      id: "flora-fauna",
+                      label: lang === "ID" ? "Flora Fauna" : "Flora & Fauna",
+                      icon: Trees,
+                      color: "text-emerald-600",
+                      desc: lang === "ID" ? "Suaka margasatwa, satwa liar & konservasi rimba" : "Endemic wildlife, orangutan, komodo & sanctuaries",
+                    },
+                    {
+                      id: "budaya",
+                      label: lang === "ID" ? "Budaya & Adat" : "Culture & Heritage",
+                      icon: Landmark,
+                      color: "text-amber-600",
+                      desc: lang === "ID" ? "Desa adat, cagar budaya Borobudur & Pinisi UNESCO" : "Customary villages, temples & wooden shipbuilding",
+                    },
+                    {
+                      id: "pakaian",
+                      label: lang === "ID" ? "Wastra & Busana" : "Textile & Attire",
+                      icon: Award,
+                      color: "text-purple-500",
+                      desc: lang === "ID" ? "Kain Tapis, Songket, Batik & busana tradisional" : "Traditional handwoven textiles & attire",
+                    },
+                  ].map((cat) => {
+                    const IconComp = cat.icon;
+                    const isChecked = selectedCategories.includes(cat.id);
+                    return (
+                      <label
+                        key={cat.id}
+                        className={`p-2.5 rounded-xl border transition-all flex items-start gap-2.5 cursor-pointer select-none ${
+                          isChecked
+                            ? "bg-[var(--gold)]/15 border-[var(--gold)] shadow-xs"
+                            : "bg-[var(--bx-bg)] hover:bg-[var(--gold)]/5 border-[var(--bx-border)] hover:border-[var(--gold)]/40"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleCategory(cat.id)}
+                          className="mt-0.5 w-4 h-4 rounded text-[var(--gold)] focus:ring-[var(--gold)] border-[var(--bx-border)] cursor-pointer accent-[var(--gold)]"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <IconComp className={`w-3.5 h-3.5 ${cat.color} shrink-0`} />
+                            <span className="text-xs font-semibold text-[var(--bx-ink-bright)] truncate">
+                              {cat.label}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-[var(--bx-muted)] mt-0.5 truncate">
+                            {cat.desc}
+                          </p>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-3.5 sm:p-4 bg-[var(--bx-bg)] border-t border-[var(--bx-border)] flex items-center justify-between gap-3 shrink-0">
+              <div className="text-xs text-[var(--bx-muted)]">
+                <span className="font-bold text-[var(--bx-ink-bright)] font-mono">{filteredDestinations.length}</span>{" "}
+                {lang === "ID" ? "destinasi cocok" : "destinations match"}
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsFilterModalOpen(false)}
+                  className="px-3 py-2 rounded-xl text-xs font-semibold text-[var(--bx-ink)] hover:bg-[var(--bx-surface)] border border-transparent hover:border-[var(--bx-border)] transition cursor-pointer"
+                >
+                  {lang === "ID" ? "Tutup" : "Cancel"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsFilterModalOpen(false);
+                    const el = document.getElementById("destinasi");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="portal-submit-btn-gold !h-9 !px-4 !text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>
+                    {lang === "ID"
+                      ? `Terapkan (${totalActiveFilters || "Semua"})`
+                      : `Apply (${totalActiveFilters || "All"})`}
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

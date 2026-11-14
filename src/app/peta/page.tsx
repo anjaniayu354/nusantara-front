@@ -26,7 +26,6 @@ import {
 } from "@/data/routeTracking";
 import { detectRegionFromCoordinates } from "@/utils/regionAudioDetector";
 import { getStoredUser, subscribeAuth, clearStoredUser, AuthUser } from "@/lib/auth";
-import ThemeToggle from "@/components/ThemeToggle";
 
 // Dynamically import Leaflet AdventureMap with SSR disabled
 const AdventureMap = dynamic(
@@ -633,18 +632,10 @@ function PetaContent() {
             </button>
           </div>
 
-          {/* Separator between Zoom Controls and Theme Toggle */}
+          {/* Separator between Zoom Controls and Session Buttons */}
           <div className="w-px h-5 bg-[var(--bx-border)] shrink-0 hidden sm:block" />
 
-          {/* 7. Theme Toggle */}
-          <div className="shrink-0">
-            <ThemeToggle />
-          </div>
-
-          {/* Separator between Theme Toggle and Session Buttons */}
-          <div className="w-px h-5 bg-[var(--bx-border)] shrink-0" />
-
-          {/* 8. Sesi Login: Tombol "Ke Portal" dan "Logout" jika sudah login, atau "Masuk" jika belum */}
+          {/* 7. Sesi Login: Tombol "Ke Portal" dan "Logout" jika sudah login, atau "Masuk" jika belum */}
           <div className="shrink-0">
             {authUser ? (
               <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">

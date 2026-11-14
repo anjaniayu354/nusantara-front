@@ -26,6 +26,7 @@ import {
   PanelLeftClose,
   Sparkles,
   Layers,
+  Leaf,
 } from "lucide-react";
 import { DESTINATIONS, CulturalDestination, Category } from "@/data/destinations";
 import { CULTURAL_EVENTS, CulturalEvent } from "@/data/culturalEvents";
@@ -99,34 +100,54 @@ export function SideMenuTree({
 
   // Group destinations by province and sub-theme
   const treeData = useMemo<TreeNode[]>(() => {
-    const sulawesiDests = DESTINATIONS.filter((d) => d.province === "Sulawesi Selatan");
-    const lampungDests = DESTINATIONS.filter((d) => d.province === "Lampung");
-
-    // Bulukumba sub-groups
-    const sulawesiBahari = sulawesiDests.filter((d) => d.category === "laut" || d.category === "pantai");
-    const sulawesiBudaya = sulawesiDests.filter((d) => d.category === "budaya" || d.category === "desa" || d.category === "pakaian");
-    const sulawesiAlam = sulawesiDests.filter((d) => d.category === "gunung" || d.category === "darat" || d.category === "pertanian");
-
-    // Lampung sub-groups
-    const lampungBahari = lampungDests.filter((d) => d.category === "laut" || d.category === "pantai");
-    const lampungHutan = lampungDests.filter((d) => d.category === "hutan");
-    const lampungGunung = lampungDests.filter((d) => d.category === "gunung" || d.category === "pertanian");
-    const lampungBudaya = lampungDests.filter((d) => d.category === "darat" || d.category === "budaya" || d.category === "pakaian" || d.category === "desa");
+    // Dynamic province grouping across entire Indonesia
+    const allProvinces = Array.from(new Set(DESTINATIONS.map((d) => d.province))).sort();
+    const provinceNodes: TreeNode[] = allProvinces.map((prov) => {
+      const pDests = DESTINATIONS.filter((d) => d.province === prov);
+      return {
+        id: `wilayah-${prov.toLowerCase().replace(/\s+/g, "-")}`,
+        label: prov,
+        icon: Compass,
+        badge: pDests.length,
+        children: pDests.map((d) => ({
+          id: `dest-${d.id}`,
+          label: d.name,
+          destination: d,
+        })),
+      };
+    });
 
     // Categories group
     const categoriesList: { id: Category; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-      { id: "laut", label: "Wisata Laut & Bahari", icon: Waves },
-      { id: "darat", label: "Wisata Darat & Alam", icon: MapPin },
-      { id: "gunung", label: "Wisata Gunung & Vulkanik", icon: Mountain },
-      { id: "hutan", label: "Wisata Hutan & Rimba", icon: Trees },
+      { id: "sumber-alam", label: "Sumber Alam & Geologi", icon: Mountain },
       { id: "pertanian", label: "Hasil Pertanian & Perkebunan", icon: Sprout },
+      { id: "herbal", label: "Herbal & Tanaman Obat", icon: Leaf },
+      { id: "laut", label: "Wisata Laut & Bahari", icon: Waves },
+      { id: "flora-fauna", label: "Flora & Fauna Suaka Rimba", icon: Trees },
       { id: "budaya", label: "Budaya Tradisi & Sejarah", icon: Landmark },
       { id: "pakaian", label: "Wastra & Pakaian Adat", icon: Shirt },
       { id: "desa", label: "Desa Adat Nusantara", icon: Home },
     ];
 
     const categoryNodes: TreeNode[] = categoriesList.map((cat) => {
-      const items = DESTINATIONS.filter((d) => d.category === cat.id || (cat.id === "laut" && d.category === "pantai"));
+      const items = DESTINATIONS.filter((d) => {
+        if (cat.id === "laut") {
+          return d.category === "laut" || d.category === "pantai" || d.tags?.some((t) => /laut|ikan|bahari/i.test(t));
+        }
+        if (cat.id === "sumber-alam") {
+          return d.category === "sumber-alam" || d.tags?.some((t) => /sumber alam|geologi|mineral|tambang/i.test(t));
+        }
+        if (cat.id === "herbal") {
+          return d.category === "herbal" || d.tags?.some((t) => /herbal|jamu|obat|usada|buah merah/i.test(t));
+        }
+        if (cat.id === "pertanian") {
+          return d.category === "pertanian" || (d.agriculturalProducts && d.agriculturalProducts.length > 0) || d.tags?.some((t) => /tani|kebun|kopi|subak|rempah/i.test(t));
+        }
+        if (cat.id === "flora-fauna") {
+          return d.category === "flora-fauna" || d.category === "hutan" || d.tags?.some((t) => /flora|fauna|satwa|orangutan|gajah|komodo|banteng/i.test(t));
+        }
+        return d.category === cat.id;
+      });
       return {
         id: `cat-${cat.id}`,
         label: cat.label,
@@ -150,105 +171,11 @@ export function SideMenuTree({
     return [
       {
         id: "root-wilayah",
-        label: "Wilayah & Episentrum Budaya",
+        label: "Wilayah Nusantara (12 Provinsi)",
         icon: MapPin,
         badge: `${DESTINATIONS.length} Destinasi`,
         badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/40",
-        children: [
-          {
-            id: "wilayah-sulawesi",
-            label: "Sulawesi Selatan (Bulukumba)",
-            icon: Compass,
-            badge: sulawesiDests.length,
-            children: [
-              {
-                id: "sul-bahari",
-                label: "Wisata Bahari & Pesisir",
-                icon: Waves,
-                badge: sulawesiBahari.length,
-                children: sulawesiBahari.map((d) => ({
-                  id: `dest-${d.id}`,
-                  label: d.name,
-                  destination: d,
-                })),
-              },
-              {
-                id: "sul-budaya",
-                label: "Budaya Adat & Panrita Lopi",
-                icon: Landmark,
-                badge: sulawesiBudaya.length,
-                children: sulawesiBudaya.map((d) => ({
-                  id: `dest-${d.id}`,
-                  label: d.name,
-                  destination: d,
-                })),
-              },
-              {
-                id: "sul-alam",
-                label: "Lembah, Puncak & Agrowisata",
-                icon: Mountain,
-                badge: sulawesiAlam.length,
-                children: sulawesiAlam.map((d) => ({
-                  id: `dest-${d.id}`,
-                  label: d.name,
-                  destination: d,
-                })),
-              },
-            ],
-          },
-          {
-            id: "wilayah-lampung",
-            label: "Lampung (Sumatera)",
-            icon: Compass,
-            badge: lampungDests.length,
-            children: [
-              {
-                id: "lamp-bahari",
-                label: "Teluk & Bahari Samudera",
-                icon: Waves,
-                badge: lampungBahari.length,
-                children: lampungBahari.map((d) => ({
-                  id: `dest-${d.id}`,
-                  label: d.name,
-                  destination: d,
-                })),
-              },
-              {
-                id: "lamp-hutan",
-                label: "Konservasi & Hutan Rimba",
-                icon: Trees,
-                badge: lampungHutan.length,
-                children: lampungHutan.map((d) => ({
-                  id: `dest-${d.id}`,
-                  label: d.name,
-                  destination: d,
-                })),
-              },
-              {
-                id: "lamp-gunung",
-                label: "Vulkanik & Kebun Robusta",
-                icon: Mountain,
-                badge: lampungGunung.length,
-                children: lampungGunung.map((d) => ({
-                  id: `dest-${d.id}`,
-                  label: d.name,
-                  destination: d,
-                })),
-              },
-              {
-                id: "lamp-budaya",
-                label: "Megalitikum, Tapis & Adat",
-                icon: Landmark,
-                badge: lampungBudaya.length,
-                children: lampungBudaya.map((d) => ({
-                  id: `dest-${d.id}`,
-                  label: d.name,
-                  destination: d,
-                })),
-              },
-            ],
-          },
-        ],
+        children: provinceNodes,
       },
       {
         id: "root-kategori",

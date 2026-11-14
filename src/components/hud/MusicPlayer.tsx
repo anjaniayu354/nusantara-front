@@ -372,7 +372,7 @@ export function MusicPlayer({
               </span>
               {queuedNextTrackId && (
                 <span className="text-[9px] text-[var(--gold)] font-mono bg-[var(--gold)]/20 px-1.5 py-0.5 rounded border border-[var(--gold)]/30 shrink-0 ml-1">
-                  ➔ Lanjut: Pencak Silat
+                  ➔ Lanjut: {AUDIO_TRACKS.find((t) => t.id === queuedNextTrackId)?.title.replace(/[\u{1F300}-\u{1F9FF}]/gu, "").trim() || "Berikutnya"}
                 </span>
               )}
             </div>

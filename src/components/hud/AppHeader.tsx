@@ -24,6 +24,7 @@ import {
   CalendarDays,
   Layers,
   Sparkles,
+  Leaf,
 } from "lucide-react";
 import { DESTINATIONS, CulturalDestination, Category } from "@/data/destinations";
 import { BarongAvatar } from "./BarongAvatar";
@@ -35,12 +36,12 @@ export interface CategoryOption {
 }
 
 const CATEGORIES: CategoryOption[] = [
-  { id: "all", label: "Semua", icon: Layers },
-  { id: "laut", label: "Wisata Laut", icon: Waves },
-  { id: "darat", label: "Wisata Darat", icon: MapPin },
-  { id: "gunung", label: "Wisata Gunung", icon: Mountain },
-  { id: "hutan", label: "Wisata Hutan", icon: Trees },
-  { id: "pertanian", label: "Hasil Pertanian", icon: Sprout },
+  { id: "all", label: "Semua Kategori", icon: Layers },
+  { id: "sumber-alam", label: "Sumber Alam", icon: Mountain },
+  { id: "pertanian", label: "Pertanian", icon: Sprout },
+  { id: "herbal", label: "Herbal & Jamu", icon: Leaf },
+  { id: "laut", label: "Laut / Ikan", icon: Waves },
+  { id: "flora-fauna", label: "Flora Fauna", icon: Trees },
   { id: "budaya", label: "Budaya Tradisi", icon: Landmark },
   { id: "pakaian", label: "Pakaian Adat", icon: Shirt },
   { id: "desa", label: "Desa Adat", icon: Home },
