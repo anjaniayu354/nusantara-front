@@ -622,11 +622,11 @@ export default function PortalLandingPage() {
         <div
           className={`w-full overflow-hidden transition-all duration-300 ease-in-out border-b border-[var(--bx-border)]/60 text-xs text-[var(--bx-muted)] ${
             isTopBarVisible
-              ? "max-h-14 opacity-100 py-1.5 sm:py-2 px-4 sm:px-8"
-              : "max-h-0 opacity-0 py-0 px-4 sm:px-8 border-b-0 pointer-events-none"
+              ? "max-h-14 opacity-100 py-1.5 sm:py-2"
+              : "max-h-0 opacity-0 py-0 border-b-0 pointer-events-none"
           }`}
         >
-          <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 flex items-center justify-between gap-3 sm:gap-6">
             {/* Pojok Kiri: No Telp & Email seperti semula */}
             <div className="flex items-center gap-3 sm:gap-6 shrink-0">
               <a
@@ -760,40 +760,8 @@ export default function PortalLandingPage() {
                   : "border-transparent text-[var(--bx-ink)] hover:text-[var(--gold)] hover:border-[var(--gold)]/40 font-medium"
               }`}
             >
-              <Calendar className="w-3.5 h-3.5 text-rose-500" />
+              <Calendar className="w-3.5 h-3.5 text-[var(--gold)]" />
               <span>{t.nav.eventRadar}</span>
-            </a>
-
-            {/* Bar Hala AI */}
-            <button
-              type="button"
-              onClick={() => {
-                setActiveNav("bar-hala");
-                setIsAiSliderOpen(true);
-              }}
-              className={`h-full flex items-center gap-1.5 px-2.5 xl:px-3 transition-all cursor-pointer border-b-[3px] ${
-                activeNav === "bar-hala" || isAiSliderOpen
-                  ? "border-[var(--gold)] text-[var(--gold)] font-bold bg-transparent"
-                  : "border-transparent text-[var(--bx-ink)] hover:text-[var(--gold)] hover:border-[var(--gold)]/40 font-medium"
-              }`}
-            >
-              <Bot className="w-3.5 h-3.5 text-emerald-500" />
-              <span>{t.nav.barHalaAi}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            </button>
-
-            {/* Keunggulan */}
-            <a
-              href="#mengapa-kami"
-              onClick={() => setActiveNav("keunggulan")}
-              className={`h-full flex items-center gap-1.5 px-2.5 xl:px-3 transition-all cursor-pointer border-b-[3px] ${
-                activeNav === "keunggulan"
-                  ? "border-[var(--gold)] text-[var(--gold)] font-bold bg-transparent"
-                  : "border-transparent text-[var(--bx-ink)] hover:text-[var(--gold)] hover:border-[var(--gold)]/40 font-medium"
-              }`}
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-              <span>{t.nav.highlights}</span>
             </a>
 
             {/* Suara Penjelajah */}
@@ -806,7 +774,7 @@ export default function PortalLandingPage() {
                   : "border-transparent text-[var(--bx-ink)] hover:text-[var(--gold)] hover:border-[var(--gold)]/40 font-medium"
               }`}
             >
-              <Star className="w-3.5 h-3.5 text-amber-400" />
+              <Star className="w-3.5 h-3.5 text-[var(--gold)]" />
               <span>{t.nav.testimonials}</span>
             </a>
 
@@ -1003,42 +971,8 @@ export default function PortalLandingPage() {
                   : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
               }`}
             >
-              <Calendar className="w-4 h-4 text-rose-500" />
+              <Calendar className="w-4 h-4 text-[var(--gold)]" />
               <span>{t.nav.eventRadar}</span>
-            </a>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveNav("bar-hala");
-                setIsMobileNavOpen(false);
-                setIsAiSliderOpen(true);
-              }}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${
-                activeNav === "bar-hala" || isAiSliderOpen
-                  ? "bg-[var(--gold)]/15 text-[var(--gold)] font-bold"
-                  : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <Bot className="w-4 h-4 text-emerald-500" />
-                <span>{t.nav.barHalaAi}</span>
-              </div>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            </button>
-            <a
-              href="#mengapa-kami"
-              onClick={() => {
-                setActiveNav("keunggulan");
-                setIsMobileNavOpen(false);
-              }}
-              className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition ${
-                activeNav === "keunggulan"
-                  ? "bg-[var(--gold)]/15 text-[var(--gold)] font-bold"
-                  : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
-              }`}
-            >
-              <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              <span>{t.nav.highlights}</span>
             </a>
             <a
               href="#ulasan"
@@ -1052,7 +986,7 @@ export default function PortalLandingPage() {
                   : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
               }`}
             >
-              <Star className="w-4 h-4 text-amber-400" />
+              <Star className="w-4 h-4 text-[var(--gold)]" />
               <span>{t.nav.testimonials}</span>
             </a>
             <a
@@ -1325,7 +1259,7 @@ export default function PortalLandingPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Benefit 1 */}
           <div className="p-5 rounded-2xl bg-[var(--bx-surface)] border border-[var(--bx-border)] flex items-start gap-4 shadow-xs transition-transform hover:-translate-y-1">
-            <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-[var(--gold)] shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 flex items-center justify-center text-[var(--gold)] shrink-0">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div className="space-y-1">
@@ -1340,7 +1274,7 @@ export default function PortalLandingPage() {
 
           {/* Benefit 2 */}
           <div className="p-5 rounded-2xl bg-[var(--bx-surface)] border border-[var(--bx-border)] flex items-start gap-4 shadow-xs transition-transform hover:-translate-y-1">
-            <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-600 shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 flex items-center justify-center text-[var(--gold)] shrink-0">
               <Bot className="w-6 h-6" />
             </div>
             <div className="space-y-1">
@@ -1355,7 +1289,7 @@ export default function PortalLandingPage() {
 
           {/* Benefit 3 */}
           <div className="p-5 rounded-2xl bg-[var(--bx-surface)] border border-[var(--bx-border)] flex items-start gap-4 shadow-xs transition-transform hover:-translate-y-1">
-            <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-600 shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 flex items-center justify-center text-[var(--gold)] shrink-0">
               <Award className="w-6 h-6" />
             </div>
             <div className="space-y-1">
@@ -1370,7 +1304,7 @@ export default function PortalLandingPage() {
 
           {/* Benefit 4 */}
           <div className="p-5 rounded-2xl bg-[var(--bx-surface)] border border-[var(--bx-border)] flex items-start gap-4 shadow-xs transition-transform hover:-translate-y-1">
-            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-600 shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 flex items-center justify-center text-[var(--gold)] shrink-0">
               <Waves className="w-6 h-6" />
             </div>
             <div className="space-y-1">
@@ -1630,7 +1564,7 @@ export default function PortalLandingPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
               {/* Item 1 */}
               <div className="p-4 sm:p-5 rounded-2xl bg-[var(--bx-surface)] border border-[var(--bx-border)] space-y-2 shadow-xs">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-[var(--gold)]">
+                <div className="w-10 h-10 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/25 flex items-center justify-center text-[var(--gold)]">
                   <Users className="w-5 h-5" />
                 </div>
                 <h4 className="text-sm font-bold text-[var(--bx-ink-bright)]">
@@ -1643,7 +1577,7 @@ export default function PortalLandingPage() {
 
               {/* Item 2 */}
               <div className="p-4 sm:p-5 rounded-2xl bg-[var(--bx-surface)] border border-[var(--bx-border)] space-y-2 shadow-xs">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/25 flex items-center justify-center text-blue-600">
+                <div className="w-10 h-10 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/25 flex items-center justify-center text-[var(--gold)]">
                   <Compass className="w-5 h-5" />
                 </div>
                 <h4 className="text-sm font-bold text-[var(--bx-ink-bright)]">
@@ -1656,7 +1590,7 @@ export default function PortalLandingPage() {
 
               {/* Item 3 */}
               <div className="p-4 sm:p-5 rounded-2xl bg-[var(--bx-surface)] border border-[var(--bx-border)] space-y-2 shadow-xs">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/25 flex items-center justify-center text-purple-600">
+                <div className="w-10 h-10 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/25 flex items-center justify-center text-[var(--gold)]">
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <h4 className="text-sm font-bold text-[var(--bx-ink-bright)]">
@@ -1669,7 +1603,7 @@ export default function PortalLandingPage() {
 
               {/* Item 4 */}
               <div className="p-4 sm:p-5 rounded-2xl bg-[var(--bx-surface)] border border-[var(--bx-border)] space-y-2 shadow-xs">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-600">
+                <div className="w-10 h-10 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/25 flex items-center justify-center text-[var(--gold)]">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <h4 className="text-sm font-bold text-[var(--bx-ink-bright)]">
@@ -2121,7 +2055,7 @@ export default function PortalLandingPage() {
 
       {/* ======================================================== */}
       {/* 12. STICKY FLOATING BAR HALA AI TRIGGER (Kanan Bawah) */}
-      {/* Muncul lagi dengan animasi ketika chat AI ditutup */}
+      {/* Karakter Animasi Murni Tanpa Kotak & Tanpa Wording */}
       {/* ======================================================== */}
       {!isAiSliderOpen && (
         <div className="fixed bottom-6 right-6 z-40 animate-in fade-in zoom-in-75 slide-in-from-bottom-4 duration-300">
@@ -2131,29 +2065,11 @@ export default function PortalLandingPage() {
               setIsAiSliderOpen(true);
               setActiveNav("bar-hala");
             }}
-            className="group relative flex items-center gap-2.5 p-1.5 sm:p-2 rounded-full bg-[var(--bx-surface)]/95 backdrop-blur-md border-2 border-[var(--gold)] shadow-2xl hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            className="relative shrink-0 p-0 m-0 bg-transparent border-0 outline-none cursor-pointer focus:outline-none transition-transform duration-300 hover:scale-110 active:scale-95 group filter drop-shadow-[0_8px_24px_rgba(0,0,0,0.45)]"
             title={lang === "ID" ? "Buka Bar Hala AI • Tanya Budaya" : "Open Bar Hala AI • Cultural Guide"}
             aria-label="Bar Hala AI"
           >
-            {/* Ambient Glow Aura */}
-            <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-amber-500/30 via-[var(--gold)]/40 to-emerald-500/30 blur-md -z-10 group-hover:blur-lg transition-all" />
-
-            {/* Animated Barong Avatar dengan Mata Mengikuti Kursor & Berkedip */}
-            <div className="relative shrink-0">
-              <BarongAvatar size={54} isActive={true} />
-              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-[var(--bx-surface)] animate-pulse" />
-            </div>
-
-            {/* Text Callout Badge (Tablet & Desktop) */}
-            <div className="hidden sm:flex flex-col text-left pr-3">
-              <span className="text-[12px] font-bold text-[var(--gold)] font-serif leading-tight">
-                Bar Hala AI
-              </span>
-              <span className="text-[10px] text-[var(--bx-muted)] flex items-center gap-1 leading-tight">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                {lang === "ID" ? "Tanya Budaya" : "Ask Heritage"}
-              </span>
-            </div>
+            <BarongAvatar size={72} isActive={true} />
           </button>
         </div>
       )}
@@ -2437,49 +2353,49 @@ export default function PortalLandingPage() {
                       id: "sumber-alam",
                       label: lang === "ID" ? "Sumber Alam" : "Natural Resources",
                       icon: Mountain,
-                      color: "text-amber-500",
+                      color: "text-[var(--gold)]",
                       desc: lang === "ID" ? "Geologi bumi, mineral, danau vulkanik & lanskap alam" : "Geology, mineral reserves & volcanic lakes",
                     },
                     {
                       id: "pertanian",
                       label: lang === "ID" ? "Pertanian" : "Agriculture",
                       icon: Sprout,
-                      color: "text-lime-500",
+                      color: "text-[var(--gold)]",
                       desc: lang === "ID" ? "Agrowisata, kopi gayo, terasering subak & perkebunan" : "Agrotourism, coffee, subak terraces & crops",
                     },
                     {
                       id: "herbal",
                       label: lang === "ID" ? "Herbal" : "Herbal & Jamu",
                       icon: Leaf,
-                      color: "text-emerald-500",
+                      color: "text-[var(--gold)]",
                       desc: lang === "ID" ? "Tanaman obat nusantara, jamu tradisional & usada" : "Medicinal herbs, traditional jamu & usada",
                     },
                     {
                       id: "laut",
                       label: lang === "ID" ? "Laut / Ikan" : "Marine & Fisheries",
                       icon: Waves,
-                      color: "text-cyan-500",
+                      color: "text-[var(--gold)]",
                       desc: lang === "ID" ? "Kekayaan laut, ikan karang, pelagis & pesisir bahari" : "Reef fish, marine biodiversity & coastal atolls",
                     },
                     {
                       id: "flora-fauna",
                       label: lang === "ID" ? "Flora Fauna" : "Flora & Fauna",
                       icon: Trees,
-                      color: "text-emerald-600",
+                      color: "text-[var(--gold)]",
                       desc: lang === "ID" ? "Suaka margasatwa, satwa liar & konservasi rimba" : "Endemic wildlife, orangutan, komodo & sanctuaries",
                     },
                     {
                       id: "budaya",
                       label: lang === "ID" ? "Budaya & Adat" : "Culture & Heritage",
                       icon: Landmark,
-                      color: "text-amber-600",
+                      color: "text-[var(--gold)]",
                       desc: lang === "ID" ? "Desa adat, cagar budaya Borobudur & Pinisi UNESCO" : "Customary villages, temples & wooden shipbuilding",
                     },
                     {
                       id: "pakaian",
                       label: lang === "ID" ? "Wastra & Busana" : "Textile & Attire",
                       icon: Award,
-                      color: "text-purple-500",
+                      color: "text-[var(--gold)]",
                       desc: lang === "ID" ? "Kain Tapis, Songket, Batik & busana tradisional" : "Traditional handwoven textiles & attire",
                     },
                   ].map((cat) => {
