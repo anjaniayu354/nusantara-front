@@ -32,9 +32,9 @@ const nusantara = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Nusa Antara — Peta Petualangan Wisata & Trip Plan Budaya Nusantara",
+  title: "Nusa Antara — Portal Eksplorasi Budaya & Wisata Nusantara",
   description:
-    "Portal Peta Petualangan Wisata Budaya Indonesia dengan integrasi OpenStreetMap, BMKG SATU PETA MKG, Bar Hala Ai, dan Backsound Musik Gamelan Nusantara.",
+    "Portal Utama Budaya & Peta Petualangan Wisata Indonesia dengan integrasi OpenStreetMap, BMKG Telemetri Cuaca, Bar Hala AI, dan Warisan Musik Tradisional Nusantara.",
   icons: {
     icon: "/favicon.ico",
   },
@@ -50,7 +50,7 @@ export default function RootLayout({
       lang="id"
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${cinzel.variable} ${nusantara.variable} h-full antialiased`}
     >
-      <body className="h-full w-full overflow-hidden bg-slate-950 text-white select-none">
+      <body className="h-full w-full bg-slate-950 text-white select-none">
         {children}
       </body>
     </html>
