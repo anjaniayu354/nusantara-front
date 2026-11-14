@@ -63,7 +63,7 @@ export function MapLayersWidget({
 
   // Close drop-up on click outside or Escape key
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (
         containerRef.current &&
         !containerRef.current.contains(event.target as Node)
@@ -80,10 +80,12 @@ export function MapLayersWidget({
 
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside, { passive: true });
       document.addEventListener("keydown", handleKeyDown);
     }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen]);
@@ -108,7 +110,7 @@ export function MapLayersWidget({
           role="dialog"
           aria-modal="true"
           aria-label="Panel Pengaturan Peta dan Lapisan"
-          className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 w-[340px] sm:w-[410px] bg-[var(--bx-surface-card)]/98 backdrop-blur-xl border border-[var(--bx-border)] rounded-2xl p-3.5 sm:p-4 shadow-2xl text-[var(--bx-ink)] z-50 animate-in fade-in slide-in-from-bottom-2 duration-200"
+          className="absolute bottom-full mb-2.5 left-0 sm:left-1/2 sm:-translate-x-1/2 w-[340px] sm:w-[410px] max-w-[calc(100vw-24px)] bg-[var(--bx-surface-card)]/98 backdrop-blur-xl border border-[var(--bx-border)] rounded-2xl p-3.5 sm:p-4 shadow-2xl text-[var(--bx-ink)] z-50 animate-in fade-in slide-in-from-bottom-2 duration-200"
         >
           {/* Header */}
           <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-[var(--bx-border)]">

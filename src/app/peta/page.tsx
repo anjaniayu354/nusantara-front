@@ -527,9 +527,9 @@ function PetaContent() {
       />
 
       {/* UNIFIED BOTTOM FOOTER BAR */}
-      <footer className="fixed bottom-0 inset-x-0 z-40 h-11 sm:h-12 bg-[var(--bx-surface)]/95 backdrop-blur-xl border-t border-[var(--bx-border)] px-2 sm:px-4 flex items-center justify-between gap-2 sm:gap-3 text-[var(--bx-ink)] select-none">
+      <footer className="fixed bottom-0 inset-x-0 z-50 h-11 sm:h-12 bg-[var(--bx-surface)]/95 backdrop-blur-xl border-t border-[var(--bx-border)] px-2 sm:px-4 flex items-center justify-between gap-1.5 sm:gap-3 text-[var(--bx-ink)] select-none">
         {/* Left Functional Group: Music Player, Map Style, BMKG Filter Drop-Up & Route Weather Tracker */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           {/* 1. Background Music Player */}
           <div className="shrink-0">
             <MusicPlayer
@@ -588,8 +588,8 @@ function PetaContent() {
               }`}
             >
               <RouteIcon className="w-3.5 h-3.5 text-amber-500" />
-              <span className="hidden xs:inline">Cek Rute & Cuaca</span>
-              <span className="xs:hidden">Rute</span>
+              <span className="hidden sm:inline">Cek Rute & Cuaca</span>
+              <span className="sm:hidden hidden xs:inline">Rute</span>
               {routeTrackingResult && (
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
               )}
@@ -612,7 +612,7 @@ function PetaContent() {
           <div className="w-px h-5 bg-[var(--bx-border)] shrink-0 hidden md:block" />
 
           {/* 6. Custom Map Zoom Controls (+ / -) */}
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="hidden sm:flex items-center gap-1 shrink-0">
             <button
               type="button"
               onClick={() => setZoomTrigger({ type: "in", id: Date.now() })}
@@ -634,7 +634,7 @@ function PetaContent() {
           </div>
 
           {/* Separator between Zoom Controls and Theme Toggle */}
-          <div className="w-px h-5 bg-[var(--bx-border)] shrink-0" />
+          <div className="w-px h-5 bg-[var(--bx-border)] shrink-0 hidden sm:block" />
 
           {/* 7. Theme Toggle */}
           <div className="shrink-0">

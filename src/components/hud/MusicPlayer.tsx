@@ -339,7 +339,7 @@ export function MusicPlayer({
       {isExpanded && (
         <div className="absolute bottom-full mb-3 left-0 w-80 sm:w-96 max-w-[calc(100vw-24px)] max-h-[calc(100dvh-70px)] flex flex-col bg-[var(--bx-surface-card)]/98 backdrop-blur-2xl border border-[var(--bx-border)] rounded-2xl p-3 sm:p-3.5 shadow-2xl text-[var(--bx-ink)] z-50 animate-in fade-in slide-in-from-bottom-3 duration-200">
           {/* Header */}
-          <div className="flex items-center justify-between pb-2.5 border-b border-[var(--bx-border)] mb-2.5">
+          <div className="flex items-center justify-between pb-2.5 border-b border-[var(--bx-border)] mb-2.5 shrink-0">
             <div className="flex items-center gap-2">
               <div className="p-1 rounded-lg bg-[var(--gold)]/20 text-[var(--gold)]">
                 <ListMusic className="w-4 h-4" />
@@ -357,7 +357,7 @@ export function MusicPlayer({
               onClick={() => setIsExpanded(false)}
               aria-label="Tutup daftar lagu"
               title="Tutup drop up"
-              className="p-1 rounded-md hover:bg-[var(--bx-bg)] text-[var(--bx-muted)] hover:text-[var(--bx-ink)] transition"
+              className="p-1 rounded-md hover:bg-[var(--bx-bg)] text-[var(--bx-muted)] hover:text-[var(--bx-ink)] transition cursor-pointer"
             >
               <ChevronDown className="w-4 h-4" />
             </button>
@@ -365,7 +365,7 @@ export function MusicPlayer({
 
           {/* Dynamic Map DJ Location Indicator */}
           {geoRegionName && (
-            <div className="flex items-center justify-between px-2 py-1 mb-2.5 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/20 text-[10px]">
+            <div className="flex items-center justify-between px-2 py-1 mb-2.5 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/20 text-[10px] shrink-0">
               <span className="text-[var(--gold)] font-medium flex items-center gap-1.5 truncate">
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--gold)] animate-ping shrink-0"></span>
                 Auto-DJ: <span className="font-bold text-[var(--bx-ink-bright)] truncate">{geoRegionName}</span>
@@ -379,7 +379,7 @@ export function MusicPlayer({
           )}
 
           {/* Current Playing Mini Bar */}
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-[var(--gold)]/10 via-[var(--bx-bg)] to-[var(--bx-surface)] border border-[var(--gold)]/25 mb-3 shadow-inner">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-[var(--gold)]/10 via-[var(--bx-bg)] to-[var(--bx-surface)] border border-[var(--gold)]/25 mb-3 shadow-inner shrink-0">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 mb-0.5">
@@ -409,14 +409,14 @@ export function MusicPlayer({
                   onClick={handlePrevTrack}
                   aria-label="Lagu sebelumnya"
                   title="Lagu sebelumnya"
-                  className="p-1 rounded-full text-[var(--bx-muted)] hover:text-[var(--gold)] transition"
+                  className="p-1 rounded-full text-[var(--bx-muted)] hover:text-[var(--gold)] transition cursor-pointer"
                 >
                   <SkipBack className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={togglePlay}
                   aria-label={isPlaying ? "Jeda" : "Putar"}
-                  className="w-7 h-7 rounded-full bg-[var(--gold)] hover:brightness-110 text-white flex items-center justify-center font-bold shadow-md transition active:scale-95"
+                  className="w-7 h-7 rounded-full bg-[var(--gold)] hover:brightness-110 text-white flex items-center justify-center font-bold shadow-md transition active:scale-95 cursor-pointer"
                 >
                   {isPlaying ? (
                     <Pause className="w-3 h-3 fill-current" />
@@ -428,7 +428,7 @@ export function MusicPlayer({
                   onClick={handleNextTrack}
                   aria-label="Lagu berikutnya"
                   title="Lagu berikutnya"
-                  className="p-1 rounded-full text-[var(--bx-muted)] hover:text-[var(--gold)] transition"
+                  className="p-1 rounded-full text-[var(--bx-muted)] hover:text-[var(--gold)] transition cursor-pointer"
                 >
                   <SkipForward className="w-3.5 h-3.5" />
                 </button>
@@ -465,7 +465,7 @@ export function MusicPlayer({
                   onClick={() => setIsLooping(!isLooping)}
                   aria-label={isLooping ? "Matikan loop" : "Aktifkan loop"}
                   title={isLooping ? "Loop aktif" : "Loop nonaktif"}
-                  className={`inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded transition ${
+                  className={`inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded transition cursor-pointer ${
                     isLooping
                       ? "bg-[var(--gold)]/20 text-[var(--gold)] border border-[var(--gold)]/40 font-bold"
                       : "text-[var(--bx-muted)] hover:text-[var(--bx-ink)]"
@@ -479,7 +479,7 @@ export function MusicPlayer({
                   <button
                     onClick={toggleMute}
                     aria-label={isMuted ? "Bunyikan" : "Bisukan"}
-                    className="text-[var(--bx-muted)] hover:text-[var(--bx-ink)] transition"
+                    className="text-[var(--bx-muted)] hover:text-[var(--bx-ink)] transition cursor-pointer"
                   >
                     {isMuted || volume === 0 ? (
                       <VolumeX className="w-3 h-3 text-rose-500" />
@@ -503,7 +503,7 @@ export function MusicPlayer({
           </div>
 
           {/* Scrollable Playlist Header */}
-          <div className="flex items-center justify-between px-1 mb-1.5">
+          <div className="flex items-center justify-between px-1 mb-1.5 shrink-0">
             <span className="text-[10px] font-semibold text-[var(--bx-ink-bright)] uppercase tracking-wider">
               Pilih Lagu (Scroll)
             </span>
@@ -513,7 +513,7 @@ export function MusicPlayer({
           </div>
 
           {/* Scrollable Playlist List */}
-          <div className="flex-1 min-h-[140px] max-h-56 sm:max-h-64 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
+          <div className="flex-1 min-h-[140px] max-h-64 sm:max-h-80 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
             {AUDIO_TRACKS.map((track, idx) => {
               const isCurrent = idx === currentTrackIndex;
               return (
@@ -593,25 +593,28 @@ export function MusicPlayer({
 
       {/* Main Docked Bar: Integrated within the Unified Bottom Footer */}
       <div className="flex items-center gap-1 sm:gap-1.5 text-[var(--bx-ink)]">
-        {/* Spinning Disc / Visualizer Icon */}
-        <div
-          className={`flex items-center justify-center p-1 rounded-full ${
+        {/* Spinning Disc / Visualizer Button (Click toggles drop up playlist) */}
+        <button
+          type="button"
+          onClick={() => setIsExpanded((prev) => !prev)}
+          className={`flex items-center justify-center p-1 rounded-full cursor-pointer hover:bg-[var(--bx-bg)] transition ${
             isPlaying ? "text-[var(--gold)]" : "text-[var(--bx-muted)]"
           }`}
-          title="Pemutar Backsound Budaya Nusantara"
+          aria-label={isExpanded ? "Tutup playlist musik" : "Buka playlist musik"}
+          title="Pemutar Backsound Budaya Nusantara (Klik untuk buka/tutup playlist)"
         >
           <Disc3
             className={`w-4 h-4 ${isPlaying ? "animate-spin" : ""}`}
             style={{ animationDuration: "3.5s" }}
           />
-        </div>
+        </button>
 
         {/* Previous Track Mini Button */}
         <button
           onClick={handlePrevTrack}
           aria-label="Lagu sebelumnya"
           title="Lagu sebelumnya"
-          className="p-1 rounded-full text-[var(--bx-muted)] hover:text-[var(--bx-ink-bright)] hover:bg-[var(--bx-bg)] transition active:scale-90"
+          className="p-1 rounded-full text-[var(--bx-muted)] hover:text-[var(--bx-ink-bright)] hover:bg-[var(--bx-bg)] transition active:scale-90 hidden xs:flex cursor-pointer"
         >
           <SkipBack className="w-3.5 h-3.5" />
         </button>
@@ -620,7 +623,7 @@ export function MusicPlayer({
         <button
           onClick={togglePlay}
           aria-label={isPlaying ? "Jeda musik latar" : "Putar musik latar"}
-          className="w-6 h-6 rounded-full bg-[var(--gold)] hover:brightness-110 text-white flex items-center justify-center font-bold shadow transition active:scale-90"
+          className="w-6 h-6 rounded-full bg-[var(--gold)] hover:brightness-110 text-white flex items-center justify-center font-bold shadow transition active:scale-90 cursor-pointer"
         >
           {isPlaying ? (
             <Pause className="w-3 h-3 fill-current" />
@@ -634,7 +637,7 @@ export function MusicPlayer({
           onClick={handleNextTrack}
           aria-label="Lagu berikutnya"
           title="Lagu berikutnya"
-          className="p-1 rounded-full text-[var(--bx-muted)] hover:text-[var(--bx-ink-bright)] hover:bg-[var(--bx-bg)] transition active:scale-90"
+          className="p-1 rounded-full text-[var(--bx-muted)] hover:text-[var(--bx-ink-bright)] hover:bg-[var(--bx-bg)] transition active:scale-90 hidden xs:flex cursor-pointer"
         >
           <SkipForward className="w-3.5 h-3.5" />
         </button>
@@ -676,7 +679,7 @@ export function MusicPlayer({
           onClick={() => setIsExpanded((prev) => !prev)}
           aria-label={isExpanded ? "Ciutkan panel audio" : "Buka kontrol & daftar audio"}
           title={isExpanded ? "Ciutkan" : "Daftar lagu"}
-          className="p-1 rounded-full text-[var(--bx-muted)] hover:text-[var(--bx-ink-bright)] hover:bg-[var(--bx-bg)] transition cursor-pointer"
+          className="p-1 rounded-full text-[var(--bx-muted)] hover:text-[var(--bx-ink-bright)] hover:bg-[var(--bx-bg)] transition cursor-pointer hidden sm:flex"
         >
           {isExpanded ? (
             <ChevronDown className="w-3.5 h-3.5" />

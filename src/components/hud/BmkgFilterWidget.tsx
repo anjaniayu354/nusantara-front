@@ -41,7 +41,7 @@ export function BmkgFilterWidget({
 
   // Close drop-up on outside click
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
@@ -51,9 +51,11 @@ export function BmkgFilterWidget({
     }
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside, { passive: true });
     }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
     };
   }, [isOpen]);
 
@@ -126,7 +128,7 @@ export function BmkgFilterWidget({
         <div
           role="dialog"
           aria-label="Filter Cuaca BMKG"
-          className="absolute bottom-full mb-2.5 left-0 sm:left-auto sm:right-0 w-[300px] xs:w-[330px] sm:w-[360px] max-h-[80vh] overflow-hidden rounded-2xl bg-[var(--bx-surface-card)]/98 backdrop-blur-2xl border border-[var(--bx-border-bright)] shadow-2xl z-50 flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-200 select-none text-[var(--bx-ink)]"
+          className="absolute bottom-full mb-2.5 right-0 sm:left-auto sm:right-0 w-[300px] xs:w-[330px] sm:w-[360px] max-w-[calc(100vw-24px)] max-h-[80vh] overflow-hidden rounded-2xl bg-[var(--bx-surface-card)]/98 backdrop-blur-2xl border border-[var(--bx-border-bright)] shadow-2xl z-50 flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-200 select-none text-[var(--bx-ink)]"
         >
           {/* Header */}
           <div className="p-3.5 border-b border-[var(--bx-border)] flex items-center justify-between bg-gradient-to-r from-amber-500/10 via-transparent to-sky-500/10">
