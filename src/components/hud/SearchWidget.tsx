@@ -6,6 +6,8 @@ import {
   X,
   MapPin,
   Route,
+  Maximize2,
+  Minimize2,
   ChevronDown,
   SlidersHorizontal,
   Layers,
@@ -26,6 +28,7 @@ interface SearchWidgetProps {
   onSelectCategory: (cat: Category | "all") => void;
   tripItemCount: number;
   onOpenTripPlanner: () => void;
+  isTripPlannerOpen?: boolean;
   onSelectDestination: (dest: CulturalDestination) => void;
   onOpenAiConcierge: () => void;
   isAiConciergeOpen?: boolean;
@@ -56,6 +59,7 @@ export function SearchWidget({
   onSelectCategory,
   tripItemCount,
   onOpenTripPlanner,
+  isTripPlannerOpen = false,
   onSelectDestination,
   onOpenAiConcierge,
   isAiConciergeOpen = false,
@@ -64,6 +68,7 @@ export function SearchWidget({
   const [query, setQuery] = useState("");
   const [isAutocompleteOpen, setIsAutocompleteOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -108,18 +113,104 @@ export function SearchWidget({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Sync fullscreen state
+  useEffect(() => {
+    const updateFullscreenState = () => {
+      const isFs = Boolean(
+        document.fullscreenElement ||
+          (document as any).webkitFullscreenElement ||
+          (document as any).mozFullScreenElement ||
+          (document as any).msFullscreenElement
+      );
+      setIsFullscreen(isFs);
+    };
+
+    updateFullscreenState();
+    document.addEventListener("fullscreenchange", updateFullscreenState);
+    document.addEventListener("webkitfullscreenchange", updateFullscreenState);
+    document.addEventListener("mozfullscreenchange", updateFullscreenState);
+    document.addEventListener("MSFullscreenChange", updateFullscreenState);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", updateFullscreenState);
+      document.removeEventListener("webkitfullscreenchange", updateFullscreenState);
+      document.removeEventListener("mozfullscreenchange", updateFullscreenState);
+      document.removeEventListener("MSFullscreenChange", updateFullscreenState);
+    };
+  }, []);
+
+  const handleToggleFullscreen = async () => {
+    try {
+      const isCurrentlyFs = Boolean(
+        document.fullscreenElement ||
+          (document as any).webkitFullscreenElement ||
+          (document as any).mozFullScreenElement ||
+          (document as any).msFullscreenElement
+      );
+
+      if (!isCurrentlyFs) {
+        const docEl = document.documentElement as any;
+        if (docEl.requestFullscreen) {
+          await docEl.requestFullscreen();
+        } else if (docEl.webkitRequestFullscreen) {
+          await docEl.webkitRequestFullscreen();
+        } else if (docEl.mozRequestFullScreen) {
+          await docEl.mozRequestFullScreen();
+        } else if (docEl.msRequestFullscreen) {
+          await docEl.msRequestFullscreen();
+        }
+      } else {
+        const doc = document as any;
+        if (doc.exitFullscreen) {
+          await doc.exitFullscreen();
+        } else if (doc.webkitExitFullscreen) {
+          await doc.webkitExitFullscreen();
+        } else if (doc.mozCancelFullScreen) {
+          await doc.mozCancelFullScreen();
+        } else if (doc.msExitFullscreen) {
+          await doc.msExitFullscreen();
+        }
+      }
+    } catch (err) {
+      console.warn("Fullscreen toggle failed:", err);
+    }
+  };
+
   return (
     <div
       ref={containerRef}
       className="absolute top-4 right-4 z-20 flex items-center gap-2 max-w-[95vw] select-none"
     >
+      {/* Full Screen Mode Button */}
+      <button
+        type="button"
+        onClick={handleToggleFullscreen}
+        aria-label={isFullscreen ? "Keluar Mode Layar Penuh" : "Mode Layar Penuh (Full Screen)"}
+        title={isFullscreen ? "Keluar Layar Penuh (Esc)" : "Mode Layar Penuh (Full Screen)"}
+        className={`relative flex items-center justify-center p-2.5 backdrop-blur-md rounded-2xl active:scale-95 shadow-2xl transition shrink-0 ${
+          isFullscreen
+            ? "bg-amber-500/25 border border-amber-400 text-amber-200"
+            : "bg-slate-900/90 border border-amber-500/30 text-amber-300 hover:text-amber-200 hover:bg-slate-800/90 hover:border-amber-400"
+        }`}
+      >
+        {isFullscreen ? (
+          <Minimize2 className="w-4 h-4" />
+        ) : (
+          <Maximize2 className="w-4 h-4" />
+        )}
+      </button>
+
       {/* 1. Trip Plan: Standalone Floating Button */}
       <button
         type="button"
         onClick={onOpenTripPlanner}
         aria-label="Rencana Perjalanan (Trip Plan)"
         title="Rencana Perjalanan (Trip Plan)"
-        className="relative flex items-center justify-center p-2.5 bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-2xl text-amber-300 hover:text-amber-200 hover:bg-slate-800/90 hover:border-amber-400 active:scale-95 shadow-2xl transition shrink-0"
+        className={`relative flex items-center justify-center p-2.5 backdrop-blur-md rounded-2xl active:scale-95 shadow-2xl transition shrink-0 ${
+          isTripPlannerOpen
+            ? "bg-amber-500/25 border border-amber-400 text-amber-200"
+            : "bg-slate-900/90 border border-amber-500/30 text-amber-300 hover:text-amber-200 hover:bg-slate-800/90 hover:border-amber-400"
+        }`}
       >
         <Route className="w-4 h-4" />
         {tripItemCount > 0 && (

@@ -24,8 +24,6 @@ export function TripPlannerDrawer({
   language,
   onFocusDestination,
 }: TripPlannerDrawerProps) {
-  if (!isOpen) return null;
-
   // Calculate totals
   const totalCostIdr = tripItems.reduce((acc, curr) => acc + curr.tripPackage.priceIdr, 0);
   const totalCostUsd = tripItems.reduce((acc, curr) => acc + curr.tripPackage.priceUsd, 0);
@@ -35,11 +33,13 @@ export function TripPlannerDrawer({
   const conservationFee = Math.round(totalCost * 0.025);
 
   return (
-    <div
+    <aside
       role="dialog"
       aria-modal="true"
       aria-labelledby="trip-drawer-title"
-      className="fixed inset-y-0 left-0 z-30 w-full sm:w-[420px] bg-slate-950/95 backdrop-blur-xl border-r border-amber-500/30 shadow-2xl flex flex-col text-white transform transition-transform duration-300 animate-in slide-in-from-left"
+      className={`fixed top-14 bottom-11 sm:bottom-12 left-0 z-30 w-full sm:w-[420px] bg-slate-950/95 backdrop-blur-2xl border-r border-amber-500/30 shadow-2xl flex flex-col text-white transform transition-transform duration-300 ease-in-out ${
+        isOpen ? "translate-x-0" : "-translate-x-full pointer-events-none"
+      }`}
     >
       {/* Header */}
       <div className="p-4 border-b border-white/10 flex items-center justify-between">
@@ -158,6 +158,6 @@ export function TripPlannerDrawer({
           </button>
         </div>
       )}
-    </div>
+    </aside>
   );
 }

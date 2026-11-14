@@ -589,8 +589,8 @@ export function MusicPlayer({
         </div>
       )}
 
-      {/* Main Docked Pill: Positioned Parallel to BMKG Bar at the Bottom */}
-      <div className="bg-slate-900/90 backdrop-blur-md border border-amber-500/30 hover:border-amber-500/50 rounded-full px-2.5 py-1.5 sm:px-3 sm:py-2 shadow-2xl text-white flex items-center gap-1.5 sm:gap-2 transition-all">
+      {/* Main Docked Bar: Integrated within the Unified Bottom Footer */}
+      <div className="flex items-center gap-1 sm:gap-1.5 text-white">
         {/* Spinning Disc / Visualizer Icon */}
         <div
           className={`flex items-center justify-center p-1 rounded-full ${
@@ -637,32 +637,19 @@ export function MusicPlayer({
           <SkipForward className="w-3.5 h-3.5" />
         </button>
 
-        {/* Current Song Title & Clickable Drop-Up Trigger */}
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="text-left flex items-center gap-1 group px-1 py-0.5 rounded hover:bg-white/5 transition"
-          title="Buka daftar pilihan lagu (Drop up)"
-        >
-          <span className="text-xs font-medium text-amber-100 max-w-[110px] sm:max-w-[170px] truncate group-hover:text-amber-300 transition">
-            {currentTrack.title}
-          </span>
-          <span className="text-[9px] text-amber-400/80 font-mono hidden sm:inline-block">
-            ({currentTrackIndex + 1}/{AUDIO_TRACKS.length})
-          </span>
-        </button>
-
-        {/* Playlist List Button Trigger */}
+        {/* Playlist List Button Trigger (Buka daftar pilihan lagu / drop up) */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           aria-label={isExpanded ? "Tutup daftar lagu" : "Buka daftar lagu (Drop up)"}
           title="Daftar lagu (Drop up)"
-          className={`p-1 rounded-full transition flex items-center gap-0.5 ${
+          className={`p-1 sm:px-1.5 rounded-md transition flex items-center gap-1 text-xs ${
             isExpanded
-              ? "bg-amber-500/20 text-amber-300"
-              : "text-slate-400 hover:text-amber-300"
+              ? "bg-amber-500/20 text-amber-300 font-semibold"
+              : "text-slate-300 hover:text-amber-300 hover:bg-white/5"
           }`}
         >
-          <ListMusic className="w-3.5 h-3.5" />
+          <ListMusic className="w-3.5 h-3.5 text-amber-400" />
+          <span className="hidden sm:inline text-[11px]">Playlist</span>
         </button>
 
         {/* Mute Button */}

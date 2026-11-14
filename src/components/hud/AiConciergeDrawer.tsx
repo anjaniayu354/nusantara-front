@@ -235,7 +235,7 @@ export function AiConciergeDrawer({
       role="dialog"
       aria-modal="true"
       aria-label="Bar Hala Ai Budaya Nusa Antara"
-      className={`fixed inset-y-0 right-0 z-40 w-full sm:w-[420px] lg:w-[460px] h-full bg-slate-950/95 backdrop-blur-2xl border-l border-amber-500/30 shadow-2xl flex flex-col text-white transform transition-transform duration-300 ease-in-out ${
+      className={`fixed top-14 bottom-11 sm:bottom-12 right-0 z-40 w-full sm:w-[420px] lg:w-[460px] bg-slate-950/95 backdrop-blur-2xl border-l border-amber-500/30 shadow-2xl flex flex-col text-white transform transition-transform duration-300 ease-in-out ${
         isOpen ? "translate-x-0" : "translate-x-full pointer-events-none"
       }`}
     >

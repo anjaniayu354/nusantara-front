@@ -415,9 +415,9 @@ export function MapLayersWidget({
       )}
 
       {/* ============================================================ */}
-      {/* DOCKED BOTTOM HUD CAPSULE (Permanent Minimal Pill)           */}
+      {/* INTEGRATED FOOTER SECTION                                     */}
       {/* ============================================================ */}
-      <div className="bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-full px-2.5 sm:px-3 py-1.5 sm:py-2 shadow-2xl text-white flex items-center gap-1.5 sm:gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2 text-white">
         {/* Main Trigger Button */}
         <button
           type="button"
@@ -426,10 +426,10 @@ export function MapLayersWidget({
           aria-label={
             isOpen ? "Tutup pilihan gaya peta" : "Buka pilihan gaya peta"
           }
-          className="flex items-center gap-1.5 sm:gap-2 px-1 py-0.5 rounded-full hover:bg-white/5 transition group cursor-pointer"
+          className="flex items-center gap-1.5 sm:gap-2 px-1.5 py-1 rounded-md hover:bg-white/10 transition group cursor-pointer"
           title="Pilihan Gaya Peta & Lapisan Kontur (Buka Menu Atas)"
         >
-          <div className="w-5 h-5 rounded-full bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-400 group-hover:scale-110 transition shrink-0">
+          <div className="w-5 h-5 rounded-md bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-400 group-hover:scale-105 transition shrink-0">
             <Layers className="w-3 h-3" />
           </div>
 
