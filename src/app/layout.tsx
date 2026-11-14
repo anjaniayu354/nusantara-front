@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Karla, JetBrains_Mono } from "next/font/google";
+import { Fraunces, Karla, JetBrains_Mono, Kaushan_Script, Caveat } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 
@@ -21,6 +21,20 @@ const karla = Karla({
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const kaushanScript = Kaushan_Script({
+  variable: "--font-kaushan",
+  subsets: ["latin"],
+  weight: ["400"],
+  display: "swap",
+});
+
+const caveat = Caveat({
+  variable: "--font-caveat",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
@@ -54,10 +68,10 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="id"
+      lang="en"
       data-theme="light"
       suppressHydrationWarning
-      className={`${fraunces.variable} ${karla.variable} ${jetbrainsMono.variable} ${nusantara.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${karla.variable} ${jetbrainsMono.variable} ${kaushanScript.variable} ${caveat.variable} ${nusantara.variable} h-full antialiased`}
     >
       <head>
         <script
@@ -70,8 +84,11 @@ export default function RootLayout({
                 } else {
                   document.documentElement.setAttribute('data-theme', 'light');
                 }
+                var lang = localStorage.getItem('nusantara_lang') || 'EN';
+                document.documentElement.setAttribute('lang', lang.toLowerCase());
               } catch (e) {
                 document.documentElement.setAttribute('data-theme', 'light');
+                document.documentElement.setAttribute('lang', 'en');
               }
             `,
           }}

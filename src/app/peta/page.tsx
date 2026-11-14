@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect, Suspense } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Plus, Minus, LogIn, LogOut, LayoutDashboard } from "lucide-react";
+import { Plus, Minus, LogIn, LogOut, LayoutDashboard, Route as RouteIcon } from "lucide-react";
 import { DESTINATIONS, CulturalDestination, Category } from "@/data/destinations";
 import { BrandWidget } from "@/components/hud/BrandWidget";
 import { SearchWidget } from "@/components/hud/SearchWidget";
@@ -14,7 +14,16 @@ import { DestinationSheet } from "@/components/hud/DestinationSheet";
 import { TripPlannerDrawer } from "@/components/hud/TripPlannerDrawer";
 import { AiConciergeDrawer } from "@/components/hud/AiConciergeDrawer";
 import { MapLayersWidget } from "@/components/hud/MapLayersWidget";
+import { BmkgFilterWidget } from "@/components/hud/BmkgFilterWidget";
+import { RouteTrackerDrawer } from "@/components/hud/RouteTrackerDrawer";
 import { MapBaseStyle, MapLayerOptions } from "@/data/mapStyles";
+import { BmkgLayerOptions, DEFAULT_BMKG_LAYERS } from "@/data/bmkgLayers";
+import {
+  RouteWaypoint,
+  RouteTrackingResult,
+  RouteWeatherStep,
+  SavedTravelRoute,
+} from "@/data/routeTracking";
 import { detectRegionFromCoordinates } from "@/utils/regionAudioDetector";
 import { getStoredUser, subscribeAuth, clearStoredUser, AuthUser } from "@/lib/auth";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -53,6 +62,8 @@ function PetaContent() {
   const [mapCenterCoords, setMapCenterCoords] = useState<[number, number]>([-2.5489, 118.0149]);
   const [mapZoom, setMapZoom] = useState<number>(5);
   const [zoomTrigger, setZoomTrigger] = useState<{ type: "in" | "out"; id: number } | null>(null);
+
+  // Map Base Style & Theme sync
   const [mapStyle, setMapStyle] = useState<MapBaseStyle>("kontur");
   const [layerOptions, setLayerOptions] = useState<MapLayerOptions>({
     contourOverlay: false,
@@ -60,7 +71,39 @@ function PetaContent() {
     seaMarksOverlay: false,
     culturalRadar: true,
   });
+
+  // BMKG Telemetry & Sensor Layers State
+  const [bmkgLayers, setBmkgLayers] = useState<BmkgLayerOptions>(DEFAULT_BMKG_LAYERS);
+  const [isBmkgLoading, setIsBmkgLoading] = useState(false);
+
+  // Route & Weather Tracker State
+  const [isRouteTrackerOpen, setIsRouteTrackerOpen] = useState<boolean>(false);
+  const [startPoint, setStartPoint] = useState<RouteWaypoint | null>({
+    lat: DESTINATIONS[0].coordinates[0],
+    lng: DESTINATIONS[0].coordinates[1],
+    name: DESTINATIONS[0].name,
+  });
+  const [endPoint, setEndPoint] = useState<RouteWaypoint | null>({
+    lat: DESTINATIONS[8].coordinates[0],
+    lng: DESTINATIONS[8].coordinates[1],
+    name: DESTINATIONS[8].name,
+  });
+  const [isPickingOnMap, setIsPickingOnMap] = useState<"start" | "end" | null>(null);
+  const [routeTrackingResult, setRouteTrackingResult] = useState<RouteTrackingResult | null>(null);
+  const [isCalculatingRoute, setIsCalculatingRoute] = useState<boolean>(false);
+  const [focusedStep, setFocusedStep] = useState<RouteWeatherStep | null>(null);
+  const [isSimulating, setIsSimulating] = useState<boolean>(false);
+
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+
+  // Auto-sync Carto Dark theme if dark mode is active in the document
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("nusantara_theme");
+    const docTheme = document.documentElement.getAttribute("data-theme");
+    if (savedTheme === "dark" || docTheme === "dark") {
+      setMapStyle("malam"); // Carto Dark (from BMKG key 'carto-dark')
+    }
+  }, []);
 
   // Subscribe to authentication state changes
   useEffect(() => {
@@ -101,8 +144,32 @@ function PetaContent() {
     }));
   };
 
-  // Check if any right drawer (Bar Hala Ai chat or Destination detail) is open
+  const handleToggleBmkgLayer = (key: keyof BmkgLayerOptions) => {
+    setIsBmkgLoading(true);
+    setBmkgLayers((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+    setTimeout(() => setIsBmkgLoading(false), 800);
+  };
+
+  const handleSetAllBmkgLayers = (active: boolean) => {
+    setIsBmkgLoading(true);
+    setBmkgLayers({
+      radar: active,
+      kilat: active,
+      pwxDarat: active,
+      pwxKereta: active,
+      satelit: active,
+      angin: active,
+      ais: active,
+    });
+    setTimeout(() => setIsBmkgLoading(false), 1200);
+  };
+
+  // Check if any right drawer is open
   const isRightDrawerOpen = Boolean(isAiConciergeOpen || activeDestination);
+  const isLeftDrawerOpen = Boolean(isTripPlannerOpen || isRouteTrackerOpen);
 
   // Toggle item in trip plan
   const handleToggleTripItem = (dest: CulturalDestination) => {
@@ -114,7 +181,6 @@ function PetaContent() {
   };
 
   const handleSelectDestination = (dest: CulturalDestination) => {
-    // Close Bar Hala Ai chat so destination detail takes right slider smoothly
     setIsAiConciergeOpen(false);
     setActiveDestination(dest);
     setFlyToCoords(dest.coordinates);
@@ -122,14 +188,12 @@ function PetaContent() {
 
   const handleToggleAiConcierge = () => {
     if (!isAiConciergeOpen) {
-      // Close destination detail so Bar Hala Ai chat takes right slider smoothly
       setActiveDestination(null);
     }
     setIsAiConciergeOpen((prev) => !prev);
   };
 
   const handleApplyAiRecommendations = (recommended: CulturalDestination[]) => {
-    // Merge recommendations without duplicates
     const newItems = [...tripItems];
     recommended.forEach((rec) => {
       if (!newItems.some((item) => item.id === rec.id)) {
@@ -148,6 +212,207 @@ function PetaContent() {
     clearStoredUser();
   };
 
+  // Route & Weather Tracker logic
+  const handleStartPickingWaypoint = (type: "start" | "end") => {
+    setIsPickingOnMap(type);
+  };
+
+  const handleMapPickWaypoint = (coords: [number, number]) => {
+    // Check if clicked near an existing cultural destination
+    const thresholdKm = 15;
+    let closestDest: CulturalDestination | null = null;
+    let minDistance = Infinity;
+
+    DESTINATIONS.forEach((d) => {
+      const dLat = (d.coordinates[0] - coords[0]) * 111;
+      const dLng = (d.coordinates[1] - coords[1]) * 111 * Math.cos((coords[0] * Math.PI) / 180);
+      const dist = Math.sqrt(dLat * dLat + dLng * dLng);
+      if (dist < minDistance) {
+        minDistance = dist;
+        closestDest = d;
+      }
+    });
+
+    const name =
+      minDistance < thresholdKm && closestDest
+        ? (closestDest as CulturalDestination).name
+        : `Titik (${coords[0].toFixed(3)}, ${coords[1].toFixed(3)})`;
+
+    const point: RouteWaypoint = {
+      lat: coords[0],
+      lng: coords[1],
+      name,
+    };
+
+    if (isPickingOnMap === "start") {
+      setStartPoint(point);
+    } else if (isPickingOnMap === "end") {
+      setEndPoint(point);
+    }
+
+    setIsPickingOnMap(null);
+  };
+
+  const handleCalculateRoute = async () => {
+    if (!startPoint || !endPoint) return;
+    setIsCalculatingRoute(true);
+
+    try {
+      const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${startPoint.lng},${startPoint.lat};${endPoint.lng},${endPoint.lat}?overview=full&geometries=geojson&alternatives=true&steps=true`;
+      const res = await fetch(osrmUrl);
+      const json = await res.json();
+      const firstRoute = Array.isArray(json.routes) && json.routes.length ? json.routes[0] : null;
+
+      if (!firstRoute) {
+        throw new Error("Rute jalan tidak dapat dihitung untuk kedua titik ini.");
+      }
+
+      const totalDist = Number((firstRoute.distance / 1000).toFixed(1));
+      const totalDur = Math.round(firstRoute.duration / 60);
+      const rawSteps = firstRoute.legs?.[0]?.steps || [];
+
+      // Fetch live BMKG weather for start and end
+      const [startWxRes, endWxRes] = await Promise.allSettled([
+        fetch(`/api/bmkg/presentwx?lon=${startPoint.lng}&lat=${startPoint.lat}`).then((r) => r.json()),
+        fetch(`/api/bmkg/presentwx?lon=${endPoint.lng}&lat=${endPoint.lat}`).then((r) => r.json()),
+      ]);
+
+      const startWx = startWxRes.status === "fulfilled" ? startWxRes.value : null;
+      const endWx = endWxRes.status === "fulfilled" ? endWxRes.value : null;
+
+      const sampledSteps: RouteWeatherStep[] = [];
+      const weatherObservations: any[] = [];
+
+      // Sample steps and attach BMKG weather
+      for (let i = 0; i < rawSteps.length; i++) {
+        const st = rawSteps[i];
+        const mv = st.maneuver || {};
+        const loc = Array.isArray(mv.location) ? mv.location : [0, 0];
+        const lng = Number(loc[0]);
+        const lat = Number(loc[1]);
+        const distKm = Number((st.distance / 1000).toFixed(2));
+        const durMins = Number((st.duration / 60).toFixed(1));
+
+        let weatherDetail = undefined;
+
+        if (i === 0 && startWx?.data?.cuaca) {
+          weatherDetail = {
+            condition: startWx.data.cuaca.weather_desc || "Cerah Berawan",
+            temperature: startWx.data.cuaca.t ?? 28,
+            humidity: startWx.data.cuaca.hu ?? 75,
+            windSpeed: startWx.data.cuaca.ws ?? 3.5,
+            windDirection: startWx.data.cuaca.wd || "SE",
+            visibility: startWx.data.cuaca.vs_text || "> 10 km",
+          };
+          weatherObservations.push(weatherDetail);
+        } else if (i === rawSteps.length - 1 && endWx?.data?.cuaca) {
+          weatherDetail = {
+            condition: endWx.data.cuaca.weather_desc || "Cerah Berawan",
+            temperature: endWx.data.cuaca.t ?? 28,
+            humidity: endWx.data.cuaca.hu ?? 75,
+            windSpeed: endWx.data.cuaca.ws ?? 3.5,
+            windDirection: endWx.data.cuaca.wd || "SE",
+            visibility: endWx.data.cuaca.vs_text || "> 10 km",
+          };
+          weatherObservations.push(weatherDetail);
+        } else if (i % 4 === 0 && isFinite(lat) && isFinite(lng) && lat !== 0) {
+          try {
+            const midRes = await fetch(`/api/bmkg/presentwx?lon=${lng}&lat=${lat}`);
+            const midJson = await midRes.json();
+            if (midJson?.data?.cuaca) {
+              weatherDetail = {
+                condition: midJson.data.cuaca.weather_desc || "Cerah Berawan",
+                temperature: midJson.data.cuaca.t ?? 28,
+                humidity: midJson.data.cuaca.hu ?? 75,
+                windSpeed: midJson.data.cuaca.ws ?? 3.5,
+                windDirection: midJson.data.cuaca.wd || "SE",
+                visibility: midJson.data.cuaca.vs_text || "> 10 km",
+              };
+              weatherObservations.push(weatherDetail);
+            }
+          } catch {}
+        }
+
+        sampledSteps.push({
+          index: i + 1,
+          instruction: `${mv.type || "manuver"} ${mv.modifier ? `ke ${mv.modifier}` : ""}`,
+          streetName: st.name || "",
+          distanceKm: distKm,
+          durationMinutes: durMins,
+          lat,
+          lng,
+          bearing: mv.bearing_after || 0,
+          type: mv.type || "continue",
+          modifier: mv.modifier || "",
+          weather: weatherDetail,
+        });
+      }
+
+      const allTemps = weatherObservations.map((w) => w.temperature);
+      const avgTemp = allTemps.length
+        ? Math.round(allTemps.reduce((a, b) => a + b, 0) / allTemps.length)
+        : 28;
+
+      const hasRain = weatherObservations.some((w) =>
+        w.condition?.toLowerCase().includes("hujan")
+      );
+      const hasSevere = weatherObservations.some(
+        (w) =>
+          w.condition?.toLowerCase().includes("petir") ||
+          w.condition?.toLowerCase().includes("lebat")
+      );
+
+      const safetyIndex = hasSevere ? "WASPADA" : hasRain ? "WASPADA" : "AMAN";
+      const safetyReason = hasSevere
+        ? "Peringatan BMKG: Terdeteksi potensi hujan petir/lebat di beberapa ruas rute perjalanan. Nyalakan lampu kabut & jaga jarak."
+        : hasRain
+        ? "Info BMKG: Potensi aspal licin dan hujan lokal di sebagian koridor jalan. Kurangi kecepatan saat berkendara."
+        : "Kondisi cuaca BMKG cerah berawan merata sepanjang jalur. Sangat aman dan ideal untuk perjalanan wisata budaya.";
+
+      const result: RouteTrackingResult = {
+        id: `route_${Date.now()}`,
+        start: startPoint,
+        destination: endPoint,
+        totalDistanceKm: totalDist,
+        totalDurationMinutes: totalDur,
+        summary: firstRoute.legs?.[0]?.summary || `${startPoint.name} ke ${endPoint.name}`,
+        geometry: firstRoute.geometry,
+        steps: sampledSteps,
+        safetyIndex,
+        safetyReason,
+        avgTemperature: avgTemp,
+        dominantCondition: hasRain ? "Hujan Lokal di Ruas Tertentu" : "Cerah Berawan",
+        createdAt: new Date().toISOString(),
+      };
+
+      setRouteTrackingResult(result);
+      setIsRouteTrackerOpen(true);
+      setIsTripPlannerOpen(false); // Close trip planner to focus on route tracking
+    } catch (err: any) {
+      console.error("Route calculation error:", err);
+      alert(err?.message || "Gagal menghubungkan rute perjalanan");
+    } finally {
+      setIsCalculatingRoute(false);
+    }
+  };
+
+  const handleStartSimulation = () => {
+    setIsSimulating(false);
+    setTimeout(() => setIsSimulating(true), 50);
+  };
+
+  const handleLoadSavedRoute = (saved: SavedTravelRoute) => {
+    setStartPoint(saved.routeData.start);
+    setEndPoint(saved.routeData.destination);
+    setRouteTrackingResult(saved.routeData);
+  };
+
+  const handleClearRoute = () => {
+    setRouteTrackingResult(null);
+    setIsSimulating(false);
+    setFocusedStep(null);
+  };
+
   return (
     <main className="relative w-screen h-screen overflow-hidden bg-[var(--bx-bg)] text-[var(--bx-ink)] font-sans flex">
       {/* Sliding Trip Planner Drawer (Left Drawer) */}
@@ -161,16 +426,43 @@ function PetaContent() {
         onFocusDestination={handleSelectDestination}
       />
 
-      {/* Main Content Viewport (shifts & contracts width when either Trip Plan or Right Drawer opens) */}
+      {/* Sliding Route & Weather Tracker Drawer (Left Drawer) */}
+      <RouteTrackerDrawer
+        isOpen={isRouteTrackerOpen}
+        onClose={() => {
+          setIsRouteTrackerOpen(false);
+          setIsPickingOnMap(null);
+        }}
+        authUser={authUser}
+        startPoint={startPoint}
+        endPoint={endPoint}
+        routeResult={routeTrackingResult}
+        isPickingOnMap={isPickingOnMap}
+        onStartPicking={handleStartPickingWaypoint}
+        onCancelPicking={() => setIsPickingOnMap(null)}
+        onSelectWaypoint={(type, point) => {
+          if (type === "start") setStartPoint(point);
+          else setEndPoint(point);
+        }}
+        onCalculateRoute={handleCalculateRoute}
+        isCalculating={isCalculatingRoute}
+        onStartSimulation={handleStartSimulation}
+        isSimulating={isSimulating}
+        onFocusStep={setFocusedStep}
+        onLoadSavedRoute={handleLoadSavedRoute}
+        onClearRoute={handleClearRoute}
+      />
+
+      {/* Main Content Viewport (shifts & contracts width when left or right drawers open) */}
       <div
         className={`relative h-full transition-all duration-300 ease-in-out ${
-          isTripPlannerOpen ? "sm:ml-[420px]" : "ml-0"
+          isLeftDrawerOpen ? "sm:ml-[420px]" : "ml-0"
         } ${
-          isRightDrawerOpen && isTripPlannerOpen
+          isRightDrawerOpen && isLeftDrawerOpen
             ? "w-full sm:w-[calc(100%-840px)] lg:w-[calc(100%-880px)]"
             : isRightDrawerOpen
             ? "w-full sm:w-[calc(100%-420px)] lg:w-[calc(100%-460px)]"
-            : isTripPlannerOpen
+            : isLeftDrawerOpen
             ? "w-full sm:w-[calc(100%-420px)]"
             : "w-full"
         }`}
@@ -187,6 +479,12 @@ function PetaContent() {
           zoomTrigger={zoomTrigger}
           mapStyle={mapStyle}
           layerOptions={layerOptions}
+          bmkgLayers={bmkgLayers}
+          isPickingOnMap={isPickingOnMap}
+          onMapPickWaypoint={handleMapPickWaypoint}
+          routeTrackingResult={routeTrackingResult}
+          focusedStep={focusedStep}
+          isSimulating={isSimulating}
         />
 
         {/* Floating HUD: Top-Left Brand (Kembali ke Portal) */}
@@ -197,7 +495,10 @@ function PetaContent() {
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
           tripItemCount={tripItems.length}
-          onOpenTripPlanner={() => setIsTripPlannerOpen((prev) => !prev)}
+          onOpenTripPlanner={() => {
+            setIsRouteTrackerOpen(false);
+            setIsTripPlannerOpen((prev) => !prev);
+          }}
           isTripPlannerOpen={isTripPlannerOpen}
           onSelectDestination={handleSelectDestination}
           onOpenAiConcierge={handleToggleAiConcierge}
@@ -227,8 +528,8 @@ function PetaContent() {
 
       {/* UNIFIED BOTTOM FOOTER BAR */}
       <footer className="fixed bottom-0 inset-x-0 z-40 h-11 sm:h-12 bg-[var(--bx-surface)]/95 backdrop-blur-xl border-t border-[var(--bx-border)] px-2 sm:px-4 flex items-center justify-between gap-2 sm:gap-3 text-[var(--bx-ink)] select-none">
-        {/* Left Functional Group: Music Player & Map Style/Layers */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+        {/* Left Functional Group: Music Player, Map Style, BMKG Filter Drop-Up & Route Weather Tracker */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 overflow-x-auto no-scrollbar">
           {/* 1. Background Music Player */}
           <div className="shrink-0">
             <MusicPlayer
@@ -239,7 +540,7 @@ function PetaContent() {
             />
           </div>
 
-          {/* Separator between Music Player and Map Style */}
+          {/* Separator */}
           <div className="w-px h-5 bg-[var(--bx-border)] shrink-0" />
 
           {/* 2. Map Style & Layer Options */}
@@ -252,12 +553,54 @@ function PetaContent() {
               language={language}
             />
           </div>
+
+          {/* Separator */}
+          <div className="w-px h-5 bg-[var(--bx-border)] shrink-0" />
+
+          {/* 3. BMKG Data Layers Filter (Drop-up list) */}
+          <div className="shrink-0">
+            <BmkgFilterWidget
+              bmkgLayers={bmkgLayers}
+              onToggleLayer={handleToggleBmkgLayer}
+              onSetAllLayers={handleSetAllBmkgLayers}
+              language={language}
+              isLoading={isBmkgLoading}
+            />
+          </div>
+
+          {/* Separator */}
+          <div className="w-px h-5 bg-[var(--bx-border)] shrink-0" />
+
+          {/* 4. Travel Route & Weather Tracker Button */}
+          <div className="shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                setIsTripPlannerOpen(false);
+                setIsRouteTrackerOpen((prev) => !prev);
+              }}
+              aria-label="Buka Pelacak Rute & Cuaca Perjalanan"
+              title="Cek Rute & Prakiraan Cuaca Perjalanan BMKG"
+              className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg border text-xs font-semibold transition-all duration-200 active:scale-95 ${
+                isRouteTrackerOpen || routeTrackingResult
+                  ? "bg-amber-500/15 border-amber-500 text-amber-400 font-bold shadow-xs"
+                  : "bg-[var(--bx-bg)] hover:bg-[var(--bx-surface-card)] border-[var(--bx-border)] text-[var(--bx-ink)]"
+              }`}
+            >
+              <RouteIcon className="w-3.5 h-3.5 text-amber-500" />
+              <span className="hidden xs:inline">Cek Rute & Cuaca</span>
+              <span className="xs:hidden">Rute</span>
+              {routeTrackingResult && (
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Right Functional Group: BMKG Weather Telemetry, Custom Zoom, Theme & Session Actions */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-          {/* 3. BMKG Weather Telemetry (compact / hidden on very narrow mobile screens) */}
-          <div className="shrink-0 hidden xs:flex sm:flex">
+          {/* 5. BMKG Weather Telemetry (compact / hidden on very narrow mobile screens) */}
+          <div className="shrink-0 hidden md:flex">
             <BmkgWeatherBar
               activeDestination={activeDestination}
               mapCenterCoords={mapCenterCoords}
@@ -266,9 +609,9 @@ function PetaContent() {
           </div>
 
           {/* Separator between BMKG Bar and Zoom Controls */}
-          <div className="w-px h-5 bg-[var(--bx-border)] shrink-0 hidden sm:block" />
+          <div className="w-px h-5 bg-[var(--bx-border)] shrink-0 hidden md:block" />
 
-          {/* 4. Custom Map Zoom Controls (+ / -) */}
+          {/* 6. Custom Map Zoom Controls (+ / -) */}
           <div className="flex items-center gap-1 shrink-0">
             <button
               type="button"
@@ -293,7 +636,7 @@ function PetaContent() {
           {/* Separator between Zoom Controls and Theme Toggle */}
           <div className="w-px h-5 bg-[var(--bx-border)] shrink-0" />
 
-          {/* 5. Theme Toggle */}
+          {/* 7. Theme Toggle */}
           <div className="shrink-0">
             <ThemeToggle />
           </div>
@@ -301,11 +644,10 @@ function PetaContent() {
           {/* Separator between Theme Toggle and Session Buttons */}
           <div className="w-px h-5 bg-[var(--bx-border)] shrink-0" />
 
-          {/* 6. Sesi Login: Tombol "Ke Portal" dan "Logout" jika sudah login, atau "Masuk" jika belum */}
+          {/* 8. Sesi Login: Tombol "Ke Portal" dan "Logout" jika sudah login, atau "Masuk" jika belum */}
           <div className="shrink-0">
             {authUser ? (
               <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                {/* Tombol Ke Portal */}
                 <Link
                   href="/"
                   aria-label="Kembali ke Portal Dashboard"
@@ -317,7 +659,6 @@ function PetaContent() {
                   <span className="sm:hidden">Portal</span>
                 </Link>
 
-                {/* Tombol Logout */}
                 <button
                   type="button"
                   onClick={handleLogout}
@@ -333,7 +674,7 @@ function PetaContent() {
               <Link
                 href="/login"
                 aria-label="Masuk ke Akun Nusa Antara"
-                title="Masuk ke Akun Nusa Antara (No HP & Google SSO)"
+                title="Masuk ke Akun Nusa Antara"
                 className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-lg bg-[var(--gold)]/15 hover:bg-[var(--gold)] border border-[var(--gold)]/40 hover:border-[var(--gold)] text-[var(--gold)] hover:text-white font-bold text-xs shadow-xs transition active:scale-95 shrink-0 group"
               >
                 <LogIn className="w-3.5 h-3.5 text-[var(--gold)] group-hover:text-white transition-colors shrink-0" />

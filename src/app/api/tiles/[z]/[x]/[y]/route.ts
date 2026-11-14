@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const TILE_SOURCES: Record<string, string> = {
+  osm: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+  topo: "https://a.tile.opentopomap.org/{z}/{x}/{y}.png",
+  "carto-dark": "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
+};
+
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ z: string; x: string; y: string }> }
 ) {
   const { z, x, y } = await context.params;
+  const { searchParams } = new URL(request.url);
+  const src = searchParams.get("src") || "osm";
 
   // Validate coordinates
   const zoom = parseInt(z, 10);
@@ -15,14 +23,17 @@ export async function GET(
     return new NextResponse("Invalid tile coordinates", { status: 400 });
   }
 
-  // OpenStreetMap Tile URL
-  const osmUrl = `https://tile.openstreetmap.org/${zoom}/${tileX}/${tileY}.png`;
+  const template = TILE_SOURCES[src] || TILE_SOURCES.osm;
+  const tileUrl = template
+    .replace("{z}", zoom.toString())
+    .replace("{x}", tileX.toString())
+    .replace("{y}", tileY.toString());
 
   try {
-    const response = await fetch(osmUrl, {
+    const response = await fetch(tileUrl, {
       headers: {
-        // Strict OSM Compliance: Custom descriptive User-Agent
-        "User-Agent": "nusa-antara-adventure-portal/1.0 (contact@nusaantara.id; +https://nusaantara.id)",
+        "User-Agent":
+          "nusa-antara-adventure-portal/1.0 (contact@nusaantara.id; +https://nusaantara.id)",
         Accept: "image/png,image/*;q=0.8",
       },
       next: {
@@ -31,7 +42,7 @@ export async function GET(
     });
 
     if (!response.ok) {
-      return new NextResponse(`OSM tile error: ${response.statusText}`, {
+      return new NextResponse(`Tile error: ${response.statusText}`, {
         status: response.status,
       });
     }
@@ -42,14 +53,14 @@ export async function GET(
       status: 200,
       headers: {
         "Content-Type": "image/png",
-        // Multi-tier client and CDN cache headers
-        "Cache-Control": "public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400",
-        "X-OSM-Attribution": "© OpenStreetMap contributors",
+        "Cache-Control":
+          "public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400",
+        "X-Tile-Source": src,
         "X-Service-Name": "Nusa-Antara-TileProxy",
       },
     });
   } catch (error) {
-    console.error("Failed to proxy OSM tile:", error);
+    console.error(`Failed to proxy ${src} tile:`, error);
     return new NextResponse("Failed to fetch tile", { status: 502 });
   }
 }
