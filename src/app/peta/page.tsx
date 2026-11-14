@@ -148,7 +148,7 @@ function PetaContent() {
   };
 
   return (
-    <main className="relative w-screen h-screen overflow-hidden bg-slate-950 font-sans flex">
+    <main className="relative w-screen h-screen overflow-hidden bg-[var(--bx-bg)] text-[var(--bx-ink)] font-sans flex">
       {/* Sliding Trip Planner Drawer (Left Drawer) */}
       <TripPlannerDrawer
         isOpen={isTripPlannerOpen}
@@ -225,7 +225,7 @@ function PetaContent() {
       />
 
       {/* UNIFIED BOTTOM FOOTER BAR */}
-      <footer className="fixed bottom-0 inset-x-0 z-30 h-11 sm:h-12 bg-slate-950/95 backdrop-blur-xl border-t border-amber-500/30 px-3 sm:px-4 flex items-center justify-between gap-3 text-white select-none overflow-x-auto custom-scrollbar">
+      <footer className="fixed bottom-0 inset-x-0 z-30 h-11 sm:h-12 bg-[var(--bx-surface)]/95 backdrop-blur-xl border-t border-[var(--bx-border)] px-3 sm:px-4 flex items-center justify-between gap-3 text-[var(--bx-ink)] select-none overflow-x-auto custom-scrollbar">
         {/* Left Functional Group: Music Player & Map Style/Layers */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {/* 1. Background Music Player */}
@@ -239,7 +239,7 @@ function PetaContent() {
           </div>
 
           {/* Separator between Music Player and Map Style */}
-          <div className="w-px h-5 bg-white/20 shrink-0" />
+          <div className="w-px h-5 bg-[var(--bx-border)] shrink-0" />
 
           {/* 2. Map Style & Layer Options */}
           <div className="shrink-0">
@@ -266,7 +266,7 @@ function PetaContent() {
           </div>
 
           {/* Separator between BMKG Bar and Zoom Controls */}
-          <div className="w-px h-5 bg-white/20 shrink-0" />
+          <div className="w-px h-5 bg-[var(--bx-border)] shrink-0" />
 
           {/* 4. Custom Map Zoom Controls (+ / -) */}
           <div className="flex items-center gap-1 shrink-0">
@@ -275,7 +275,7 @@ function PetaContent() {
               onClick={() => setZoomTrigger({ type: "in", id: Date.now() })}
               aria-label="Perbesar peta"
               title="Perbesar peta (+)"
-              className="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-800/80 hover:bg-amber-500 hover:text-slate-950 text-amber-300 font-bold transition active:scale-90"
+              className="w-7 h-7 flex items-center justify-center rounded-lg bg-[var(--bx-bg)] hover:bg-[var(--gold)] hover:text-white text-[var(--gold)] border border-[var(--bx-border)] font-bold transition active:scale-90"
             >
               <Plus className="w-3.5 h-3.5" />
             </button>
@@ -284,14 +284,14 @@ function PetaContent() {
               onClick={() => setZoomTrigger({ type: "out", id: Date.now() })}
               aria-label="Perkecil peta"
               title="Perkecil peta (-)"
-              className="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-800/80 hover:bg-amber-500 hover:text-slate-950 text-amber-300 font-bold transition active:scale-90"
+              className="w-7 h-7 flex items-center justify-center rounded-lg bg-[var(--bx-bg)] hover:bg-[var(--gold)] hover:text-white text-[var(--gold)] border border-[var(--bx-border)] font-bold transition active:scale-90"
             >
               <Minus className="w-3.5 h-3.5" />
             </button>
           </div>
 
           {/* Separator between Zoom Controls and Session Buttons */}
-          <div className="w-px h-5 bg-white/20 shrink-0" />
+          <div className="w-px h-5 bg-[var(--bx-border)] shrink-0" />
 
           {/* 5. Sesi Login: Tombol "Ke Portal" dan "Logout" jika sudah login, atau "Masuk" jika belum */}
           <div className="shrink-0">
@@ -302,9 +302,9 @@ function PetaContent() {
                   href="/"
                   aria-label="Kembali ke Portal Dashboard"
                   title={`Kembali ke Dashboard Portal Nusa Antara (Masuk sebagai ${authUser.name})`}
-                  className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-lg bg-gradient-to-r from-amber-500/20 via-amber-500/30 to-amber-600/30 hover:from-amber-500 hover:to-amber-600 border border-amber-500/50 hover:border-amber-400 text-amber-300 hover:text-slate-950 font-bold text-xs shadow-md transition active:scale-95 shrink-0 group"
+                  className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-lg bg-[var(--gold)]/15 hover:bg-[var(--gold)] border border-[var(--gold)]/40 hover:border-[var(--gold)] text-[var(--gold)] hover:text-white font-bold text-xs shadow-xs transition active:scale-95 shrink-0 group"
                 >
-                  <LayoutDashboard className="w-3.5 h-3.5 text-amber-400 group-hover:text-slate-950 transition-colors shrink-0" />
+                  <LayoutDashboard className="w-3.5 h-3.5 text-[var(--gold)] group-hover:text-white transition-colors shrink-0" />
                   <span className="hidden sm:inline">Ke Portal</span>
                   <span className="sm:hidden">Portal</span>
                 </Link>
@@ -315,9 +315,9 @@ function PetaContent() {
                   onClick={handleLogout}
                   aria-label="Keluar / Logout dari Sesi"
                   title={`Keluar dari sesi akun ${authUser.name}`}
-                  className="flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/30 border border-rose-500/40 hover:border-rose-400 text-rose-300 hover:text-rose-100 font-bold text-xs shadow-md transition active:scale-95 shrink-0"
+                  className="flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1 rounded-lg bg-[var(--bx-bg)] hover:bg-rose-500/20 border border-[var(--bx-border)] hover:border-rose-400 text-rose-500 hover:text-rose-600 font-bold text-xs shadow-xs transition active:scale-95 shrink-0"
                 >
-                  <LogOut className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                  <LogOut className="w-3.5 h-3.5 shrink-0" />
                   <span>Logout</span>
                 </button>
               </div>
@@ -326,9 +326,9 @@ function PetaContent() {
                 href="/login"
                 aria-label="Masuk ke Akun Nusa Antara"
                 title="Masuk ke Akun Nusa Antara (No HP & Google SSO)"
-                className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-lg bg-gradient-to-r from-amber-500/20 via-amber-500/30 to-amber-600/30 hover:from-amber-500 hover:to-amber-600 border border-amber-500/50 hover:border-amber-400 text-amber-300 hover:text-slate-950 font-bold text-xs shadow-md transition active:scale-95 shrink-0 group"
+                className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-lg bg-[var(--gold)]/15 hover:bg-[var(--gold)] border border-[var(--gold)]/40 hover:border-[var(--gold)] text-[var(--gold)] hover:text-white font-bold text-xs shadow-xs transition active:scale-95 shrink-0 group"
               >
-                <LogIn className="w-3.5 h-3.5 text-amber-400 group-hover:text-slate-950 transition-colors shrink-0" />
+                <LogIn className="w-3.5 h-3.5 text-[var(--gold)] group-hover:text-white transition-colors shrink-0" />
                 <span>Masuk</span>
               </Link>
             )}

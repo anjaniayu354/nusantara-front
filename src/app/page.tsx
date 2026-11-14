@@ -31,6 +31,7 @@ import { DESTINATIONS, CulturalDestination, Category } from "@/data/destinations
 import { CULTURAL_EVENTS, CulturalEvent } from "@/data/culturalEvents";
 import { AUDIO_TRACKS, AudioTrack } from "@/data/audioTracks";
 import { BarongAvatar } from "@/components/hud/BarongAvatar";
+import ThemeToggle from "@/components/ThemeToggle";
 import { getStoredUser, subscribeAuth, clearStoredUser, AuthUser } from "@/lib/auth";
 
 export default function PortalDashboard() {
@@ -90,14 +91,11 @@ export default function PortalDashboard() {
   // Filter destinations
   const filteredDestinations = useMemo(() => {
     return DESTINATIONS.filter((d) => {
-      // Region filter
       if (regionFilter === "sulawesi" && !d.province.toLowerCase().includes("sulawesi")) return false;
       if (regionFilter === "lampung" && !d.province.toLowerCase().includes("lampung")) return false;
 
-      // Category filter
       if (categoryFilter !== "all" && d.category !== categoryFilter) return false;
 
-      // Search query
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchesName = d.name.toLowerCase().includes(q);
@@ -115,31 +113,25 @@ export default function PortalDashboard() {
   }, [regionFilter, categoryFilter, searchQuery]);
 
   return (
-    <div className="relative min-h-screen w-full bg-slate-950 text-white flex flex-col font-sans overflow-x-hidden selection:bg-amber-500 selection:text-slate-950">
-      {/* Background Ambience & Cultural Ornaments */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-40 -left-40 w-[550px] h-[550px] rounded-full bg-amber-500/10 blur-[130px] animate-pulse" />
-        <div className="absolute top-1/3 -right-40 w-[600px] h-[600px] rounded-full bg-amber-600/10 blur-[150px]" />
-        <div className="absolute -bottom-40 left-1/3 w-[700px] h-[700px] rounded-full bg-orange-600/5 blur-[160px]" />
-        <div
-          className="absolute inset-0 opacity-[0.025] bg-repeat"
-          style={{
-            backgroundImage: "radial-gradient(#f59e0b 1px, transparent 1px)",
-            backgroundSize: "28px 28px",
-          }}
-        />
+    <div className="relative min-h-screen w-full flex flex-col font-sans bg-[var(--bx-bg)] text-[var(--bx-ink)] overflow-x-hidden selection:bg-[var(--gold)] selection:text-[var(--brand)]">
+      {/* Blackbox Architectural Rails Background Overlay */}
+      <div className="blackbox-rails" aria-hidden="true">
+        <div className="blackbox-rail-inner">
+          <span className="blackbox-rail-hatch blackbox-rail-hatch-left" />
+          <span className="blackbox-rail-hatch blackbox-rail-hatch-right" />
+        </div>
       </div>
 
       {/* ======================================================== */}
-      {/* 1. HEADER UTAMA PORTAL */}
+      {/* 1. HEADER UTAMA PORTAL (AUI INSTITUTIONAL HEADER) */}
       {/* ======================================================== */}
-      <header className="fixed top-0 inset-x-0 z-40 h-16 bg-slate-950/90 backdrop-blur-2xl border-b border-amber-500/25 px-4 sm:px-6 flex items-center justify-between gap-3 shadow-2xl">
+      <header className="fixed top-0 inset-x-0 z-40 h-15 bg-[var(--bx-surface)]/95 backdrop-blur-xl border-b border-[var(--bx-border)] px-4 sm:px-6 flex items-center justify-between gap-3 shadow-sm transition-colors">
         {/* Left Section: Menu Toggle & Brand Logo */}
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => setIsSideMenuOpen(!isSideMenuOpen)}
-            className="p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-amber-500/30 hover:border-amber-400 text-amber-300 transition active:scale-95 shadow-md"
+            className="p-2 rounded-lg bg-[var(--bx-bg)] hover:bg-[var(--bx-darker)] border border-[var(--bx-border)] hover:border-[var(--gold)] text-[var(--gold)] transition active:scale-95"
             title={isSideMenuOpen ? "Tutup Side Menu" : "Buka Side Menu"}
             aria-label="Toggle Side Menu"
           >
@@ -147,7 +139,7 @@ export default function PortalDashboard() {
           </button>
 
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-900/80 border border-amber-500/40 p-1 flex items-center justify-center transition-transform duration-500 group-hover:scale-105 shadow-md">
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[var(--bx-bg)] border border-[var(--bx-border)] p-1 flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
               <img
                 src="/mandala.png"
                 alt="Logo Mandala"
@@ -156,36 +148,36 @@ export default function PortalDashboard() {
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <span className="text-base sm:text-lg font-black tracking-widest text-amber-300 font-cinzel leading-none">
+                <span className="text-base sm:text-lg font-bold tracking-tight text-[var(--bx-ink-bright)] font-serif leading-none">
                   NUSA ANTARA
                 </span>
-                <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-black tracking-wider uppercase bg-amber-500/20 border border-amber-400/30 text-amber-300">
+                <span className="portal-badge-portal">
                   PORTAL
                 </span>
               </div>
-              <span className="text-[10px] text-slate-400 font-medium hidden md:inline-block">
-                Pusaka Kebudayaan & Wisata Nusantara
+              <span className="text-[11px] text-[var(--bx-muted)] font-medium hidden md:inline-block">
+                Pusaka Kebudayaan & Wisata Geospasial
               </span>
             </div>
           </Link>
         </div>
 
-        {/* Center Section: Quick Search Input */}
+        {/* Center Section: Quick Search Input (AUI Search) */}
         <div className="hidden lg:flex items-center flex-1 max-w-md mx-4">
-          <div className="relative w-full">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+          <div className="portal-input-wrap w-full">
+            <Search className="absolute left-3 w-4 h-4 text-[var(--bx-muted)] pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari destinasi, adat, kain tapis, pinisi..."
-              className="w-full pl-10 pr-4 py-2 rounded-full bg-slate-900/80 border border-slate-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-white placeholder-slate-500 text-xs outline-none transition"
+              placeholder="Cari destinasi, tradisi adat, kain tapis, kapal pinisi..."
+              className="portal-input !h-9 text-xs"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs font-bold"
+                className="absolute right-3 text-[var(--bx-muted)] hover:text-[var(--gold)] text-xs font-bold"
               >
                 ✕
               </button>
@@ -193,32 +185,35 @@ export default function PortalDashboard() {
           </div>
         </div>
 
-        {/* Right Section: Button Ke Peta & Auth Status */}
+        {/* Right Section: Theme Toggle, CTA Peta & User Session */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* AUI Theme Mode Toggle (Light / Dark) */}
+          <ThemeToggle />
+
           {/* Main CTA: Buka Peta Petualangan */}
           <Link
             href="/peta"
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs sm:text-sm tracking-wide transition-all shadow-[0_2px_15px_rgba(245,158,11,0.35)] hover:shadow-[0_4px_22px_rgba(245,158,11,0.55)] active:scale-95 group shrink-0"
+            className="portal-submit-btn-gold !h-9 !px-3.5 !text-xs shrink-0 group"
           >
-            <Compass className="w-4 h-4 text-slate-950 transition-transform group-hover:rotate-45" />
-            <span className="hidden sm:inline">Peta Petualangan</span>
-            <span className="sm:hidden">Peta</span>
+            <Compass className="w-4 h-4 transition-transform group-hover:rotate-45" />
+            <span className="hidden sm:inline font-bold">Peta Petualangan</span>
+            <span className="sm:hidden font-bold">Peta</span>
           </Link>
 
           {/* User Session Area */}
           {authUser ? (
-            <div className="flex items-center gap-2 pl-1 border-l border-white/10 shrink-0">
+            <div className="flex items-center gap-2 pl-1 border-l border-[var(--bx-border)] shrink-0">
               <div
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 text-xs font-bold shadow-md"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--bx-surface-card)] border border-[var(--gold)]/40 text-[var(--gold)] text-xs font-bold"
                 title={`Masuk sebagai ${authUser.name} (${authUser.phone || authUser.email})`}
               >
-                <UserCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                <UserCheck className="w-4 h-4 text-[var(--gold)] shrink-0" />
                 <span className="max-w-[80px] sm:max-w-[120px] truncate">{authUser.name}</span>
               </div>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="p-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 hover:text-rose-100 transition active:scale-95 shadow-md"
+                className="p-1.5 rounded-lg bg-[var(--bx-bg)] hover:bg-rose-500/10 border border-[var(--bx-border)] hover:border-rose-400 text-rose-500 transition active:scale-95"
                 title="Keluar / Logout"
                 aria-label="Logout"
               >
@@ -228,10 +223,10 @@ export default function PortalDashboard() {
           ) : (
             <Link
               href="/login"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-amber-500/40 hover:border-amber-400 text-amber-300 font-bold text-xs transition active:scale-95 shadow-md shrink-0"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--bx-surface)] hover:bg-[var(--bx-darker)] border border-[var(--bx-border)] hover:border-[var(--gold)] text-[var(--gold)] font-bold text-xs transition active:scale-95 shrink-0"
               title="Masuk ke Akun Nusa Antara"
             >
-              <LogIn className="w-3.5 h-3.5 text-amber-400" />
+              <LogIn className="w-3.5 h-3.5" />
               <span>Masuk</span>
             </Link>
           )}
@@ -241,34 +236,34 @@ export default function PortalDashboard() {
       {/* ======================================================== */}
       {/* 2. BODY CONTENT: SIDE MENU + DASHBOARD */}
       {/* ======================================================== */}
-      <div className="relative pt-16 flex-1 flex overflow-hidden">
-        {/* SIDE MENU (COLLAPSIBLE SIDEBAR) */}
+      <div className="relative pt-15 flex-1 flex overflow-hidden">
+        {/* SIDE MENU (AUI INSTITUTIONAL SIDEBAR) */}
         <aside
-          className={`fixed lg:sticky top-16 bottom-0 left-0 z-30 w-72 bg-slate-950/95 backdrop-blur-2xl border-r border-amber-500/20 flex flex-col justify-between transition-transform duration-300 ease-in-out ${
+          className={`fixed lg:sticky top-15 bottom-0 left-0 z-30 w-72 bg-[var(--bx-surface)] border-r border-[var(--bx-border)] flex flex-col justify-between transition-transform duration-300 ease-in-out ${
             isSideMenuOpen ? "translate-x-0" : "-translate-x-full lg:-ml-72"
-          } shadow-2xl h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar`}
+          } h-[calc(100vh-3.75rem)] overflow-y-auto custom-scrollbar`}
         >
           {/* Top User Status Card in Side Menu */}
-          <div className="p-4 border-b border-white/10">
-            <div className="p-3.5 rounded-2xl bg-gradient-to-tr from-amber-500/15 via-slate-900/90 to-amber-600/15 border border-amber-500/30 shadow-lg">
+          <div className="p-4 border-b border-[var(--bx-border)]">
+            <div className="p-3.5 rounded-xl bg-[var(--bx-surface-card)] border border-[var(--bx-border)] shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-full border border-amber-400/60 overflow-hidden bg-slate-800 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-lg border border-[var(--gold)]/40 overflow-hidden bg-[var(--bx-bg)] flex items-center justify-center shrink-0">
                   {authUser?.avatar ? (
                     <img src={authUser.avatar} alt="Avatar" className="w-full h-full object-cover" />
                   ) : (
-                    <img src="/mandala.png" alt="Mandala" className="w-7 h-7 object-contain opacity-80" />
+                    <img src="/mandala.png" alt="Mandala" className="w-6 h-6 object-contain opacity-80" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-black text-white truncate font-cinzel">
-                    {authUser ? authUser.name : "Tamu Petualang"}
+                  <p className="text-xs font-bold text-[var(--bx-ink-bright)] truncate font-serif">
+                    {authUser ? authUser.name : "Tamu Penjelajah"}
                   </p>
-                  <p className="text-[10px] text-amber-400/90 font-medium">
-                    {authUser ? "Sesi Petualang Aktif" : "Mode Penjelajah Terbuka"}
+                  <p className="text-[10px] text-[var(--gold)] font-medium">
+                    {authUser ? "Sesi Petualang Aktif" : "Eksplorasi Publik"}
                   </p>
                   <div className="flex items-center gap-1 mt-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-[9px] text-slate-400 uppercase tracking-widest font-mono">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[9px] text-[var(--bx-muted)] uppercase tracking-wider font-mono">
                       {authUser?.provider || "Tamu"}
                     </span>
                   </div>
@@ -278,7 +273,7 @@ export default function PortalDashboard() {
               {!authUser && (
                 <Link
                   href="/login"
-                  className="mt-3 w-full py-1.5 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-300 text-xs font-bold transition flex items-center justify-center gap-1.5"
+                  className="mt-3 w-full py-1.5 px-3 rounded-lg bg-[var(--bx-bg)] hover:bg-[var(--gold)]/10 border border-[var(--bx-border)] hover:border-[var(--gold)] text-[var(--gold)] text-xs font-bold transition flex items-center justify-center gap-1.5"
                 >
                   <LogIn className="w-3.5 h-3.5" />
                   <span>Masuk untuk Sinkronisasi</span>
@@ -287,39 +282,39 @@ export default function PortalDashboard() {
             </div>
           </div>
 
-          {/* Navigation Items */}
+          {/* Navigation Items (AUI Sidebar Items) */}
           <div className="p-4 space-y-6 flex-1">
             {/* Group 1: Navigasi Utama */}
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 px-2">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--bx-muted)] mb-2 px-2 font-mono">
                 NAVIGASI UTAMA
               </p>
               <div className="space-y-1">
                 <button
                   type="button"
                   onClick={() => setActiveTab("dashboard")}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition ${
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition ${
                     activeTab === "dashboard"
-                      ? "bg-amber-500/20 border border-amber-400/50 text-amber-300 shadow-md"
-                      : "text-slate-300 hover:bg-slate-900 hover:text-white"
+                      ? "bg-[var(--gold)]/15 border border-[var(--gold)] text-[var(--gold)] font-bold shadow-xs"
+                      : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <LayoutDashboard className="w-4 h-4 text-amber-400" />
+                    <LayoutDashboard className="w-4 h-4 text-[var(--gold)]" />
                     <span>Dashboard Utama</span>
                   </div>
-                  <span className="w-2 h-2 rounded-full bg-amber-400" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--gold)]" />
                 </button>
 
                 <Link
                   href="/peta"
-                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:bg-amber-500/15 hover:text-amber-300 hover:border hover:border-amber-500/30 transition group"
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold text-[var(--bx-ink)] hover:bg-[var(--bx-bg)] hover:text-[var(--gold)] transition group"
                 >
                   <div className="flex items-center gap-2.5">
-                    <Compass className="w-4 h-4 text-amber-400 transition-transform group-hover:rotate-45" />
+                    <Compass className="w-4 h-4 text-[var(--gold)] transition-transform group-hover:rotate-45" />
                     <span>Peta Petualangan</span>
                   </div>
-                  <span className="px-1.5 py-0.5 rounded text-[9px] bg-amber-500/20 border border-amber-400/30 text-amber-300 font-bold uppercase tracking-wider">
+                  <span className="portal-badge-gold !text-[8px] !px-1.5 !py-0.5">
                     LIVE
                   </span>
                 </Link>
@@ -328,7 +323,7 @@ export default function PortalDashboard() {
 
             {/* Group 2: Episentrum Wilayah */}
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 px-2">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--bx-muted)] mb-2 px-2 font-mono">
                 EPISENTRUM BUDAYA
               </p>
               <div className="space-y-1">
@@ -338,17 +333,17 @@ export default function PortalDashboard() {
                     setRegionFilter(regionFilter === "sulawesi" ? "all" : "sulawesi");
                     setActiveTab("destinasi");
                   }}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition ${
                     regionFilter === "sulawesi"
-                      ? "bg-amber-500/20 border border-amber-400/50 text-amber-300"
-                      : "text-slate-300 hover:bg-slate-900"
+                      ? "bg-[var(--gold)]/15 border border-[var(--gold)] text-[var(--gold)] font-bold"
+                      : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <Waves className="w-3.5 h-3.5 text-cyan-400" />
+                    <Waves className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
                     <span>Bulukumba (Sulsel)</span>
                   </div>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bx-bg)] text-[var(--bx-muted)] font-mono">
                     8 Lokasi
                   </span>
                 </button>
@@ -359,43 +354,43 @@ export default function PortalDashboard() {
                     setRegionFilter(regionFilter === "lampung" ? "all" : "lampung");
                     setActiveTab("destinasi");
                   }}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition ${
                     regionFilter === "lampung"
-                      ? "bg-amber-500/20 border border-amber-400/50 text-amber-300"
-                      : "text-slate-300 hover:bg-slate-900"
+                      ? "bg-[var(--gold)]/15 border border-[var(--gold)] text-[var(--gold)] font-bold"
+                      : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <Mountain className="w-3.5 h-3.5 text-amber-400" />
+                    <Mountain className="w-3.5 h-3.5 text-[var(--gold)]" />
                     <span>Lampung (Sumatera)</span>
                   </div>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bx-bg)] text-[var(--bx-muted)] font-mono">
                     10 Lokasi
                   </span>
                 </button>
               </div>
             </div>
 
-            {/* Group 3: Modul & Agenda */}
+            {/* Group 3: Modul & Fitur */}
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 px-2">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--bx-muted)] mb-2 px-2 font-mono">
                 MODUL & FITUR
               </p>
               <div className="space-y-1">
                 <button
                   type="button"
                   onClick={() => setActiveTab("events")}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition ${
                     activeTab === "events"
-                      ? "bg-amber-500/20 border border-amber-400/50 text-amber-300"
-                      : "text-slate-300 hover:bg-slate-900"
+                      ? "bg-[var(--gold)]/15 border border-[var(--gold)] text-[var(--gold)] font-bold"
+                      : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <CalendarDays className="w-3.5 h-3.5 text-orange-400" />
-                    <span>Radar Event Kebudayaan</span>
+                    <CalendarDays className="w-3.5 h-3.5 text-orange-500" />
+                    <span>Radar Event Budaya</span>
                   </div>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-orange-500/20 text-orange-300 font-bold">
+                  <span className="portal-badge-gold !text-[8px] !px-1.5 !py-0.5">
                     7 Event
                   </span>
                 </button>
@@ -403,17 +398,17 @@ export default function PortalDashboard() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("musik")}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition ${
                     activeTab === "musik"
-                      ? "bg-amber-500/20 border border-amber-400/50 text-amber-300"
-                      : "text-slate-300 hover:bg-slate-900"
+                      ? "bg-[var(--gold)]/15 border border-[var(--gold)] text-[var(--gold)] font-bold"
+                      : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <Music className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Warisan Musik Tradisional</span>
+                    <Music className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                    <span>Warisan Musik Audio</span>
                   </div>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bx-bg)] text-[var(--bx-muted)] font-mono">
                     16 Trek
                   </span>
                 </button>
@@ -421,17 +416,17 @@ export default function PortalDashboard() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("ai")}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition ${
                     activeTab === "ai"
-                      ? "bg-amber-500/20 border border-amber-400/50 text-amber-300"
-                      : "text-slate-300 hover:bg-slate-900"
+                      ? "bg-[var(--gold)]/15 border border-[var(--gold)] text-[var(--gold)] font-bold"
+                      : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                    <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                     <span>Bar Hala AI Concierge</span>
                   </div>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 font-bold">
+                  <span className="portal-badge-blue !text-[8px] !px-1.5 !py-0.5">
                     AI Topeng
                   </span>
                 </button>
@@ -439,17 +434,17 @@ export default function PortalDashboard() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("bmkg")}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition ${
                     activeTab === "bmkg"
-                      ? "bg-amber-500/20 border border-amber-400/50 text-amber-300"
-                      : "text-slate-300 hover:bg-slate-900"
+                      ? "bg-[var(--gold)]/15 border border-[var(--gold)] text-[var(--gold)] font-bold"
+                      : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <CloudSun className="w-3.5 h-3.5 text-blue-400" />
+                    <CloudSun className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                     <span>Telemetri Cuaca BMKG</span>
                   </div>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 font-bold">
+                  <span className="portal-badge-green !text-[8px] !px-1.5 !py-0.5">
                     Live Peta
                   </span>
                 </button>
@@ -458,49 +453,49 @@ export default function PortalDashboard() {
           </div>
 
           {/* Bottom Status in Side Menu */}
-          <div className="p-4 border-t border-white/10 bg-slate-950/50">
-            <div className="flex items-center justify-between text-[11px] text-slate-400">
+          <div className="p-4 border-t border-[var(--bx-border)] bg-[var(--bx-bg)]/50">
+            <div className="flex items-center justify-between text-[11px] text-[var(--bx-muted)]">
               <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span>BMKG SATU PETA MKG</span>
               </span>
-              <span className="text-amber-400/80 font-mono">v1.2</span>
+              <span className="text-[var(--gold)] font-mono font-bold">v1.2</span>
             </div>
           </div>
         </aside>
 
         {/* MAIN DASHBOARD CONTENT */}
-        <main className="flex-1 min-w-0 h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8 space-y-10">
-          {/* HERO BANNER SECTION */}
-          <section className="relative rounded-3xl overflow-hidden border border-amber-500/30 bg-gradient-to-r from-slate-950 via-slate-900/90 to-amber-950/40 p-6 sm:p-8 lg:p-10 shadow-2xl">
-            {/* Glow Accents */}
-            <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-10 -left-10 w-60 h-60 rounded-full bg-orange-600/10 blur-2xl pointer-events-none" />
+        <main className="flex-1 min-w-0 h-[calc(100vh-3.75rem)] overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8 space-y-10">
+          {/* HERO BANNER SECTION (AUI EDITORIAL SHOWCASE) */}
+          <section className="portal-card-wrap !p-6 sm:!p-8 lg:!p-10 relative overflow-hidden">
+            {/* Subtle glow in corner */}
+            <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-[var(--gold)]/10 blur-3xl pointer-events-none" />
 
             <div className="relative z-10 max-w-3xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-300 text-xs font-bold tracking-wide uppercase mb-4 shadow-sm">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span>Portal Eksplorasi Pusaka Kebudayaan Digital</span>
+              <div className="inline-flex items-center gap-2 mb-4">
+                <span className="portal-badge-gold">
+                  <Sparkles className="w-3 h-3" />
+                  Eksplorasi Pusaka Kebudayaan Digital
+                </span>
               </div>
 
-              <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-300 to-amber-500 tracking-tight leading-tight font-cinzel">
+              <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-[var(--bx-ink-bright)] tracking-tight leading-tight font-serif">
                 Pusaka Nusantara, Warisan Leluhur Adiluhung
               </h1>
 
-              <p className="mt-3 text-sm sm:text-base text-slate-300 leading-relaxed font-light">
+              <p className="mt-3 text-sm sm:text-base text-[var(--bx-prose-ink)] leading-relaxed font-sans font-normal">
                 Selamat datang di kanvas terintegrasi Nusa Antara. Jelajahi kearifan bahari perahu Pinisi
                 Bulukumba, tradisi sakral Bohe Ammatoa Kajang, pesona lumba-lumba Teluk Kiluan, hingga kaldera
-                vulkanik Krakatau dengan panduan geospasial real-time, telemetri cuaca maritim BMKG, dan Bar
-                Hala AI.
+                vulkanik Krakatau dengan panduan geospasial real-time, telemetri cuaca maritim BMKG, dan asisten cerdas Bar Hala AI.
               </p>
 
               {/* Action Buttons */}
               <div className="mt-6 flex flex-wrap items-center gap-3 sm:gap-4">
                 <Link
                   href="/peta"
-                  className="flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm tracking-wide transition shadow-[0_4px_25px_rgba(245,158,11,0.45)] hover:shadow-[0_6px_30px_rgba(245,158,11,0.6)] active:scale-95 group"
+                  className="portal-submit-btn-gold group !h-11"
                 >
-                  <Compass className="w-5 h-5 text-slate-950 transition-transform group-hover:rotate-45" />
+                  <Compass className="w-5 h-5 transition-transform group-hover:rotate-45" />
                   <span>Jelajahi Peta Petualangan Interaktif</span>
                   <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
                 </Link>
@@ -508,18 +503,18 @@ export default function PortalDashboard() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("events")}
-                  className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-slate-900/80 hover:bg-slate-800 border border-amber-500/30 hover:border-amber-400 text-amber-300 font-bold text-xs sm:text-sm transition active:scale-95 shadow-md"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[var(--bx-bg)] hover:bg-[var(--bx-darker)] border border-[var(--bx-border)] hover:border-[var(--gold)] text-[var(--bx-ink)] font-bold text-xs sm:text-sm transition active:scale-95"
                 >
-                  <CalendarDays className="w-4 h-4 text-orange-400" />
+                  <CalendarDays className="w-4 h-4 text-orange-500" />
                   <span>Agenda Event Budaya</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setActiveTab("ai")}
-                  className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-slate-900/80 hover:bg-slate-800 border border-purple-500/30 hover:border-purple-400 text-purple-300 font-bold text-xs sm:text-sm transition active:scale-95 shadow-md"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[var(--bx-bg)] hover:bg-[var(--bx-darker)] border border-[var(--bx-border)] hover:border-[var(--gold)] text-[var(--bx-ink)] font-bold text-xs sm:text-sm transition active:scale-95"
                 >
-                  <Sparkles className="w-4 h-4 text-purple-400" />
+                  <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                   <span>Konsultasi Bar Hala AI</span>
                 </button>
               </div>
@@ -527,43 +522,43 @@ export default function PortalDashboard() {
           </section>
 
           {/* ======================================================== */}
-          {/* KEY METRICS & KPI STATS CARDS */}
+          {/* KEY METRICS & KPI STATS CARDS (AUI STATS CARDS) */}
           {/* ======================================================== */}
           <section className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-            <div className="p-4 rounded-2xl bg-slate-900/70 border border-amber-500/20 backdrop-blur-xl shadow-lg">
+            <div className="portal-card-wrap !p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-slate-400 font-medium">Destinasi Terkurasi</span>
-                <Landmark className="w-4 h-4 text-amber-400" />
+                <span className="text-xs text-[var(--bx-muted)] font-medium font-sans">Destinasi Terkurasi</span>
+                <Landmark className="w-4 h-4 text-[var(--gold)]" />
               </div>
-              <p className="text-2xl sm:text-3xl font-black text-amber-300 font-cinzel">18</p>
-              <p className="text-[11px] text-slate-400 mt-1">8 Bulukumba • 10 Lampung</p>
+              <p className="text-2xl sm:text-3xl font-bold text-[var(--bx-ink-bright)] font-serif">18</p>
+              <p className="text-[11px] text-[var(--bx-muted)] mt-1 font-mono">8 Bulukumba • 10 Lampung</p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-900/70 border border-amber-500/20 backdrop-blur-xl shadow-lg">
+            <div className="portal-card-wrap !p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-slate-400 font-medium">Radar Event Budaya</span>
-                <CalendarDays className="w-4 h-4 text-orange-400" />
+                <span className="text-xs text-[var(--bx-muted)] font-medium font-sans">Radar Event Budaya</span>
+                <CalendarDays className="w-4 h-4 text-orange-500" />
               </div>
-              <p className="text-2xl sm:text-3xl font-black text-orange-400 font-cinzel">7</p>
-              <p className="text-[11px] text-slate-400 mt-1">Festival Pinisi, Sekura, dll.</p>
+              <p className="text-2xl sm:text-3xl font-bold text-orange-600 dark:text-orange-400 font-serif">7</p>
+              <p className="text-[11px] text-[var(--bx-muted)] mt-1 font-mono">Festival Pinisi, Sekura, dll.</p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-900/70 border border-amber-500/20 backdrop-blur-xl shadow-lg">
+            <div className="portal-card-wrap !p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-slate-400 font-medium">Warisan Audio Etnik</span>
-                <Music className="w-4 h-4 text-emerald-400" />
+                <span className="text-xs text-[var(--bx-muted)] font-medium font-sans">Warisan Audio Etnik</span>
+                <Music className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <p className="text-2xl sm:text-3xl font-black text-emerald-400 font-cinzel">16</p>
-              <p className="text-[11px] text-slate-400 mt-1">Sinkronisasi Musik Wilayah</p>
+              <p className="text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400 font-serif">16</p>
+              <p className="text-[11px] text-[var(--bx-muted)] mt-1 font-mono">Sinkronisasi Musik Wilayah</p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-900/70 border border-amber-500/20 backdrop-blur-xl shadow-lg">
+            <div className="portal-card-wrap !p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-slate-400 font-medium">Sensor Cuaca BMKG</span>
-                <CloudSun className="w-4 h-4 text-blue-400" />
+                <span className="text-xs text-[var(--bx-muted)] font-medium font-sans">Sensor Cuaca BMKG</span>
+                <CloudSun className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               </div>
-              <p className="text-2xl sm:text-3xl font-black text-blue-400 font-cinzel">2</p>
-              <p className="text-[11px] text-slate-400 mt-1">Telemetri Pesisir Maritim</p>
+              <p className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400 font-serif">2</p>
+              <p className="text-[11px] text-[var(--bx-muted)] mt-1 font-mono">Telemetri Pesisir Maritim</p>
             </div>
           </section>
 
@@ -571,37 +566,37 @@ export default function PortalDashboard() {
           {/* FILTER & EXPLORATION TABS */}
           {/* ======================================================== */}
           <section className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-white/10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[var(--bx-border)]">
               <div>
-                <h2 className="text-xl sm:text-2xl font-black text-white font-cinzel flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-amber-400" />
+                <h2 className="text-xl sm:text-2xl font-bold text-[var(--bx-ink-bright)] font-serif flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-[var(--gold)]" />
                   <span>Katalog Destinasi Budaya</span>
                 </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-[var(--bx-muted)] mt-0.5 font-sans">
                   Menampilkan {filteredDestinations.length} destinasi budaya berdasar penyaringan aktif
                 </p>
               </div>
 
               {/* Region Pill Filters */}
-              <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900 border border-slate-800">
+              <div className="flex items-center gap-1.5 p-1 rounded-lg bg-[var(--bx-surface)] border border-[var(--bx-border)]">
                 <button
                   type="button"
                   onClick={() => setRegionFilter("all")}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
+                  className={`px-3 py-1 rounded-md text-xs font-bold transition ${
                     regionFilter === "all"
-                      ? "bg-amber-500 text-slate-950 shadow-md"
-                      : "text-slate-400 hover:text-white"
+                      ? "bg-[var(--gold)] text-white shadow-xs"
+                      : "text-[var(--bx-muted)] hover:text-[var(--bx-ink)]"
                   }`}
                 >
-                  Semua Wilayah ({DESTINATIONS.length})
+                  Semua ({DESTINATIONS.length})
                 </button>
                 <button
                   type="button"
                   onClick={() => setRegionFilter("sulawesi")}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
+                  className={`px-3 py-1 rounded-md text-xs font-bold transition ${
                     regionFilter === "sulawesi"
-                      ? "bg-amber-500 text-slate-950 shadow-md"
-                      : "text-slate-400 hover:text-white"
+                      ? "bg-[var(--gold)] text-white shadow-xs"
+                      : "text-[var(--bx-muted)] hover:text-[var(--bx-ink)]"
                   }`}
                 >
                   Bulukumba (8)
@@ -609,10 +604,10 @@ export default function PortalDashboard() {
                 <button
                   type="button"
                   onClick={() => setRegionFilter("lampung")}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
+                  className={`px-3 py-1 rounded-md text-xs font-bold transition ${
                     regionFilter === "lampung"
-                      ? "bg-amber-500 text-slate-950 shadow-md"
-                      : "text-slate-400 hover:text-white"
+                      ? "bg-[var(--gold)] text-white shadow-xs"
+                      : "text-[var(--bx-muted)] hover:text-[var(--bx-ink)]"
                   }`}
                 >
                   Lampung (10)
@@ -637,8 +632,8 @@ export default function PortalDashboard() {
                   onClick={() => setCategoryFilter(cat.id as Category | "all")}
                   className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition flex items-center gap-1.5 ${
                     categoryFilter === cat.id
-                      ? "bg-amber-500/20 border border-amber-400 text-amber-300 shadow-md"
-                      : "bg-slate-900/60 border border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                      ? "bg-[var(--gold)]/15 border border-[var(--gold)] text-[var(--gold)] font-bold shadow-xs"
+                      : "bg-[var(--bx-surface)] border border-[var(--bx-border)] text-[var(--bx-muted)] hover:border-[var(--gold)]/50 hover:text-[var(--bx-ink)]"
                   }`}
                 >
                   {cat.icon && <cat.icon className="w-3.5 h-3.5" />}
@@ -652,10 +647,10 @@ export default function PortalDashboard() {
               {filteredDestinations.map((dest) => (
                 <div
                   key={dest.id}
-                  className="group rounded-2xl overflow-hidden bg-slate-900/80 border border-amber-500/20 hover:border-amber-400/60 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(245,158,11,0.2)] flex flex-col justify-between"
+                  className="portal-card-wrap !p-0 group hover:border-[var(--gold)] transition-all duration-300 flex flex-col justify-between"
                 >
                   {/* Image & Badges */}
-                  <div className="relative h-48 w-full overflow-hidden bg-slate-950">
+                  <div className="relative h-48 w-full overflow-hidden bg-[var(--bx-darker)]">
                     <img
                       src={dest.imageUrl}
                       alt={dest.name}
@@ -665,23 +660,23 @@ export default function PortalDashboard() {
                           "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&w=800&q=80";
                       }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--bx-surface-card)] via-transparent to-transparent opacity-80" />
 
                     {/* Top Badges */}
                     <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5">
-                      <span className="px-2 py-0.5 rounded-md bg-slate-950/80 backdrop-blur-md border border-amber-400/40 text-amber-300 text-[10px] font-black uppercase tracking-wider">
-                        {dest.province.includes("Sulawesi") ? "Sulawesi Selatan" : "Lampung"}
+                      <span className="portal-badge-gold">
+                        {dest.province.includes("Sulawesi") ? "Bulukumba" : "Lampung"}
                       </span>
                       {dest.subCategory && (
-                        <span className="px-2 py-0.5 rounded-md bg-slate-900/80 backdrop-blur-md border border-white/20 text-slate-300 text-[10px] font-medium">
+                        <span className="px-2 py-0.5 rounded text-[10px] bg-[var(--bx-surface)]/90 backdrop-blur-md border border-[var(--bx-border)] text-[var(--bx-muted)] font-medium">
                           {dest.subCategory}
                         </span>
                       )}
                     </div>
 
                     {/* BMKG Status Pill */}
-                    <div className="absolute bottom-3 right-3 flex items-center gap-1.5 px-2 py-1 rounded-md bg-slate-950/85 backdrop-blur-md border border-blue-400/40 text-blue-300 text-[10px] font-semibold">
-                      <CloudSun className="w-3.5 h-3.5 text-blue-400" />
+                    <div className="absolute bottom-3 right-3 flex items-center gap-1.5 px-2 py-1 rounded bg-[var(--bx-surface)]/90 backdrop-blur-md border border-blue-500/30 text-blue-600 dark:text-blue-400 text-[10px] font-semibold">
+                      <CloudSun className="w-3.5 h-3.5" />
                       <span>
                         {dest.bmkgStation.temperature}°C • {dest.bmkgStation.safetyStatus}
                       </span>
@@ -691,28 +686,28 @@ export default function PortalDashboard() {
                   {/* Body Content */}
                   <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
                     <div>
-                      <h3 className="text-base font-bold text-white group-hover:text-amber-300 transition-colors line-clamp-1">
+                      <h3 className="text-base font-bold text-[var(--bx-ink-bright)] font-serif group-hover:text-[var(--gold)] transition-colors line-clamp-1">
                         {dest.name}
                       </h3>
-                      <p className="text-xs text-amber-400/80 font-medium line-clamp-1">{dest.subtitle}</p>
-                      <p className="text-xs text-slate-400 mt-2 line-clamp-2 leading-relaxed">
+                      <p className="text-xs text-[var(--gold)] font-medium line-clamp-1">{dest.subtitle}</p>
+                      <p className="text-xs text-[var(--bx-prose-ink)] mt-2 line-clamp-2 leading-relaxed">
                         {dest.description}
                       </p>
                     </div>
 
                     {/* Cultural Highlights Tags */}
                     {dest.traditionalAttire && (
-                      <div className="flex items-center gap-1.5 text-[11px] text-amber-300/90 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
-                        <Shirt className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                      <div className="flex items-center gap-1.5 text-[11px] text-[var(--gold)] bg-[var(--gold)]/10 px-2.5 py-1 rounded-md border border-[var(--gold)]/20">
+                        <Shirt className="w-3.5 h-3.5 shrink-0" />
                         <span className="truncate">Wastra: {dest.traditionalAttire.wastraType}</span>
                       </div>
                     )}
 
                     {/* Footer Actions */}
-                    <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-2">
+                    <div className="pt-3 border-t border-[var(--bx-border)] flex items-center justify-between gap-2">
                       <div className="text-xs">
-                        <span className="text-slate-400">Paket Wisata: </span>
-                        <span className="font-bold text-amber-300 font-mono">
+                        <span className="text-[var(--bx-muted)]">Paket: </span>
+                        <span className="font-bold text-[var(--gold)] font-mono">
                           Rp {dest.tripPackage.priceIdr.toLocaleString("id-ID")}
                         </span>
                       </div>
@@ -720,7 +715,7 @@ export default function PortalDashboard() {
                       {/* Button to Map with Destination Focus Query */}
                       <Link
                         href={`/peta?dest=${encodeURIComponent(dest.id)}`}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black transition active:scale-95 shadow-md"
+                        className="portal-submit-btn-gold !h-8 !px-3 !text-xs shrink-0"
                         title={`Buka ${dest.name} di Peta Petualangan`}
                       >
                         <Compass className="w-3.5 h-3.5" />
@@ -737,20 +732,20 @@ export default function PortalDashboard() {
           {/* RADAR EVENT & FESTIVAL KEBUDAYAAN SECTION */}
           {/* ======================================================== */}
           <section id="events" className="space-y-4 pt-4">
-            <div className="flex items-center justify-between pb-2 border-b border-white/10">
+            <div className="flex items-center justify-between pb-2 border-b border-[var(--bx-border)]">
               <div>
-                <h2 className="text-xl sm:text-2xl font-black text-white font-cinzel flex items-center gap-2">
-                  <CalendarDays className="w-5 h-5 text-orange-400" />
+                <h2 className="text-xl sm:text-2xl font-bold text-[var(--bx-ink-bright)] font-serif flex items-center gap-2">
+                  <CalendarDays className="w-5 h-5 text-orange-500" />
                   <span>Radar Event Kebudayaan Nusantara</span>
                 </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Kalender festival maritim, ritual adat, dan pesta topeng tradisi di Bulukumba & Lampung
+                <p className="text-xs text-[var(--bx-muted)] mt-0.5">
+                  Kalender festival maritim, ritual adat, dan pesta tradisi di Bulukumba & Lampung
                 </p>
               </div>
 
               <Link
                 href="/peta"
-                className="hidden sm:flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-bold"
+                className="hidden sm:flex items-center gap-1 text-xs text-[var(--gold)] hover:underline font-bold"
               >
                 <span>Lihat Radar di Peta</span>
                 <ChevronRight className="w-4 h-4" />
@@ -761,50 +756,50 @@ export default function PortalDashboard() {
               {CULTURAL_EVENTS.map((evt) => (
                 <div
                   key={evt.id}
-                  className="p-5 rounded-2xl bg-gradient-to-br from-slate-900/90 to-slate-950 border border-orange-500/30 hover:border-orange-400 transition shadow-xl flex flex-col justify-between space-y-4"
+                  className="portal-card-wrap hover:border-orange-500/50 transition flex flex-col justify-between space-y-4"
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-slate-800 text-amber-300 border border-amber-400/30">
+                      <span className="portal-badge-gold">
                         {evt.province}
                       </span>
                       {evt.status === "ACTIVE_TODAY" ? (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-rose-500/20 text-rose-300 border border-rose-400/40 animate-pulse flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30 animate-pulse flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                           <span>Berlangsung</span>
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30 flex items-center gap-1">
+                        <span className="portal-badge-gold flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           <span>H-{evt.daysRemaining} Hari</span>
                         </span>
                       )}
                     </div>
 
-                    <h3 className="text-base font-bold text-white leading-snug">{evt.name}</h3>
+                    <h3 className="text-base font-bold text-[var(--bx-ink-bright)] font-serif leading-snug">{evt.name}</h3>
 
-                    <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-                      <MapPin className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+                    <div className="flex items-center gap-1.5 text-xs text-[var(--bx-muted)] font-medium">
+                      <MapPin className="w-3.5 h-3.5 text-orange-500 shrink-0" />
                       <span>{evt.location}</span>
                     </div>
 
-                    <div className="flex items-center gap-1.5 text-xs text-amber-400/90 font-mono">
+                    <div className="flex items-center gap-1.5 text-xs text-[var(--gold)] font-mono">
                       <CalendarDays className="w-3.5 h-3.5 shrink-0" />
                       <span>{evt.dateRange}</span>
                     </div>
 
-                    <p className="text-xs text-slate-300 leading-relaxed pt-2 border-t border-white/5">
+                    <p className="text-xs text-[var(--bx-prose-ink)] leading-relaxed pt-2 border-t border-[var(--bx-border)]">
                       {evt.description}
                     </p>
 
-                    <div className="p-2.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-[11px] text-orange-200/90 italic">
+                    <div className="p-2.5 rounded-lg bg-[var(--gold)]/10 border border-[var(--gold)]/20 text-[11px] text-[var(--gold)] italic">
                       "{evt.culturalEssence}"
                     </div>
                   </div>
 
                   <Link
                     href={`/peta?dest=${encodeURIComponent(evt.name)}`}
-                    className="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-orange-500 hover:text-slate-950 text-amber-300 text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-md group"
+                    className="w-full py-2 px-3 rounded-lg bg-[var(--bx-surface)] hover:bg-[var(--gold)] hover:text-white border border-[var(--bx-border)] text-[var(--gold)] text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs group"
                   >
                     <Compass className="w-4 h-4 transition-transform group-hover:rotate-45" />
                     <span>Arahkan Peta ke Lokasi Event</span>
@@ -817,31 +812,33 @@ export default function PortalDashboard() {
           {/* ======================================================== */}
           {/* BAR HALA AI CONCIERGE SPOTLIGHT SECTION */}
           {/* ======================================================== */}
-          <section id="ai" className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-purple-950/40 via-slate-900 to-amber-950/30 border border-purple-500/30 shadow-2xl">
+          <section id="ai" className="portal-card-wrap !p-6 sm:!p-8">
             <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-8">
               {/* Barong Avatar with interactive tracking */}
               <div className="shrink-0 flex flex-col items-center">
-                <div className="p-3 rounded-3xl bg-slate-950/80 border border-purple-400/40 shadow-2xl flex items-center justify-center">
+                <div className="p-3 rounded-2xl bg-[var(--bx-surface)] border border-[var(--bx-border)] shadow-md flex items-center justify-center">
                   <BarongAvatar size={80} isActive={true} />
                 </div>
-                <span className="text-xs font-black text-amber-300 font-cinzel mt-2">Bar Hala Ai</span>
-                <span className="text-[10px] text-purple-300 uppercase tracking-widest font-mono">
+                <span className="text-xs font-bold text-[var(--gold)] font-serif mt-2">Bar Hala Ai</span>
+                <span className="text-[10px] text-[var(--bx-muted)] uppercase tracking-wider font-mono">
                   Autonomous Concierge
                 </span>
               </div>
 
               {/* Text & Quick Prompt Chips */}
               <div className="flex-1 space-y-3 text-center lg:text-left">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-300 text-xs font-bold">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Kecerdasan Budaya & Etika Adat Nusantara</span>
+                <div className="inline-flex items-center gap-1.5">
+                  <span className="portal-badge-blue">
+                    <Sparkles className="w-3 h-3" />
+                    Kecerdasan Budaya & Etika Adat Nusantara
+                  </span>
                 </div>
 
-                <h3 className="text-xl sm:text-2xl font-black text-white font-cinzel">
+                <h3 className="text-xl sm:text-2xl font-bold text-[var(--bx-ink-bright)] font-serif">
                   Konsultasikan Etika & Filosofi Tradisi dengan Bar Hala AI
                 </h3>
 
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-light max-w-2xl">
+                <p className="text-xs sm:text-sm text-[var(--bx-prose-ink)] leading-relaxed max-w-2xl">
                   Bar Hala Ai siap memandu pantangan adat suku Kajang (larangan baju warna-warni & alas kaki),
                   filosofi ritual penarikan kapal Pinisi (Annyorong Poti), rute terbaik lumba-lumba Teluk
                   Kiluan, hingga rekomendasi wastra tapis Lampung.
@@ -858,7 +855,7 @@ export default function PortalDashboard() {
                     <Link
                       key={idx}
                       href="/peta"
-                      className="px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-purple-500/20 border border-purple-400/30 text-purple-200 hover:text-white text-xs font-medium transition active:scale-95"
+                      className="px-3 py-1.5 rounded-lg bg-[var(--bx-bg)] hover:bg-[var(--gold)]/15 border border-[var(--bx-border)] hover:border-[var(--gold)] text-[var(--bx-ink)] text-xs font-medium transition active:scale-95"
                     >
                       "{prompt}"
                     </Link>
@@ -870,7 +867,7 @@ export default function PortalDashboard() {
               <div className="shrink-0">
                 <Link
                   href="/peta"
-                  className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-600 via-purple-500 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs sm:text-sm tracking-wide transition shadow-xl active:scale-95 group"
+                  className="portal-submit-btn-gold group !h-11"
                 >
                   <Sparkles className="w-4 h-4" />
                   <span>Buka Chat di Peta</span>
@@ -884,13 +881,13 @@ export default function PortalDashboard() {
           {/* WARISAN MUSIK TRADISIONAL NUSANTARA */}
           {/* ======================================================== */}
           <section id="musik" className="space-y-4 pt-4">
-            <div className="flex items-center justify-between pb-2 border-b border-white/10">
+            <div className="flex items-center justify-between pb-2 border-b border-[var(--bx-border)]">
               <div>
-                <h2 className="text-xl sm:text-2xl font-black text-white font-cinzel flex items-center gap-2">
-                  <Music className="w-5 h-5 text-emerald-400" />
+                <h2 className="text-xl sm:text-2xl font-bold text-[var(--bx-ink-bright)] font-serif flex items-center gap-2">
+                  <Music className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                   <span>Galeri Warisan Musik Tradisional Nusantara</span>
                 </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-[var(--bx-muted)] mt-0.5">
                   16 koleksi audio gamelan, sape Dayak, degung Sunda, dan tembang maritim yang sinkron otomatis
                   saat menjelajah peta
                 </p>
@@ -898,7 +895,7 @@ export default function PortalDashboard() {
 
               <Link
                 href="/peta"
-                className="hidden sm:flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-bold"
+                className="hidden sm:flex items-center gap-1 text-xs text-[var(--gold)] hover:underline font-bold"
               >
                 <span>Dengarkan Auto-DJ di Peta</span>
                 <ChevronRight className="w-4 h-4" />
@@ -911,19 +908,19 @@ export default function PortalDashboard() {
                 return (
                   <div
                     key={track.id}
-                    className={`p-3.5 rounded-2xl border transition-all flex flex-col justify-between ${
+                    className={`portal-card-wrap !p-3.5 transition-all flex flex-col justify-between ${
                       isPlaying
-                        ? "bg-emerald-500/15 border-emerald-400/60 shadow-[0_4px_20px_rgba(16,185,129,0.25)]"
-                        : "bg-slate-900/70 border-slate-800 hover:border-amber-500/40"
+                        ? "!border-[var(--gold)] ring-2 ring-[var(--gold)]/20 shadow-md"
+                        : "hover:border-[var(--gold)]/50"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-slate-800 text-amber-400">
+                        <span className="portal-badge-gold !text-[8px] !px-1.5 !py-0.5">
                           {track.region || "Nusantara"}
                         </span>
-                        <h4 className="text-xs font-bold text-white mt-1.5 truncate">{track.title}</h4>
-                        <p className="text-[10px] text-slate-400 truncate">{track.subtitle}</p>
+                        <h4 className="text-xs font-bold text-[var(--bx-ink-bright)] mt-1.5 truncate">{track.title}</h4>
+                        <p className="text-[10px] text-[var(--bx-muted)] truncate">{track.subtitle}</p>
                       </div>
 
                       <button
@@ -931,8 +928,8 @@ export default function PortalDashboard() {
                         onClick={() => handleTogglePlayAudio(track)}
                         className={`w-8 h-8 rounded-full flex items-center justify-center transition active:scale-90 shrink-0 ${
                           isPlaying
-                            ? "bg-emerald-500 text-slate-950 shadow-lg animate-pulse"
-                            : "bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-amber-300"
+                            ? "bg-[var(--gold)] text-white shadow-md animate-pulse"
+                            : "bg-[var(--bx-bg)] hover:bg-[var(--gold)] hover:text-white text-[var(--gold)] border border-[var(--bx-border)]"
                         }`}
                         title={isPlaying ? "Jeda Lagu" : "Putar Sampel Lagu"}
                       >
@@ -940,7 +937,7 @@ export default function PortalDashboard() {
                       </button>
                     </div>
 
-                    <div className="mt-3 pt-2 border-t border-white/5 flex items-center justify-between text-[10px] text-slate-400">
+                    <div className="mt-3 pt-2 border-t border-[var(--bx-border)] flex items-center justify-between text-[10px] text-[var(--bx-muted)]">
                       <span className="truncate">{track.artist}</span>
                       <span className="font-mono">{track.duration || "Audio"}</span>
                     </div>
@@ -954,70 +951,70 @@ export default function PortalDashboard() {
           {/* BMKG STATUS & MARITIME TELEMETRY PREVIEW */}
           {/* ======================================================== */}
           <section id="bmkg" className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-            <div className="p-5 rounded-2xl bg-slate-900/80 border border-blue-500/30 flex flex-col justify-between space-y-3">
+            <div className="portal-card-wrap !p-5 flex flex-col justify-between space-y-3">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 uppercase">
+                  <span className="portal-badge-blue">
                     Stasiun Maritim Bulukumba
                   </span>
-                  <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1 font-mono">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
                     <span>STATUS AMAN</span>
                   </span>
                 </div>
-                <h3 className="text-base font-bold text-white mt-2">Laut Flores & Selat Makassar</h3>
-                <p className="text-xs text-slate-400 mt-1">
+                <h3 className="text-base font-bold text-[var(--bx-ink-bright)] font-serif mt-2">Laut Flores & Selat Makassar</h3>
+                <p className="text-xs text-[var(--bx-prose-ink)] mt-1 leading-relaxed">
                   Kondisi perairan Tanjung Bira & Tana Beru sangat kondusif untuk pelayaran perahu Pinisi dan
                   snorkeling di Pulau Liukang Loe.
                 </p>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/10 text-center">
-                <div className="p-2 rounded-xl bg-slate-950/60">
-                  <p className="text-[10px] text-slate-400">Suhu</p>
-                  <p className="text-sm font-bold text-white font-mono">29°C</p>
+              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[var(--bx-border)] text-center">
+                <div className="p-2 rounded-lg bg-[var(--bx-bg)] border border-[var(--bx-border)]">
+                  <p className="text-[10px] text-[var(--bx-muted)] font-medium">Suhu</p>
+                  <p className="text-sm font-bold text-[var(--bx-ink-bright)] font-mono">29°C</p>
                 </div>
-                <div className="p-2 rounded-xl bg-slate-950/60">
-                  <p className="text-[10px] text-slate-400">Angin</p>
-                  <p className="text-sm font-bold text-cyan-300 font-mono">14 km/j</p>
+                <div className="p-2 rounded-lg bg-[var(--bx-bg)] border border-[var(--bx-border)]">
+                  <p className="text-[10px] text-[var(--bx-muted)] font-medium">Angin</p>
+                  <p className="text-sm font-bold text-cyan-600 dark:text-cyan-400 font-mono">14 km/j</p>
                 </div>
-                <div className="p-2 rounded-xl bg-slate-950/60">
-                  <p className="text-[10px] text-slate-400">Gelombang</p>
-                  <p className="text-sm font-bold text-emerald-400 font-mono">0.6 m</p>
+                <div className="p-2 rounded-lg bg-[var(--bx-bg)] border border-[var(--bx-border)]">
+                  <p className="text-[10px] text-[var(--bx-muted)] font-medium">Gelombang</p>
+                  <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400 font-mono">0.6 m</p>
                 </div>
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-slate-900/80 border border-amber-500/30 flex flex-col justify-between space-y-3">
+            <div className="portal-card-wrap !p-5 flex flex-col justify-between space-y-3">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 uppercase">
+                  <span className="portal-badge-gold">
                     Stasiun Meteorologi Lampung
                   </span>
-                  <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1 font-mono">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
                     <span>STATUS AMAN</span>
                   </span>
                 </div>
-                <h3 className="text-base font-bold text-white mt-2">Teluk Semangka & Teluk Lampung</h3>
-                <p className="text-xs text-slate-400 mt-1">
+                <h3 className="text-base font-bold text-[var(--bx-ink-bright)] font-serif mt-2">Teluk Semangka & Teluk Lampung</h3>
+                <p className="text-xs text-[var(--bx-prose-ink)] mt-1 leading-relaxed">
                   Visibilitas laut Teluk Kiluan jernih, cuaca cerah berawan ideal untuk pengamatan lumba-lumba
                   hidung botol dan cagar alam Krakatau.
                 </p>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/10 text-center">
-                <div className="p-2 rounded-xl bg-slate-950/60">
-                  <p className="text-[10px] text-slate-400">Suhu</p>
-                  <p className="text-sm font-bold text-white font-mono">28°C</p>
+              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[var(--bx-border)] text-center">
+                <div className="p-2 rounded-lg bg-[var(--bx-bg)] border border-[var(--bx-border)]">
+                  <p className="text-[10px] text-[var(--bx-muted)] font-medium">Suhu</p>
+                  <p className="text-sm font-bold text-[var(--bx-ink-bright)] font-mono">28°C</p>
                 </div>
-                <div className="p-2 rounded-xl bg-slate-950/60">
-                  <p className="text-[10px] text-slate-400">Angin</p>
-                  <p className="text-sm font-bold text-cyan-300 font-mono">12 km/j</p>
+                <div className="p-2 rounded-lg bg-[var(--bx-bg)] border border-[var(--bx-border)]">
+                  <p className="text-[10px] text-[var(--bx-muted)] font-medium">Angin</p>
+                  <p className="text-sm font-bold text-cyan-600 dark:text-cyan-400 font-mono">12 km/j</p>
                 </div>
-                <div className="p-2 rounded-xl bg-slate-950/60">
-                  <p className="text-[10px] text-slate-400">Gelombang</p>
-                  <p className="text-sm font-bold text-emerald-400 font-mono">0.8 m</p>
+                <div className="p-2 rounded-lg bg-[var(--bx-bg)] border border-[var(--bx-border)]">
+                  <p className="text-[10px] text-[var(--bx-muted)] font-medium">Gelombang</p>
+                  <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400 font-mono">0.8 m</p>
                 </div>
               </div>
             </div>
@@ -1026,9 +1023,9 @@ export default function PortalDashboard() {
       </div>
 
       {/* ======================================================== */}
-      {/* 3. FOOTER BAR PORTAL */}
+      {/* 3. FOOTER BAR PORTAL (AUI INSTITUTIONAL BOTTOM BAR) */}
       {/* ======================================================== */}
-      <footer className="relative z-30 h-12 bg-slate-950/95 backdrop-blur-2xl border-t border-amber-500/20 px-4 sm:px-6 flex items-center justify-between text-xs text-slate-400 select-none">
+      <footer className="relative z-30 h-12 bg-[var(--bx-surface)] border-t border-[var(--bx-border)] px-4 sm:px-6 flex items-center justify-between text-xs text-[var(--bx-muted)] select-none">
         <div className="flex items-center gap-2">
           <img src="/mandala.png" alt="Mandala" className="w-5 h-5 object-contain opacity-70" />
           <span className="hidden sm:inline">
@@ -1037,15 +1034,15 @@ export default function PortalDashboard() {
           <span className="sm:hidden">© 2026 Nusa Antara</span>
         </div>
 
-        <div className="flex items-center gap-3 sm:gap-5 text-slate-400">
-          <Link href="/peta" className="hover:text-amber-300 transition flex items-center gap-1 font-semibold">
-            <Compass className="w-3.5 h-3.5 text-amber-400" />
+        <div className="flex items-center gap-3 sm:gap-5 text-[var(--bx-muted)]">
+          <Link href="/peta" className="hover:text-[var(--gold)] transition flex items-center gap-1 font-semibold">
+            <Compass className="w-3.5 h-3.5 text-[var(--gold)]" />
             <span>Peta Interaktif</span>
           </Link>
-          <span className="text-slate-600 hidden sm:inline">•</span>
-          <span className="hidden sm:inline text-slate-500">BMKG SATU PETA MKG</span>
-          <span className="text-slate-600 hidden sm:inline">•</span>
-          <span className="hidden sm:inline text-slate-500">OpenStreetMap</span>
+          <span className="text-[var(--bx-border)] hidden sm:inline">•</span>
+          <span className="hidden sm:inline">BMKG SATU PETA MKG</span>
+          <span className="text-[var(--bx-border)] hidden sm:inline">•</span>
+          <span className="hidden sm:inline">OpenStreetMap</span>
         </div>
       </footer>
     </div>

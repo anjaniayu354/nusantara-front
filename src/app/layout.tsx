@@ -1,27 +1,28 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono, Fraunces, Cinzel } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Fraunces, Karla, JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
-const cinzel = Cinzel({
-  variable: "--font-cinzel",
+const karla = Karla({
+  variable: "--font-karla",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -40,6 +41,12 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#0A2E52",
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -48,9 +55,32 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${cinzel.variable} ${nusantara.variable} h-full antialiased`}
+      data-theme="light"
+      suppressHydrationWarning
+      className={`${fraunces.variable} ${karla.variable} ${jetbrainsMono.variable} ${nusantara.variable} h-full antialiased`}
     >
-      <body className="h-full w-full bg-slate-950 text-white select-none">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var theme = localStorage.getItem('nusantara_theme') || localStorage.getItem('anvieo_theme');
+                if (theme === 'dark') {
+                  document.documentElement.setAttribute('data-theme', 'dark');
+                } else if (theme === 'light') {
+                  document.documentElement.setAttribute('data-theme', 'light');
+                } else {
+                  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+                }
+              } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+              }
+            `,
+          }}
+        />
+      </head>
+      <body className="h-full w-full font-sans antialiased select-none">
         {children}
       </body>
     </html>

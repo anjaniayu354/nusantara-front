@@ -8,23 +8,15 @@ export function BrandWidget() {
     <div className="absolute top-5 left-5 z-20 select-none pointer-events-auto">
       <Link
         href="/"
-        className="relative group cursor-pointer flex items-center gap-2 p-1.5 sm:px-2.5 sm:py-1.5 rounded-2xl bg-slate-950/80 hover:bg-slate-900/95 backdrop-blur-md border border-amber-500/30 hover:border-amber-400/80 transition-all shadow-xl active:scale-95"
+        className="relative group cursor-pointer inline-flex items-center justify-center transition-transform active:scale-95"
         aria-label="Kembali ke Portal Nusa Antara"
-        title="Kembali ke Portal Dashboard Nusa Antara"
+        title="Kembali ke Portal Nusa Antara"
       >
         <img
           src="/mandala.png"
           alt="Logo Mandala Nusa Antara"
-          className="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] transition-transform duration-700 ease-out group-hover:rotate-90 group-hover:scale-105"
+          className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.65)] drop-shadow-[0_0_12px_rgba(245,158,11,0.35)] transition-all duration-700 ease-out group-hover:rotate-90 group-hover:scale-110 group-hover:drop-shadow-[0_0_20px_rgba(245,158,11,0.7)]"
         />
-        <div className="hidden sm:flex flex-col pr-1 text-left">
-          <span className="text-[11px] font-black tracking-widest text-amber-300 font-cinzel leading-tight">
-            NUSA ANTARA
-          </span>
-          <span className="text-[9px] text-amber-400/80 font-semibold flex items-center gap-0.5">
-            ← Ke Portal
-          </span>
-        </div>
       </Link>
     </div>
   );

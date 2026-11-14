@@ -12,12 +12,12 @@ import {
   ShieldCheck,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   Compass,
   LogOut,
   User,
   LayoutDashboard,
 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 import {
   getStoredUser,
   loginWithPhone,
@@ -47,7 +47,6 @@ export default function LoginPage() {
     }
   }, []);
 
-  // Format phone number gracefully (e.g. 0812-3456-7890)
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value.replace(/[^0-9]/g, "");
     if (val.length > 13) val = val.slice(0, 13);
@@ -111,19 +110,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative h-screen h-[100dvh] max-h-screen w-full bg-slate-950 text-white flex flex-col justify-between overflow-hidden selection:bg-amber-500 selection:text-slate-950">
-      {/* Background Ambience & Cultural Ornaments */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-amber-500/10 blur-3xl animate-pulse" />
-        <div className="absolute top-1/2 -right-32 w-96 h-96 rounded-full bg-amber-600/10 blur-3xl" />
-        <div className="absolute -bottom-32 left-1/3 w-[500px] h-[500px] rounded-full bg-orange-500/5 blur-3xl" />
-        <div
-          className="absolute inset-0 opacity-[0.03] bg-repeat"
-          style={{
-            backgroundImage: "radial-gradient(#f59e0b 1px, transparent 1px)",
-            backgroundSize: "24px 24px",
-          }}
-        />
+    <div className="relative h-screen h-[100dvh] max-h-screen w-full bg-[var(--bx-bg)] text-[var(--bx-ink)] flex flex-col justify-between overflow-hidden selection:bg-[var(--gold)] selection:text-[var(--brand)] font-sans">
+      {/* Blackbox Architectural Rails Background Overlay */}
+      <div className="blackbox-rails" aria-hidden="true">
+        <div className="blackbox-rail-inner">
+          <span className="blackbox-rail-hatch blackbox-rail-hatch-left" />
+          <span className="blackbox-rail-hatch blackbox-rail-hatch-right" />
+        </div>
       </div>
 
       {/* Top Navigation Bar */}
@@ -131,25 +124,28 @@ export default function LoginPage() {
         <div className="flex items-center gap-2 sm:gap-3">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-amber-500/30 hover:border-amber-400 text-amber-300 hover:text-amber-200 text-xs font-semibold transition active:scale-95 shadow-lg group"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--bx-surface)] hover:bg-[var(--bx-darker)] border border-[var(--bx-border)] hover:border-[var(--gold)] text-[var(--gold)] text-xs font-semibold transition active:scale-95 shadow-xs group"
           >
             <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
             <span>Kembali ke Portal</span>
           </Link>
           <Link
             href="/peta"
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-semibold transition active:scale-95 shadow-lg"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--gold)]/10 hover:bg-[var(--gold)]/20 border border-[var(--gold)]/30 text-[var(--gold)] text-xs font-semibold transition active:scale-95 shadow-xs"
           >
             <Compass className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Buka Peta Petualangan</span>
           </Link>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="hidden sm:inline-block text-[11px] uppercase tracking-widest text-amber-400/80 font-black">
-            Nusa Antara ID
-          </span>
-          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <span className="portal-badge-portal !text-[9px]">
+              NUSA ANTARA ID
+            </span>
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+          </div>
         </div>
       </header>
 
@@ -159,68 +155,68 @@ export default function LoginPage() {
           {/* Brand Header */}
           <div className="text-center mb-2.5 sm:mb-3">
             <Link href="/" className="inline-block relative group">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-1.5 rounded-xl bg-gradient-to-tr from-amber-500/20 via-slate-900 to-amber-600/20 border border-amber-500/40 p-1.5 shadow-xl flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 mx-auto mb-1.5 rounded-xl bg-[var(--bx-surface)] border border-[var(--bx-border)] p-1.5 shadow-sm flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
                 <img
                   src="/mandala.png"
                   alt="Logo Nusa Antara"
-                  className="w-full h-full object-contain drop-shadow-[0_2px_8px_rgba(245,158,11,0.4)]"
+                  className="w-full h-full object-contain"
                 />
               </div>
             </Link>
-            <h1 className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100 tracking-tight font-cinzel leading-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-[var(--bx-ink-bright)] tracking-tight font-serif leading-tight">
               NUSA ANTARA
             </h1>
-            <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5 max-w-xs mx-auto line-clamp-1 sm:line-clamp-none">
+            <p className="text-[11px] sm:text-xs text-[var(--bx-muted)] mt-0.5 max-w-xs mx-auto line-clamp-1 sm:line-clamp-none font-sans">
               Masuk untuk menyimpan rencana petualangan & rute budaya.
             </p>
           </div>
 
           {/* Active User Card (if already logged in) */}
           {currentUser && (
-            <div className="mb-2.5 p-3 rounded-2xl bg-gradient-to-r from-amber-500/10 via-slate-900/90 to-amber-600/10 border border-amber-500/40 backdrop-blur-xl shadow-xl text-center">
+            <div className="mb-2.5 p-3 rounded-xl bg-[var(--bx-surface)] border border-[var(--bx-border)] shadow-sm text-center">
               <div className="flex items-center justify-center gap-2.5 mb-1.5">
-                <div className="w-8 h-8 rounded-full border border-amber-400/60 overflow-hidden bg-slate-800 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full border border-[var(--gold)]/60 overflow-hidden bg-[var(--bx-bg)] flex items-center justify-center">
                   {currentUser.avatar ? (
                     <img src={currentUser.avatar} alt="Avatar" className="w-full h-full object-cover" />
                   ) : (
-                    <User className="w-4 h-4 text-amber-300" />
+                    <User className="w-4 h-4 text-[var(--gold)]" />
                   )}
                 </div>
                 <div className="text-left">
                   <div className="flex items-center gap-1.5">
-                    <p className="text-xs font-bold text-white">{currentUser.name}</p>
-                    <span className="px-1 py-0.5 rounded text-[9px] bg-amber-500/20 border border-amber-400/30 text-amber-300 font-semibold uppercase">
+                    <p className="text-xs font-bold text-[var(--bx-ink-bright)] font-serif">{currentUser.name}</p>
+                    <span className="portal-badge-gold !text-[8px] !px-1.5 !py-0.2">
                       {currentUser.provider}
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-400 font-mono">
+                  <p className="text-[11px] text-[var(--bx-muted)] font-mono">
                     {currentUser.phone || currentUser.email}
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-white/10">
+              <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-[var(--bx-border)]">
                 <Link
                   href="/"
-                  className="py-1.5 px-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition shadow-lg active:scale-95 flex items-center justify-center gap-1.5"
+                  className="portal-submit-btn-gold !h-8 !text-xs !px-2 flex items-center justify-center gap-1.5"
                 >
                   <LayoutDashboard className="w-3.5 h-3.5" />
                   <span>Ke Portal</span>
                 </Link>
                 <Link
                   href="/peta"
-                  className="py-1.5 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-bold transition border border-amber-500/30 active:scale-95 flex items-center justify-center gap-1.5"
+                  className="py-1.5 px-2.5 rounded-lg bg-[var(--bx-bg)] hover:bg-[var(--bx-darker)] text-[var(--gold)] text-xs font-bold transition border border-[var(--bx-border)] active:scale-95 flex items-center justify-center gap-1.5"
                 >
                   <Compass className="w-3.5 h-3.5" />
                   <span>Buka Peta</span>
                 </Link>
               </div>
 
-              <div className="mt-1.5 pt-1.5 border-t border-white/5 flex justify-center">
+              <div className="mt-1.5 pt-1.5 border-t border-[var(--bx-border)] flex justify-center">
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="py-0.5 px-2.5 rounded-lg text-slate-400 hover:text-rose-300 text-[11px] font-medium transition flex items-center gap-1"
+                  className="py-0.5 px-2.5 rounded-md text-[var(--bx-muted)] hover:text-rose-500 text-[11px] font-medium transition flex items-center gap-1"
                 >
                   <LogOut className="w-3 h-3" />
                   <span>Ganti Akun / Keluar</span>
@@ -229,21 +225,18 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Form Card */}
-          <div className="bg-slate-900/80 border border-amber-500/20 rounded-2xl sm:rounded-3xl p-4 sm:p-5 sm:px-6 backdrop-blur-2xl shadow-2xl relative overflow-hidden">
-            {/* Top Amber Bar */}
-            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-500 via-amber-300 to-amber-600" />
-
+          {/* Form Card (AUI Card Wrap) */}
+          <div className="portal-card-wrap !p-4 sm:!p-5 sm:!px-6">
             {/* Error & Success Alerts */}
             {errorMessage && (
-              <div className="mb-3 p-2.5 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-start gap-2 text-rose-300 text-xs animate-shake">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
+              <div className="mb-3 p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 flex items-start gap-2 text-rose-600 dark:text-rose-400 text-xs">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-500" />
                 <p className="flex-1 font-medium">{errorMessage}</p>
               </div>
             )}
             {successMessage && (
-              <div className="mb-3 p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-start gap-2 text-emerald-300 text-xs animate-fadeIn">
-                <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" />
+              <div className="mb-3 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-start gap-2 text-emerald-600 dark:text-emerald-400 text-xs">
+                <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-500" />
                 <p className="flex-1 font-medium">{successMessage}</p>
               </div>
             )}
@@ -252,12 +245,12 @@ export default function LoginPage() {
             <form onSubmit={handlePhoneSubmit} className="space-y-2.5 sm:space-y-3">
               {/* Phone Field */}
               <div>
-                <label className="block text-[10px] sm:text-[11px] font-bold text-amber-300 uppercase tracking-wider mb-1">
+                <label className="block text-[10px] sm:text-[11px] font-bold text-[var(--bx-ink-bright)] uppercase tracking-wider mb-1 font-mono">
                   Nomor Handphone (WhatsApp / SMS)
                 </label>
-                <div className="relative flex items-center">
-                  <div className="absolute left-3 flex items-center gap-1 pointer-events-none text-slate-400 border-r border-slate-700 pr-2">
-                    <span className="text-xs font-bold text-amber-400">🇮🇩 +62</span>
+                <div className="portal-input-wrap">
+                  <div className="absolute left-3 flex items-center gap-1 pointer-events-none text-[var(--bx-muted)] border-r border-[var(--bx-border)] pr-2">
+                    <span className="text-xs font-bold text-[var(--gold)]">🇮🇩 +62</span>
                   </div>
                   <input
                     type="tel"
@@ -266,11 +259,11 @@ export default function LoginPage() {
                     placeholder="81234567890"
                     autoFocus
                     required
-                    className="w-full pl-20 sm:pl-22 pr-9 py-2 sm:py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-white placeholder-slate-500 text-xs sm:text-sm font-mono tracking-wide outline-none transition"
+                    className="portal-input !pl-20 sm:!pl-22 !h-10 text-xs sm:text-sm font-mono"
                   />
-                  <Smartphone className="absolute right-3 w-4 h-4 text-slate-500 pointer-events-none" />
+                  <Smartphone className="absolute right-3 w-4 h-4 text-[var(--bx-muted)] pointer-events-none" />
                 </div>
-                <p className="text-[9px] text-slate-500 mt-0.5">
+                <p className="text-[9px] text-[var(--bx-muted)] mt-0.5">
                   Contoh: 812-3456-7890 (tanpa angka 0 di depan)
                 </p>
               </div>
@@ -278,18 +271,18 @@ export default function LoginPage() {
               {/* Password Field */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-[10px] sm:text-[11px] font-bold text-amber-300 uppercase tracking-wider">
+                  <label className="text-[10px] sm:text-[11px] font-bold text-[var(--bx-ink-bright)] uppercase tracking-wider font-mono">
                     Kata Sandi
                   </label>
                   <button
                     type="button"
                     onClick={() => alert("Silakan hubungi administrator atau masukkan nomor HP untuk reset password via OTP WhatsApp.")}
-                    className="text-[10px] sm:text-[11px] text-amber-400/80 hover:text-amber-300 transition"
+                    className="text-[10px] sm:text-[11px] text-[var(--gold)] hover:underline transition"
                   >
-                    Lupa Password?
+                    Lupa Sandi?
                   </button>
                 </div>
-                <div className="relative flex items-center">
+                <div className="portal-input-wrap">
                   <input
                     type={showPassword ? "text" : "password"}
                     value={password}
@@ -299,13 +292,13 @@ export default function LoginPage() {
                     }}
                     placeholder="Masukkan minimal 6 karakter"
                     required
-                    className="w-full pl-9 pr-9 py-2 sm:py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-white placeholder-slate-500 text-xs sm:text-sm outline-none transition"
+                    className="portal-input !pl-9 !pr-9 !h-10 text-xs sm:text-sm"
                   />
-                  <Lock className="absolute left-3 w-4 h-4 text-slate-500 pointer-events-none" />
+                  <Lock className="absolute left-3 w-4 h-4 text-[var(--bx-muted)] pointer-events-none" />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 text-slate-500 hover:text-amber-300 transition"
+                    className="absolute right-3 text-[var(--bx-muted)] hover:text-[var(--gold)] transition"
                     title={showPassword ? "Sembunyikan password" : "Lihat password"}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -314,13 +307,13 @@ export default function LoginPage() {
               </div>
 
               {/* Remember Me Checkbox */}
-              <div className="flex items-center justify-between text-[11px] text-slate-400 pt-0.5">
+              <div className="flex items-center justify-between text-[11px] text-[var(--bx-muted)] pt-0.5">
                 <label className="flex items-center gap-1.5 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-3.5 h-3.5 rounded border-slate-700 bg-slate-900 text-amber-500 focus:ring-amber-500/20"
+                    className="w-3.5 h-3.5 rounded border-[var(--bx-border)] text-[var(--gold)] focus:ring-[var(--gold)]/20"
                   />
                   <span>Ingat saya di perangkat ini</span>
                 </label>
@@ -330,28 +323,26 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs sm:text-sm tracking-wide transition-all shadow-[0_4px_16px_rgba(245,158,11,0.25)] hover:shadow-[0_6px_20px_rgba(245,158,11,0.35)] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 mt-1"
+                className="portal-submit-btn-gold w-full !h-10 mt-1"
               >
                 {isLoading && authMethod === "phone" ? (
                   <>
-                    <div className="w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     <span>Memverifikasi Akun...</span>
                   </>
                 ) : (
-                  <>
-                    <span>Masuk dengan Nomor HP</span>
-                  </>
+                  <span>Masuk dengan Nomor HP</span>
                 )}
               </button>
             </form>
 
             {/* Divider OR */}
             <div className="relative my-2.5 sm:my-3 flex items-center justify-center">
-              <div className="border-t border-slate-800 w-full" />
-              <span className="bg-slate-900 px-2.5 text-[10px] text-slate-500 uppercase tracking-widest font-semibold shrink-0">
-                Atau Lanjutkan Dengan
+              <div className="border-t border-[var(--bx-border)] w-full" />
+              <span className="bg-[var(--bx-surface-card)] px-2.5 text-[10px] text-[var(--bx-muted)] uppercase tracking-wider font-semibold shrink-0 font-mono">
+                Atau
               </span>
-              <div className="border-t border-slate-800 w-full" />
+              <div className="border-t border-[var(--bx-border)] w-full" />
             </div>
 
             {/* Google SSO Button */}
@@ -359,16 +350,15 @@ export default function LoginPage() {
               type="button"
               onClick={handleGoogleSubmit}
               disabled={isLoading}
-              className="w-full py-2.5 px-4 rounded-xl bg-slate-950/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-slate-600 text-white font-semibold text-xs sm:text-sm transition-all shadow-md active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2.5 group"
+              className="w-full h-10 px-4 rounded-lg bg-[var(--bx-bg)] hover:bg-[var(--bx-darker)] border border-[var(--bx-border)] hover:border-[var(--gold)] text-[var(--bx-ink)] font-semibold text-xs sm:text-sm transition-all shadow-xs active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2.5 group"
             >
               {isLoading && authMethod === "google" ? (
                 <>
-                  <div className="w-3.5 h-3.5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-3.5 h-3.5 border-2 border-[var(--gold)] border-t-transparent rounded-full animate-spin" />
                   <span>Menghubungkan ke Google...</span>
                 </>
               ) : (
                 <>
-                  {/* Google 4-Color SVG Icon */}
                   <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                     <path
                       fill="#4285F4"
@@ -387,38 +377,38 @@ export default function LoginPage() {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                     />
                   </svg>
-                  <span className="text-slate-200 group-hover:text-white font-medium">
-                    Lanjutkan dengan Google SSO
+                  <span className="font-medium">
+                    Lanjutkan dengan Google
                   </span>
                 </>
               )}
             </button>
 
             {/* Security Assurance Badge */}
-            <div className="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-center gap-1.5 text-[10px] text-slate-500">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span>Autentikasi Terenkripsi & Privasi Budaya</span>
+            <div className="mt-2.5 pt-2 border-t border-[var(--bx-border)] flex items-center justify-center gap-1.5 text-[10px] text-[var(--bx-muted)]">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              <span>Autentikasi Terenkripsi & Privasi Terjaga</span>
             </div>
           </div>
 
           {/* Quick Registration Hint */}
-          <p className="text-center text-[10px] sm:text-[11px] text-slate-500 mt-2">
+          <p className="text-center text-[10px] sm:text-[11px] text-[var(--bx-muted)] mt-2 font-sans">
             Belum punya akun? Cukup masukkan nomor HP di atas untuk langsung membuat profil.
           </p>
         </div>
       </main>
 
       {/* Footer Minimal */}
-      <footer className="relative z-10 w-full max-w-7xl mx-auto px-4 h-9 sm:h-10 shrink-0 text-center text-[11px] text-slate-600 border-t border-slate-900/80 flex flex-col sm:flex-row items-center justify-between gap-1">
+      <footer className="relative z-10 w-full max-w-7xl mx-auto px-4 h-9 sm:h-10 shrink-0 text-center text-[11px] text-[var(--bx-muted)] border-t border-[var(--bx-border)] flex flex-col sm:flex-row items-center justify-between gap-1">
         <p>© 2026 Nusa Antara — Portal Wisata Budaya Indonesia</p>
-        <div className="flex items-center gap-4 text-slate-500">
-          <Link href="/" className="hover:text-amber-400 transition">
+        <div className="flex items-center gap-4 text-[var(--bx-muted)]">
+          <Link href="/" className="hover:text-[var(--gold)] transition">
             Portal Utama
           </Link>
-          <Link href="/peta" className="hover:text-amber-400 transition">
+          <Link href="/peta" className="hover:text-[var(--gold)] transition">
             Peta Petualangan
           </Link>
-          <span className="text-slate-600">BMKG Terintegrasi</span>
+          <span>BMKG Terintegrasi</span>
         </div>
       </footer>
     </div>

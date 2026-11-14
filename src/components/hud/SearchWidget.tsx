@@ -187,10 +187,10 @@ export function SearchWidget({
         onClick={handleToggleFullscreen}
         aria-label={isFullscreen ? "Keluar Mode Layar Penuh" : "Mode Layar Penuh (Full Screen)"}
         title={isFullscreen ? "Keluar Layar Penuh (Esc)" : "Mode Layar Penuh (Full Screen)"}
-        className={`relative flex items-center justify-center p-2.5 backdrop-blur-md rounded-2xl active:scale-95 shadow-2xl transition shrink-0 ${
+        className={`relative flex items-center justify-center p-2.5 backdrop-blur-md rounded-2xl active:scale-95 shadow-md transition shrink-0 ${
           isFullscreen
-            ? "bg-amber-500/25 border border-amber-400 text-amber-200"
-            : "bg-slate-900/90 border border-amber-500/30 text-amber-300 hover:text-amber-200 hover:bg-slate-800/90 hover:border-amber-400"
+            ? "bg-[var(--gold)]/20 border border-[var(--gold)] text-[var(--gold)]"
+            : "bg-[var(--bx-surface)]/95 border border-[var(--bx-border)] text-[var(--gold)] hover:border-[var(--gold)]"
         }`}
       >
         {isFullscreen ? (
@@ -206,15 +206,15 @@ export function SearchWidget({
         onClick={onOpenTripPlanner}
         aria-label="Rencana Perjalanan (Trip Plan)"
         title="Rencana Perjalanan (Trip Plan)"
-        className={`relative flex items-center justify-center p-2.5 backdrop-blur-md rounded-2xl active:scale-95 shadow-2xl transition shrink-0 ${
+        className={`relative flex items-center justify-center p-2.5 backdrop-blur-md rounded-2xl active:scale-95 shadow-md transition shrink-0 ${
           isTripPlannerOpen
-            ? "bg-amber-500/25 border border-amber-400 text-amber-200"
-            : "bg-slate-900/90 border border-amber-500/30 text-amber-300 hover:text-amber-200 hover:bg-slate-800/90 hover:border-amber-400"
+            ? "bg-[var(--gold)]/20 border border-[var(--gold)] text-[var(--gold)]"
+            : "bg-[var(--bx-surface)]/95 border border-[var(--bx-border)] text-[var(--gold)] hover:border-[var(--gold)]"
         }`}
       >
         <Route className="w-4 h-4" />
         {tripItemCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-amber-500 text-slate-950 font-black text-[9px] shadow-md">
+          <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-[var(--gold)] text-white font-bold text-[9px] shadow-sm font-mono">
             {tripItemCount}
           </span>
         )}
@@ -228,21 +228,21 @@ export function SearchWidget({
           aria-expanded={isDropdownOpen}
           aria-label="Filter Kategori"
           title={`Filter Kategori: ${activeCategory.label}`}
-          className="flex items-center gap-1.5 px-3 py-2 bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-2xl hover:bg-slate-800/90 hover:border-amber-400 text-xs font-medium text-slate-200 shadow-2xl transition group"
+          className="flex items-center gap-1.5 px-3 py-2 bg-[var(--bx-surface)]/95 backdrop-blur-md border border-[var(--bx-border)] rounded-2xl hover:border-[var(--gold)] text-xs font-medium text-[var(--bx-ink)] shadow-md transition group"
         >
-          <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400 shrink-0 group-hover:rotate-180 transition-transform duration-300" />
-          <span className="flex items-center gap-1 text-amber-300 font-semibold">
-            <ActiveIcon className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+          <SlidersHorizontal className="w-3.5 h-3.5 text-[var(--gold)] shrink-0 group-hover:rotate-180 transition-transform duration-300" />
+          <span className="flex items-center gap-1 text-[var(--gold)] font-semibold">
+            <ActiveIcon className="w-3.5 h-3.5 shrink-0 text-[var(--gold)]" />
             <span className="hidden sm:inline text-xs">{activeCategory.label}</span>
           </span>
           <ChevronDown
-            className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+            className={`w-3.5 h-3.5 text-[var(--bx-muted)] transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
           />
         </button>
 
         {/* Flat Icon Dropdown Menu */}
         {isDropdownOpen && (
-          <div className="absolute top-full mt-2 right-0 sm:left-0 min-w-[190px] bg-slate-900/95 backdrop-blur-md border border-amber-500/30 rounded-xl p-1.5 shadow-2xl z-30 max-h-80 overflow-y-auto">
+          <div className="absolute top-full mt-2 right-0 sm:left-0 min-w-[190px] bg-[var(--bx-surface-card)]/95 backdrop-blur-md border border-[var(--bx-border)] rounded-xl p-1.5 shadow-xl z-30 max-h-80 overflow-y-auto">
             {CATEGORIES.map((cat) => {
               const IconComponent = cat.icon;
               const isSelected =
@@ -259,12 +259,12 @@ export function SearchWidget({
                   }}
                   className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs text-left transition ${
                     isSelected
-                      ? "bg-amber-500/20 text-amber-300 font-bold"
-                      : "text-slate-300 hover:bg-white/10 hover:text-white"
+                      ? "bg-[var(--gold)]/20 text-[var(--gold)] font-bold"
+                      : "text-[var(--bx-ink)] hover:bg-[var(--bx-bg)]"
                   }`}
                 >
                   <IconComponent
-                    className={`w-4 h-4 shrink-0 ${isSelected ? "text-amber-400" : "text-slate-400"}`}
+                    className={`w-4 h-4 shrink-0 ${isSelected ? "text-[var(--gold)]" : "text-[var(--bx-muted)]"}`}
                   />
                   <span>{cat.label}</span>
                 </button>
@@ -275,8 +275,8 @@ export function SearchWidget({
       </div>
 
       {/* 3. Search Bar: Standalone Floating Search Bar */}
-      <div className="relative flex items-center bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-2xl px-3 py-2 shadow-2xl text-white shrink-0">
-        <Search className="w-4 h-4 text-amber-400 mr-2 shrink-0" />
+      <div className="relative flex items-center bg-[var(--bx-surface)]/95 backdrop-blur-md border border-[var(--bx-border)] rounded-2xl px-3 py-2 shadow-md text-[var(--bx-ink)] shrink-0">
+        <Search className="w-4 h-4 text-[var(--gold)] mr-2 shrink-0" />
         <input
           type="text"
           value={query}
@@ -290,7 +290,7 @@ export function SearchWidget({
               ? "Cari Bulukumba, Lampung, kopi, tapis..."
               : "Search Bulukumba, Lampung, coffee, tapis..."
           }
-          className="w-28 sm:w-48 md:w-56 bg-transparent text-xs text-white placeholder:text-slate-400 focus:outline-none"
+          className="w-28 sm:w-48 md:w-56 bg-transparent text-xs text-[var(--bx-ink)] placeholder:text-[var(--bx-muted)] focus:outline-none"
         />
         {query && (
           <button
@@ -300,7 +300,7 @@ export function SearchWidget({
               setIsAutocompleteOpen(false);
             }}
             aria-label="Bersihkan pencarian"
-            className="text-slate-400 hover:text-white p-1 ml-1"
+            className="text-[var(--bx-muted)] hover:text-[var(--gold)] p-1 ml-1"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -308,7 +308,7 @@ export function SearchWidget({
 
         {/* Autocomplete Dropdown */}
         {isAutocompleteOpen && filtered.length > 0 && (
-          <div className="absolute top-full mt-3 right-0 w-72 sm:w-80 md:w-96 bg-slate-900/95 backdrop-blur-md border border-amber-500/30 rounded-2xl p-2 shadow-2xl max-h-72 overflow-y-auto z-40">
+          <div className="absolute top-full mt-3 right-0 w-72 sm:w-80 md:w-96 bg-[var(--bx-surface-card)]/95 backdrop-blur-md border border-[var(--bx-border)] rounded-2xl p-2 shadow-xl max-h-72 overflow-y-auto z-40">
             {filtered.map((d) => (
               <button
                 key={d.id}
@@ -318,14 +318,14 @@ export function SearchWidget({
                   setIsAutocompleteOpen(false);
                   setQuery("");
                 }}
-                className="w-full text-left p-2 rounded-xl hover:bg-white/10 flex items-start gap-2.5 transition text-white"
+                className="w-full text-left p-2 rounded-xl hover:bg-[var(--bx-bg)] flex items-start gap-2.5 transition text-[var(--bx-ink)]"
               >
-                <div className="p-1.5 rounded-lg bg-amber-500/20 text-amber-400 mt-0.5 shrink-0">
+                <div className="p-1.5 rounded-lg bg-[var(--gold)]/20 text-[var(--gold)] mt-0.5 shrink-0">
                   <MapPin className="w-4 h-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-amber-300 truncate">{d.name}</p>
-                  <p className="text-[10px] text-slate-300 truncate">
+                  <p className="text-xs font-bold text-[var(--gold)] truncate font-serif">{d.name}</p>
+                  <p className="text-[10px] text-[var(--bx-muted)] truncate">
                     {d.province} • {d.subtitle}
                   </p>
                   <div className="flex flex-wrap gap-1 mt-1">
