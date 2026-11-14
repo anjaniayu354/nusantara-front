@@ -17,6 +17,7 @@ import { MapLayersWidget } from "@/components/hud/MapLayersWidget";
 import { MapBaseStyle, MapLayerOptions } from "@/data/mapStyles";
 import { detectRegionFromCoordinates } from "@/utils/regionAudioDetector";
 import { getStoredUser, subscribeAuth, clearStoredUser, AuthUser } from "@/lib/auth";
+import ThemeToggle from "@/components/ThemeToggle";
 
 // Dynamically import Leaflet AdventureMap with SSR disabled
 const AdventureMap = dynamic(
@@ -225,9 +226,9 @@ function PetaContent() {
       />
 
       {/* UNIFIED BOTTOM FOOTER BAR */}
-      <footer className="fixed bottom-0 inset-x-0 z-30 h-11 sm:h-12 bg-[var(--bx-surface)]/95 backdrop-blur-xl border-t border-[var(--bx-border)] px-3 sm:px-4 flex items-center justify-between gap-3 text-[var(--bx-ink)] select-none overflow-x-auto custom-scrollbar">
+      <footer className="fixed bottom-0 inset-x-0 z-40 h-11 sm:h-12 bg-[var(--bx-surface)]/95 backdrop-blur-xl border-t border-[var(--bx-border)] px-2 sm:px-4 flex items-center justify-between gap-2 sm:gap-3 text-[var(--bx-ink)] select-none">
         {/* Left Functional Group: Music Player & Map Style/Layers */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           {/* 1. Background Music Player */}
           <div className="shrink-0">
             <MusicPlayer
@@ -253,20 +254,19 @@ function PetaContent() {
           </div>
         </div>
 
-        {/* Right Functional Group: BMKG Weather Telemetry, Custom Zoom & Session Actions */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          {/* 3. BMKG Weather Telemetry & Cultural Event Radar */}
-          <div className="shrink-0">
+        {/* Right Functional Group: BMKG Weather Telemetry, Custom Zoom, Theme & Session Actions */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          {/* 3. BMKG Weather Telemetry (compact / hidden on very narrow mobile screens) */}
+          <div className="shrink-0 hidden xs:flex sm:flex">
             <BmkgWeatherBar
               activeDestination={activeDestination}
               mapCenterCoords={mapCenterCoords}
               language={language}
-              onSelectEventLocation={(coords) => setFlyToCoords(coords)}
             />
           </div>
 
           {/* Separator between BMKG Bar and Zoom Controls */}
-          <div className="w-px h-5 bg-[var(--bx-border)] shrink-0" />
+          <div className="w-px h-5 bg-[var(--bx-border)] shrink-0 hidden sm:block" />
 
           {/* 4. Custom Map Zoom Controls (+ / -) */}
           <div className="flex items-center gap-1 shrink-0">
@@ -290,10 +290,18 @@ function PetaContent() {
             </button>
           </div>
 
-          {/* Separator between Zoom Controls and Session Buttons */}
+          {/* Separator between Zoom Controls and Theme Toggle */}
           <div className="w-px h-5 bg-[var(--bx-border)] shrink-0" />
 
-          {/* 5. Sesi Login: Tombol "Ke Portal" dan "Logout" jika sudah login, atau "Masuk" jika belum */}
+          {/* 5. Theme Toggle */}
+          <div className="shrink-0">
+            <ThemeToggle />
+          </div>
+
+          {/* Separator between Theme Toggle and Session Buttons */}
+          <div className="w-px h-5 bg-[var(--bx-border)] shrink-0" />
+
+          {/* 6. Sesi Login: Tombol "Ke Portal" dan "Logout" jika sudah login, atau "Masuk" jika belum */}
           <div className="shrink-0">
             {authUser ? (
               <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
@@ -315,10 +323,10 @@ function PetaContent() {
                   onClick={handleLogout}
                   aria-label="Keluar / Logout dari Sesi"
                   title={`Keluar dari sesi akun ${authUser.name}`}
-                  className="flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1 rounded-lg bg-[var(--bx-bg)] hover:bg-rose-500/20 border border-[var(--bx-border)] hover:border-rose-400 text-rose-500 hover:text-rose-600 font-bold text-xs shadow-xs transition active:scale-95 shrink-0"
+                  className="flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1 rounded-lg bg-[var(--bx-bg)] hover:bg-rose-500/15 border border-[var(--bx-border)] hover:border-rose-400 text-rose-600 dark:text-rose-400 font-bold text-xs shadow-xs transition active:scale-95 shrink-0"
                 >
                   <LogOut className="w-3.5 h-3.5 shrink-0" />
-                  <span>Logout</span>
+                  <span className="hidden sm:inline">Logout</span>
                 </button>
               </div>
             ) : (

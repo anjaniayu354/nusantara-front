@@ -80,7 +80,7 @@ export function MusicPlayer({
 
   // Click outside to close drop-up
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (
         containerRef.current &&
         !containerRef.current.contains(event.target as Node)
@@ -91,9 +91,11 @@ export function MusicPlayer({
 
     if (isExpanded) {
       document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside, { passive: true });
     }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
     };
   }, [isExpanded]);
 
@@ -335,17 +337,17 @@ export function MusicPlayer({
 
       {/* Upward Drop-Up Playlist Popover Card */}
       {isExpanded && (
-        <div className="absolute bottom-full mb-3 left-0 w-80 sm:w-96 max-w-[calc(100vw-32px)] bg-slate-950/95 backdrop-blur-2xl border border-amber-500/40 rounded-2xl p-3 sm:p-3.5 shadow-2xl text-amber-50 z-50 animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="absolute bottom-full mb-3 left-0 w-80 sm:w-96 max-w-[calc(100vw-24px)] max-h-[calc(100dvh-70px)] flex flex-col bg-[var(--bx-surface-card)]/98 backdrop-blur-2xl border border-[var(--bx-border)] rounded-2xl p-3 sm:p-3.5 shadow-2xl text-[var(--bx-ink)] z-50 animate-in fade-in slide-in-from-bottom-3 duration-200">
           {/* Header */}
-          <div className="flex items-center justify-between pb-2.5 border-b border-white/10 mb-2.5">
+          <div className="flex items-center justify-between pb-2.5 border-b border-[var(--bx-border)] mb-2.5">
             <div className="flex items-center gap-2">
-              <div className="p-1 rounded-lg bg-amber-500/20 text-amber-400">
+              <div className="p-1 rounded-lg bg-[var(--gold)]/20 text-[var(--gold)]">
                 <ListMusic className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-xs font-bold text-white tracking-wide flex items-center gap-1.5">
+                <h3 className="text-xs font-bold text-[var(--bx-ink-bright)] tracking-wide flex items-center gap-1.5">
                   Musik Budaya Nusantara
-                  <span className="text-[10px] font-mono font-normal bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full border border-amber-500/30">
+                  <span className="text-[10px] font-mono font-normal bg-[var(--gold)]/20 text-[var(--gold)] px-1.5 py-0.5 rounded-full border border-[var(--gold)]/30">
                     {AUDIO_TRACKS.length} Lagu
                   </span>
                 </h3>
@@ -355,7 +357,7 @@ export function MusicPlayer({
               onClick={() => setIsExpanded(false)}
               aria-label="Tutup daftar lagu"
               title="Tutup drop up"
-              className="p-1 rounded-md hover:bg-white/10 text-slate-400 hover:text-white transition"
+              className="p-1 rounded-md hover:bg-[var(--bx-bg)] text-[var(--bx-muted)] hover:text-[var(--bx-ink)] transition"
             >
               <ChevronDown className="w-4 h-4" />
             </button>
@@ -363,13 +365,13 @@ export function MusicPlayer({
 
           {/* Dynamic Map DJ Location Indicator */}
           {geoRegionName && (
-            <div className="flex items-center justify-between px-2 py-1 mb-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[10px]">
-              <span className="text-amber-300 font-medium flex items-center gap-1.5 truncate">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping shrink-0"></span>
-                Auto-DJ: <span className="font-bold text-white truncate">{geoRegionName}</span>
+            <div className="flex items-center justify-between px-2 py-1 mb-2.5 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/20 text-[10px]">
+              <span className="text-[var(--gold)] font-medium flex items-center gap-1.5 truncate">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--gold)] animate-ping shrink-0"></span>
+                Auto-DJ: <span className="font-bold text-[var(--bx-ink-bright)] truncate">{geoRegionName}</span>
               </span>
               {queuedNextTrackId && (
-                <span className="text-[9px] text-amber-200 font-mono bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-500/30 shrink-0 ml-1">
+                <span className="text-[9px] text-[var(--gold)] font-mono bg-[var(--gold)]/20 px-1.5 py-0.5 rounded border border-[var(--gold)]/30 shrink-0 ml-1">
                   ➔ Lanjut: Pencak Silat
                 </span>
               )}
@@ -377,26 +379,26 @@ export function MusicPlayer({
           )}
 
           {/* Current Playing Mini Bar */}
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500/10 via-slate-900/80 to-slate-950 border border-amber-500/20 mb-3 shadow-inner">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-[var(--gold)]/10 via-[var(--bx-bg)] to-[var(--bx-surface)] border border-[var(--gold)]/25 mb-3 shadow-inner">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className="text-[9px] uppercase tracking-wider font-semibold text-amber-400/90 flex items-center gap-1">
+                  <span className="text-[9px] uppercase tracking-wider font-semibold text-[var(--gold)] flex items-center gap-1">
                     <Music2 className="w-2.5 h-2.5" /> Sedang Diputar
                   </span>
                   {currentTrack.region && (
-                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-white/10 text-amber-200 font-mono">
+                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-[var(--bx-surface)] text-[var(--gold)] border border-[var(--bx-border)] font-mono">
                       {currentTrack.region}
                     </span>
                   )}
                 </div>
                 <h4
-                  className="text-xs font-bold text-white truncate"
+                  className="text-xs font-bold text-[var(--bx-ink-bright)] truncate"
                   title={currentTrack.title}
                 >
                   {currentTrack.title}
                 </h4>
-                <p className="text-[10px] text-amber-200/70 truncate">
+                <p className="text-[10px] text-[var(--bx-muted)] truncate">
                   {currentTrack.subtitle}
                 </p>
               </div>
@@ -407,14 +409,14 @@ export function MusicPlayer({
                   onClick={handlePrevTrack}
                   aria-label="Lagu sebelumnya"
                   title="Lagu sebelumnya"
-                  className="p-1 rounded-full text-slate-400 hover:text-amber-300 transition"
+                  className="p-1 rounded-full text-[var(--bx-muted)] hover:text-[var(--gold)] transition"
                 >
                   <SkipBack className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={togglePlay}
                   aria-label={isPlaying ? "Jeda" : "Putar"}
-                  className="w-7 h-7 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center font-bold shadow-md transition active:scale-95"
+                  className="w-7 h-7 rounded-full bg-[var(--gold)] hover:brightness-110 text-white flex items-center justify-center font-bold shadow-md transition active:scale-95"
                 >
                   {isPlaying ? (
                     <Pause className="w-3 h-3 fill-current" />
@@ -426,7 +428,7 @@ export function MusicPlayer({
                   onClick={handleNextTrack}
                   aria-label="Lagu berikutnya"
                   title="Lagu berikutnya"
-                  className="p-1 rounded-full text-slate-400 hover:text-amber-300 transition"
+                  className="p-1 rounded-full text-[var(--bx-muted)] hover:text-[var(--gold)] transition"
                 >
                   <SkipForward className="w-3.5 h-3.5" />
                 </button>
@@ -435,7 +437,7 @@ export function MusicPlayer({
 
             {/* Progress Bar */}
             <div
-              className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden cursor-pointer my-2"
+              className="w-full bg-[var(--bx-border)] rounded-full h-1.5 overflow-hidden cursor-pointer my-2"
               onClick={(e) => {
                 if (!audioRef.current || duration === 0) return;
                 const rect = e.currentTarget.getBoundingClientRect();
@@ -452,8 +454,8 @@ export function MusicPlayer({
             </div>
 
             {/* Timestamps & Extra Controls */}
-            <div className="flex items-center justify-between text-[10px] text-slate-400">
-              <span className="font-mono text-amber-300/80">
+            <div className="flex items-center justify-between text-[10px] text-[var(--bx-muted)]">
+              <span className="font-mono text-[var(--gold)]">
                 {formatSeconds(currentTime)} / {formatSeconds(duration || 0)}
               </span>
 
@@ -465,8 +467,8 @@ export function MusicPlayer({
                   title={isLooping ? "Loop aktif" : "Loop nonaktif"}
                   className={`inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded transition ${
                     isLooping
-                      ? "bg-amber-500/25 text-amber-300 border border-amber-500/40"
-                      : "text-slate-400 hover:text-slate-200"
+                      ? "bg-[var(--gold)]/20 text-[var(--gold)] border border-[var(--gold)]/40 font-bold"
+                      : "text-[var(--bx-muted)] hover:text-[var(--bx-ink)]"
                   }`}
                 >
                   <Repeat className="w-2.5 h-2.5" /> Loop
@@ -477,12 +479,12 @@ export function MusicPlayer({
                   <button
                     onClick={toggleMute}
                     aria-label={isMuted ? "Bunyikan" : "Bisukan"}
-                    className="text-slate-400 hover:text-white transition"
+                    className="text-[var(--bx-muted)] hover:text-[var(--bx-ink)] transition"
                   >
                     {isMuted || volume === 0 ? (
-                      <VolumeX className="w-3 h-3 text-rose-400" />
+                      <VolumeX className="w-3 h-3 text-rose-500" />
                     ) : (
-                      <Volume2 className="w-3 h-3 text-amber-400" />
+                      <Volume2 className="w-3 h-3 text-[var(--gold)]" />
                     )}
                   </button>
                   <input
@@ -493,7 +495,7 @@ export function MusicPlayer({
                     value={isMuted ? 0 : volume}
                     onChange={handleVolumeChange}
                     aria-label="Volume musik"
-                    className="w-14 sm:w-16 h-1 accent-amber-400 bg-white/20 rounded-lg cursor-pointer"
+                    className="w-14 sm:w-16 h-1 accent-[var(--gold)] bg-[var(--bx-border)] rounded-lg cursor-pointer"
                   />
                 </div>
               </div>
@@ -502,16 +504,16 @@ export function MusicPlayer({
 
           {/* Scrollable Playlist Header */}
           <div className="flex items-center justify-between px-1 mb-1.5">
-            <span className="text-[10px] font-semibold text-slate-300 uppercase tracking-wider">
+            <span className="text-[10px] font-semibold text-[var(--bx-ink-bright)] uppercase tracking-wider">
               Pilih Lagu (Scroll)
             </span>
-            <span className="text-[9px] text-slate-500">
+            <span className="text-[9px] text-[var(--bx-muted)]">
               Klik judul untuk memutar
             </span>
           </div>
 
           {/* Scrollable Playlist List */}
-          <div className="max-h-56 sm:max-h-64 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
+          <div className="flex-1 min-h-[140px] max-h-56 sm:max-h-64 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
             {AUDIO_TRACKS.map((track, idx) => {
               const isCurrent = idx === currentTrackIndex;
               return (
@@ -521,8 +523,8 @@ export function MusicPlayer({
                   onClick={() => switchTrack(idx)}
                   className={`w-full text-left p-2 rounded-xl transition flex items-center justify-between gap-2.5 group cursor-pointer ${
                     isCurrent
-                      ? "bg-amber-500/20 border border-amber-500/50 shadow-sm"
-                      : "bg-slate-900/60 hover:bg-slate-800/90 border border-white/5 hover:border-amber-500/30"
+                      ? "bg-[var(--gold)]/15 border border-[var(--gold)]/40 shadow-xs"
+                      : "bg-[var(--bx-bg)] hover:bg-[var(--bx-surface)] border border-[var(--bx-border)] hover:border-[var(--gold)]/40"
                   }`}
                 >
                   {/* Left: Indicator & Title */}
@@ -532,15 +534,15 @@ export function MusicPlayer({
                       {isCurrent ? (
                         isPlaying ? (
                           <div className="flex items-end gap-0.5 h-3.5">
-                            <span className="w-1 bg-amber-400 rounded-full animate-bounce [animation-delay:-0.3s] h-3" />
-                            <span className="w-1 bg-amber-400 rounded-full animate-bounce [animation-delay:-0.15s] h-3.5" />
-                            <span className="w-1 bg-amber-400 rounded-full animate-bounce h-2" />
+                            <span className="w-1 bg-[var(--gold)] rounded-full animate-bounce [animation-delay:-0.3s] h-3" />
+                            <span className="w-1 bg-[var(--gold)] rounded-full animate-bounce [animation-delay:-0.15s] h-3.5" />
+                            <span className="w-1 bg-[var(--gold)] rounded-full animate-bounce h-2" />
                           </div>
                         ) : (
-                          <Play className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                          <Play className="w-3.5 h-3.5 text-[var(--gold)] fill-current" />
                         )
                       ) : (
-                        <span className="text-[10px] font-mono text-slate-500 group-hover:text-amber-400 transition">
+                        <span className="text-[10px] font-mono text-[var(--bx-muted)] group-hover:text-[var(--gold)] transition">
                           {(idx + 1).toString().padStart(2, "0")}
                         </span>
                       )}
@@ -552,19 +554,19 @@ export function MusicPlayer({
                         <span
                           className={`text-xs truncate block ${
                             isCurrent
-                              ? "font-semibold text-amber-200"
-                              : "font-medium text-slate-200 group-hover:text-amber-100"
+                              ? "font-semibold text-[var(--gold)]"
+                              : "font-medium text-[var(--bx-ink)] group-hover:text-[var(--gold)]"
                           }`}
                         >
                           {track.title}
                         </span>
                         {track.region && (
-                          <span className="shrink-0 text-[8px] px-1 py-0.2 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono">
+                          <span className="shrink-0 text-[8px] px-1 py-0.2 rounded bg-[var(--gold)]/10 text-[var(--gold)] border border-[var(--gold)]/20 font-mono">
                             {track.region}
                           </span>
                         )}
                       </div>
-                      <p className="text-[10px] text-slate-400 group-hover:text-slate-300 truncate">
+                      <p className="text-[10px] text-[var(--bx-muted)] group-hover:text-[var(--bx-ink)] truncate">
                         {track.subtitle}
                       </p>
                     </div>
@@ -573,11 +575,11 @@ export function MusicPlayer({
                   {/* Right: Duration or Active Badge */}
                   <div className="shrink-0 text-right">
                     {isCurrent && isPlaying ? (
-                      <span className="inline-flex text-[9px] font-medium text-amber-400 font-mono bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                      <span className="inline-flex text-[9px] font-medium text-[var(--gold)] font-mono bg-[var(--gold)]/10 px-1.5 py-0.5 rounded border border-[var(--gold)]/20">
                         Memutar
                       </span>
                     ) : (
-                      <span className="text-[10px] font-mono text-slate-400 group-hover:text-slate-200">
+                      <span className="text-[10px] font-mono text-[var(--bx-muted)] group-hover:text-[var(--bx-ink)]">
                         {track.duration || "--:--"}
                       </span>
                     )}
@@ -590,11 +592,11 @@ export function MusicPlayer({
       )}
 
       {/* Main Docked Bar: Integrated within the Unified Bottom Footer */}
-      <div className="flex items-center gap-1 sm:gap-1.5 text-white">
+      <div className="flex items-center gap-1 sm:gap-1.5 text-[var(--bx-ink)]">
         {/* Spinning Disc / Visualizer Icon */}
         <div
           className={`flex items-center justify-center p-1 rounded-full ${
-            isPlaying ? "text-amber-400" : "text-slate-400"
+            isPlaying ? "text-[var(--gold)]" : "text-[var(--bx-muted)]"
           }`}
           title="Pemutar Backsound Budaya Nusantara"
         >
@@ -609,7 +611,7 @@ export function MusicPlayer({
           onClick={handlePrevTrack}
           aria-label="Lagu sebelumnya"
           title="Lagu sebelumnya"
-          className="p-1 rounded-full text-slate-400 hover:text-white transition active:scale-90"
+          className="p-1 rounded-full text-[var(--bx-muted)] hover:text-[var(--bx-ink-bright)] hover:bg-[var(--bx-bg)] transition active:scale-90"
         >
           <SkipBack className="w-3.5 h-3.5" />
         </button>
@@ -618,7 +620,7 @@ export function MusicPlayer({
         <button
           onClick={togglePlay}
           aria-label={isPlaying ? "Jeda musik latar" : "Putar musik latar"}
-          className="w-6 h-6 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center font-bold shadow transition active:scale-90"
+          className="w-6 h-6 rounded-full bg-[var(--gold)] hover:brightness-110 text-white flex items-center justify-center font-bold shadow transition active:scale-90"
         >
           {isPlaying ? (
             <Pause className="w-3 h-3 fill-current" />
@@ -632,46 +634,49 @@ export function MusicPlayer({
           onClick={handleNextTrack}
           aria-label="Lagu berikutnya"
           title="Lagu berikutnya"
-          className="p-1 rounded-full text-slate-400 hover:text-white transition active:scale-90"
+          className="p-1 rounded-full text-[var(--bx-muted)] hover:text-[var(--bx-ink-bright)] hover:bg-[var(--bx-bg)] transition active:scale-90"
         >
           <SkipForward className="w-3.5 h-3.5" />
         </button>
 
         {/* Playlist List Button Trigger (Buka daftar pilihan lagu / drop up) */}
         <button
-          onClick={() => setIsExpanded(!isExpanded)}
+          type="button"
+          onClick={() => setIsExpanded((prev) => !prev)}
           aria-label={isExpanded ? "Tutup daftar lagu" : "Buka daftar lagu (Drop up)"}
           title="Daftar lagu (Drop up)"
-          className={`p-1 sm:px-1.5 rounded-md transition flex items-center gap-1 text-xs ${
+          className={`p-1 sm:px-1.5 rounded-md transition flex items-center gap-1 text-xs cursor-pointer ${
             isExpanded
-              ? "bg-amber-500/20 text-amber-300 font-semibold"
-              : "text-slate-300 hover:text-amber-300 hover:bg-white/5"
+              ? "bg-[var(--gold)]/20 text-[var(--gold)] font-semibold"
+              : "text-[var(--bx-ink)] hover:text-[var(--gold)] hover:bg-[var(--bx-bg)]"
           }`}
         >
-          <ListMusic className="w-3.5 h-3.5 text-amber-400" />
+          <ListMusic className="w-3.5 h-3.5 text-[var(--gold)] shrink-0" />
           <span className="hidden sm:inline text-[11px]">Playlist</span>
         </button>
 
         {/* Mute Button */}
         <button
+          type="button"
           onClick={toggleMute}
           aria-label={isMuted ? "Bunyikan audio" : "Bisukan audio"}
           title={isMuted ? "Bunyikan" : "Bisukan"}
-          className="p-1 rounded-full text-slate-400 hover:text-white transition"
+          className="p-1 rounded-full text-[var(--bx-muted)] hover:text-[var(--bx-ink-bright)] hover:bg-[var(--bx-bg)] transition cursor-pointer"
         >
           {isMuted || volume === 0 ? (
-            <VolumeX className="w-3.5 h-3.5 text-rose-400" />
+            <VolumeX className="w-3.5 h-3.5 text-rose-500" />
           ) : (
-            <Volume2 className="w-3.5 h-3.5 text-amber-400" />
+            <Volume2 className="w-3.5 h-3.5 text-[var(--gold)]" />
           )}
         </button>
 
         {/* Expand / Collapse Chevron */}
         <button
-          onClick={() => setIsExpanded(!isExpanded)}
+          type="button"
+          onClick={() => setIsExpanded((prev) => !prev)}
           aria-label={isExpanded ? "Ciutkan panel audio" : "Buka kontrol & daftar audio"}
           title={isExpanded ? "Ciutkan" : "Daftar lagu"}
-          className="p-1 rounded-full text-slate-400 hover:text-white transition"
+          className="p-1 rounded-full text-[var(--bx-muted)] hover:text-[var(--bx-ink-bright)] hover:bg-[var(--bx-bg)] transition cursor-pointer"
         >
           {isExpanded ? (
             <ChevronDown className="w-3.5 h-3.5" />

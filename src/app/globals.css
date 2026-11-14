@@ -89,6 +89,7 @@
 [data-theme="light"],
 html.light,
 :root[data-theme="light"] {
+  color-scheme: light;
   --bx-bg: #FBF8F1;
   --bx-bg-alt: #F4EFE6;
   --bx-surface: #FFFFFF;
@@ -129,6 +130,7 @@ html.light,
 [data-theme="dark"],
 html.dark,
 :root[data-theme="dark"] {
+  color-scheme: dark;
   --bx-bg: #0A0A0C;
   --bx-bg-alt: #101114;
   --bx-surface: #141418;
@@ -146,7 +148,7 @@ html.dark,
   --bx-ink-bright: #FFFFFF;
   --bx-prose-ink: #A1A1AA;
   --bx-text-meta: #71717A;
-  --bx-muted: #F0DFB4;
+  --bx-muted: #A1A1AA;
   --bx-muted-soft: #52525B;
 
   --bx-blue: #C9962E;

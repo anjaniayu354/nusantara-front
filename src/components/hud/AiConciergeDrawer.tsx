@@ -235,21 +235,21 @@ export function AiConciergeDrawer({
       role="dialog"
       aria-modal="true"
       aria-label="Bar Hala Ai Budaya Nusa Antara"
-      className={`fixed top-0 bottom-11 sm:bottom-12 right-0 z-40 w-full sm:w-[420px] lg:w-[460px] bg-slate-950/95 backdrop-blur-2xl border-l border-amber-500/30 shadow-2xl flex flex-col text-white transform transition-transform duration-300 ease-in-out ${
+      className={`fixed top-0 bottom-11 sm:bottom-12 right-0 z-40 w-full sm:w-[420px] lg:w-[460px] bg-[var(--bx-surface-card)]/98 backdrop-blur-2xl border-l border-[var(--bx-border)] shadow-2xl flex flex-col text-[var(--bx-ink)] transform transition-transform duration-300 ease-in-out ${
         isOpen ? "translate-x-0" : "translate-x-full pointer-events-none"
       }`}
     >
       {/* Top Header: Bar Hala Ai */}
-      <div className="p-4 border-b border-white/10 flex items-center justify-between shrink-0 bg-slate-900/60">
+      <div className="p-4 border-b border-white/10 flex items-center justify-between shrink-0 bg-[var(--brand)] text-white">
         <div className="flex items-center gap-3">
           <div className="relative shrink-0">
             <BarongAvatar size={48} isActive={true} />
           </div>
           <div>
-            <h2 className="text-sm font-black text-white tracking-wide flex items-center gap-1.5">
+            <h2 className="text-sm font-black text-white tracking-wide flex items-center gap-1.5 font-serif">
               <span>Bar Hala Ai</span>
             </h2>
-            <p className="text-[11px] text-amber-300/90 font-medium">
+            <p className="text-[11px] text-amber-300 font-medium">
               {language === "ID"
                 ? "Kurasi Cerdas Wisata & Etika Tradisi"
                 : "Smart Cultural Curation & Etiquette"}
@@ -261,17 +261,17 @@ export function AiConciergeDrawer({
         <button
           onClick={onClose}
           aria-label="Tutup Bar Hala Ai"
-          className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition active:scale-95"
+          className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition active:scale-95"
         >
           <X className="w-5 h-5" />
         </button>
       </div>
 
       {/* Main Scrollable Chat Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-thin scrollbar-thumb-white/10">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-thin scrollbar-thumb-[var(--bx-border)]">
         {/* Quick Suggestion Chips */}
-        <div className="pb-2 border-b border-white/5">
-          <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-400/90 mb-2">
+        <div className="pb-2 border-b border-[var(--bx-border)]">
+          <div className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--gold)] mb-2">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Topik Adat & Pertanyaan Populer:</span>
           </div>
@@ -281,10 +281,10 @@ export function AiConciergeDrawer({
                 key={idx}
                 type="button"
                 onClick={() => handleSendMessage(prompt)}
-                className="text-[11px] bg-slate-900/90 hover:bg-amber-500/20 text-slate-300 hover:text-amber-200 border border-amber-500/20 hover:border-amber-400/50 px-2.5 py-1.5 rounded-xl transition text-left active:scale-95 flex items-center gap-1 group"
+                className="text-[11px] bg-[var(--bx-bg)] hover:bg-[var(--gold)]/15 text-[var(--bx-ink)] hover:text-[var(--gold)] border border-[var(--bx-border)] hover:border-[var(--gold)]/50 px-2.5 py-1.5 rounded-xl transition text-left active:scale-95 flex items-center gap-1 group shadow-xs"
               >
                 <span>{prompt}</span>
-                <ChevronRight className="w-3 h-3 text-amber-400/50 group-hover:text-amber-400 shrink-0" />
+                <ChevronRight className="w-3 h-3 text-[var(--gold)]/60 group-hover:text-[var(--gold)] shrink-0" />
               </button>
             ))}
           </div>
@@ -301,13 +301,13 @@ export function AiConciergeDrawer({
               <div
                 className={`text-xs leading-relaxed ${
                   isUser
-                    ? "bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-medium rounded-2xl rounded-tr-sm px-3.5 py-2.5 max-w-[85%] shadow-md shadow-amber-500/10"
-                    : "bg-slate-900/95 border border-amber-500/25 text-slate-100 rounded-2xl rounded-tl-sm p-3.5 max-w-[94%] shadow-xl space-y-2.5"
+                    ? "portal-submit-btn-gold text-white font-medium rounded-2xl rounded-tr-sm px-3.5 py-2.5 max-w-[85%] shadow-xs"
+                    : "bg-[var(--bx-bg)] border border-[var(--bx-border)] text-[var(--bx-ink)] rounded-2xl rounded-tl-sm p-3.5 max-w-[94%] shadow-xs space-y-2.5"
                 }`}
               >
                 {!isUser && (
-                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-amber-400 pb-1 border-b border-white/10">
-                    <Sparkles className="w-3 h-3 text-amber-400 shrink-0" />
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-[var(--gold)] pb-1 border-b border-[var(--bx-border)]">
+                    <Sparkles className="w-3 h-3 text-[var(--gold)] shrink-0" />
                     <span>Bar Hala Ai</span>
                   </div>
                 )}
@@ -316,22 +316,22 @@ export function AiConciergeDrawer({
 
                 {/* Attached Destination Card Preview if any */}
                 {msg.destination && (
-                  <div className="mt-2.5 pt-2 border-t border-white/10">
-                    <div className="rounded-xl overflow-hidden bg-black/40 border border-amber-500/30 flex items-center gap-3 p-2">
+                  <div className="mt-2.5 pt-2 border-t border-[var(--bx-border)]">
+                    <div className="rounded-xl overflow-hidden bg-[var(--bx-surface)] border border-[var(--bx-border)] flex items-center gap-3 p-2">
                       <img
                         src={msg.destination.imageUrl}
                         alt={msg.destination.name}
-                        className="w-14 h-14 rounded-lg object-cover brightness-90 shrink-0"
+                        className="w-14 h-14 rounded-lg object-cover brightness-95 shrink-0"
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-white truncate">{msg.destination.name}</p>
-                        <p className="text-[10px] text-amber-300 truncate">{msg.destination.province}</p>
+                        <p className="text-xs font-bold text-[var(--bx-ink-bright)] truncate">{msg.destination.name}</p>
+                        <p className="text-[10px] text-[var(--gold)] truncate">{msg.destination.province}</p>
                         <div className="mt-1 flex items-center gap-2">
                           {onFocusDestination && (
                             <button
                               type="button"
                               onClick={() => onFocusDestination(msg.destination!)}
-                              className="px-2 py-0.5 rounded-lg bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-300 text-[10px] font-bold transition flex items-center gap-1 border border-amber-500/30"
+                              className="px-2 py-0.5 rounded-lg bg-[var(--gold)]/15 hover:bg-[var(--gold)] hover:text-white text-[var(--gold)] text-[10px] font-bold transition flex items-center gap-1 border border-[var(--gold)]/30"
                             >
                               <MapPin className="w-3 h-3" />
                               <span>Lihat di Peta</span>
@@ -344,14 +344,14 @@ export function AiConciergeDrawer({
                 )}
 
                 {!isUser && msg.source && (
-                  <div className="pt-1.5 border-t border-white/5 flex items-center justify-between text-[9px] text-slate-400">
+                  <div className="pt-1.5 border-t border-[var(--bx-border)] flex items-center justify-between text-[9px] text-[var(--bx-muted)]">
                     <span className="truncate pr-2">Rujukan: {msg.source}</span>
-                    <span className="text-emerald-400 font-semibold shrink-0">✓ Terverifikasi</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold shrink-0">✓ Terverifikasi</span>
                   </div>
                 )}
               </div>
 
-              <span className="text-[9px] text-slate-500 px-1 font-mono">{msg.timestamp}</span>
+              <span className="text-[9px] text-[var(--bx-muted)] px-1 font-mono">{msg.timestamp}</span>
             </div>
           );
         })}
@@ -360,7 +360,7 @@ export function AiConciergeDrawer({
       </div>
 
       {/* Sticky Bottom Chat Input: Clean, No BMKG Footer, Sticky to Bottom */}
-      <div className="p-3 border-t border-white/10 bg-slate-950/95 backdrop-blur-md shrink-0">
+      <div className="p-3 border-t border-[var(--bx-border)] bg-[var(--bx-surface)] backdrop-blur-md shrink-0">
         <form onSubmit={handleFormSubmit} className="relative flex items-center">
           <input
             type="text"
@@ -371,25 +371,25 @@ export function AiConciergeDrawer({
                 ? "Tanyakan etika adat, pantangan sakral, atau destinasi..."
                 : "Ask about sacred etiquette, local customs, or destinations..."
             }
-            className="w-full bg-slate-900/90 border border-amber-500/30 rounded-2xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 pr-11 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/40 shadow-inner transition"
+            className="w-full bg-[var(--bx-bg)] border border-[var(--bx-border)] rounded-2xl px-3.5 py-2.5 text-xs text-[var(--bx-ink)] placeholder:text-[var(--bx-muted)] pr-11 focus:outline-none focus:border-[var(--gold)] focus:ring-1 focus:ring-[var(--gold)]/30 shadow-inner transition"
           />
           <button
             type="submit"
             disabled={!inputQuery.trim()}
             aria-label="Kirim pesan"
-            className="absolute right-1.5 p-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition active:scale-95 shadow-md shadow-amber-500/20"
+            className="absolute right-1.5 p-2 rounded-xl portal-submit-btn-gold !h-8 !px-2.5 disabled:opacity-40 disabled:cursor-not-allowed transition active:scale-95 shadow-sm"
           >
-            <Send className="w-3.5 h-3.5 font-bold" />
+            <Send className="w-3.5 h-3.5 text-white" />
           </button>
         </form>
 
-        <div className="mt-1.5 flex items-center justify-between px-1 text-[10px] text-slate-500">
+        <div className="mt-1.5 flex items-center justify-between px-1 text-[10px] text-[var(--bx-muted)]">
           <span>Bar Hala Ai • Panduan Budaya Nusantara</span>
           {messages.length > 1 && (
             <button
               type="button"
               onClick={handleResetChat}
-              className="text-amber-400/80 hover:text-amber-300 hover:underline flex items-center gap-1 transition"
+              className="text-[var(--gold)] hover:underline flex items-center gap-1 transition"
             >
               <RotateCcw className="w-2.5 h-2.5" />
               <span>Bersihkan Chat</span>

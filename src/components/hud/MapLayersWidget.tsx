@@ -108,21 +108,21 @@ export function MapLayersWidget({
           role="dialog"
           aria-modal="true"
           aria-label="Panel Pengaturan Peta dan Lapisan"
-          className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 w-[340px] sm:w-[410px] bg-slate-900/95 backdrop-blur-xl border border-amber-500/40 rounded-2xl p-3.5 sm:p-4 shadow-2xl text-white z-50 animate-in fade-in slide-in-from-bottom-2 duration-200"
+          className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 w-[340px] sm:w-[410px] bg-[var(--bx-surface-card)]/98 backdrop-blur-xl border border-[var(--bx-border)] rounded-2xl p-3.5 sm:p-4 shadow-2xl text-[var(--bx-ink)] z-50 animate-in fade-in slide-in-from-bottom-2 duration-200"
         >
           {/* Header */}
-          <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-white/10">
+          <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-[var(--bx-border)]">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+              <div className="w-7 h-7 rounded-lg bg-[var(--gold)]/20 border border-[var(--gold)]/40 flex items-center justify-center text-[var(--gold)]">
                 <Layers className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-xs sm:text-sm font-bold text-amber-100 leading-tight">
+                <h3 className="text-xs sm:text-sm font-bold text-[var(--bx-ink-bright)] leading-tight">
                   {language === "ID"
                     ? "Pilihan Gaya Peta"
                     : "Map Style & Layers"}
                 </h3>
-                <p className="text-[10px] text-slate-400">
+                <p className="text-[10px] text-[var(--bx-muted)]">
                   {language === "ID"
                     ? "Ganti gaya tampilan & aktifkan lapisan kontur"
                     : "Switch base map & activate contour overlays"}
@@ -133,7 +133,7 @@ export function MapLayersWidget({
             <button
               onClick={() => setIsOpen(false)}
               aria-label="Tutup panel"
-              className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition"
+              className="p-1 rounded-full text-[var(--bx-muted)] hover:text-[var(--bx-ink)] hover:bg-[var(--bx-bg)] transition"
             >
               <X className="w-4 h-4" />
             </button>
@@ -142,11 +142,11 @@ export function MapLayersWidget({
           {/* Section 1: Base Map Modes (Peta Dasar) */}
           <div className="mb-3.5">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] uppercase tracking-wider font-bold text-amber-400/90 flex items-center gap-1.5">
+              <span className="text-[10px] uppercase tracking-wider font-bold text-[var(--gold)] flex items-center gap-1.5">
                 <Compass className="w-3 h-3" />
                 {language === "ID" ? "Gaya Peta Dasar" : "Base Map Style"}
               </span>
-              <span className="text-[9px] text-slate-400 font-mono">
+              <span className="text-[9px] text-[var(--gold)] font-mono">
                 {currentDef.shortName}
               </span>
             </div>
@@ -162,8 +162,8 @@ export function MapLayersWidget({
                     }}
                     className={`relative p-2 rounded-xl text-left transition-all duration-200 flex flex-col justify-between border cursor-pointer group ${
                       isActive
-                        ? "bg-amber-500/20 border-amber-400 text-amber-200 ring-1 ring-amber-400/60 shadow-lg shadow-amber-500/10"
-                        : "bg-slate-950/70 border-white/10 text-slate-300 hover:bg-slate-800/80 hover:border-amber-500/30 hover:text-white"
+                        ? "bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] ring-1 ring-[var(--gold)]/60 shadow-md"
+                        : "bg-[var(--bx-bg)] border-[var(--bx-border)] text-[var(--bx-ink)] hover:bg-[var(--bx-surface)] hover:border-[var(--gold)]/40"
                     }`}
                   >
                     {/* Top Row: Icon & Badge */}
@@ -171,8 +171,8 @@ export function MapLayersWidget({
                       <div
                         className={`w-6 h-6 rounded-lg flex items-center justify-center transition ${
                           isActive
-                            ? "bg-amber-400 text-slate-950 font-bold"
-                            : "bg-slate-800 text-amber-300 group-hover:bg-amber-500/20"
+                            ? "bg-[var(--gold)] text-white font-bold"
+                            : "bg-[var(--bx-surface)] text-[var(--gold)] border border-[var(--bx-border)] group-hover:bg-[var(--gold)]/10"
                         }`}
                       >
                         {getStyleIcon(style.iconName)}
@@ -180,8 +180,8 @@ export function MapLayersWidget({
                       <span
                         className={`text-[8px] font-mono px-1 py-0.2 rounded border ${
                           isActive
-                            ? "border-amber-400/50 text-amber-300 bg-amber-400/10"
-                            : "border-white/10 text-slate-400"
+                            ? "border-[var(--gold)]/50 text-[var(--gold)] bg-[var(--gold)]/10"
+                            : "border-[var(--bx-border)] text-[var(--bx-muted)]"
                         }`}
                       >
                         {style.badge}
@@ -192,13 +192,13 @@ export function MapLayersWidget({
                     <div className="flex items-center justify-between mt-1">
                       <span
                         className={`text-[11px] font-bold truncate ${
-                          isActive ? "text-amber-300" : "text-slate-200"
+                          isActive ? "text-[var(--gold)]" : "text-[var(--bx-ink)]"
                         }`}
                       >
                         {style.shortName}
                       </span>
                       {isActive && (
-                        <Check className="w-3 h-3 text-amber-400 shrink-0 ml-1" />
+                        <Check className="w-3 h-3 text-[var(--gold)] shrink-0 ml-1" />
                       )}
                     </div>
                   </button>
@@ -208,15 +208,15 @@ export function MapLayersWidget({
           </div>
 
           {/* Section 2: Overlays & Extra Features (Lapisan Tambahan) */}
-          <div className="pt-2.5 border-t border-white/10">
+          <div className="pt-2.5 border-t border-[var(--bx-border)]">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] uppercase tracking-wider font-bold text-amber-400/90 flex items-center gap-1.5">
+              <span className="text-[10px] uppercase tracking-wider font-bold text-[var(--gold)] flex items-center gap-1.5">
                 <SlidersHorizontal className="w-3 h-3" />
                 {language === "ID"
                   ? "Lapisan Tambahan (Overlays)"
                   : "Active Overlays"}
               </span>
-              <span className="text-[9px] text-amber-400/80 font-mono">
+              <span className="text-[9px] text-[var(--gold)] font-mono">
                 {activeOverlayCount} {language === "ID" ? "aktif" : "active"}
               </span>
             </div>
@@ -228,27 +228,27 @@ export function MapLayersWidget({
                 onClick={() => onToggleLayerOption("contourOverlay")}
                 className={`w-full p-2 rounded-xl transition flex items-center justify-between border cursor-pointer text-left ${
                   layerOptions.contourOverlay
-                    ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200"
-                    : "bg-slate-950/50 border-white/5 text-slate-300 hover:bg-slate-800/60"
+                    ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300"
+                    : "bg-[var(--bx-bg)] border-[var(--bx-border)] text-[var(--bx-ink)] hover:bg-[var(--bx-surface)]"
                 }`}
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <div
                     className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${
                       layerOptions.contourOverlay
-                        ? "bg-emerald-400 text-slate-950"
-                        : "bg-slate-800 text-slate-400"
+                        ? "bg-emerald-500 text-white"
+                        : "bg-[var(--bx-surface)] text-[var(--bx-muted)] border border-[var(--bx-border)]"
                     }`}
                   >
                     <Spline className="w-3 h-3" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] font-semibold text-slate-100 truncate">
+                    <p className="text-[11px] font-semibold text-[var(--bx-ink-bright)] truncate">
                       {language === "ID"
                         ? "Garis Kontur & Elevasi"
                         : "Contour & Elevation Lines"}
                     </p>
-                    <p className="text-[9px] text-slate-400 truncate">
+                    <p className="text-[9px] text-[var(--bx-muted)] truncate">
                       {language === "ID"
                         ? "Kurva ketinggian topografi SRTM berulang"
                         : "SRTM topographic isoline curves"}
@@ -258,7 +258,7 @@ export function MapLayersWidget({
 
                 <div
                   className={`w-8 h-4 rounded-full transition-colors relative flex items-center px-0.5 shrink-0 ${
-                    layerOptions.contourOverlay ? "bg-emerald-500" : "bg-slate-700"
+                    layerOptions.contourOverlay ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-700"
                   }`}
                 >
                   <div
@@ -275,27 +275,27 @@ export function MapLayersWidget({
                 onClick={() => onToggleLayerOption("labelsOverlay")}
                 className={`w-full p-2 rounded-xl transition flex items-center justify-between border cursor-pointer text-left ${
                   layerOptions.labelsOverlay
-                    ? "bg-amber-500/15 border-amber-500/40 text-amber-200"
-                    : "bg-slate-950/50 border-white/5 text-slate-300 hover:bg-slate-800/60"
+                    ? "bg-[var(--gold)]/15 border-[var(--gold)]/40 text-[var(--gold)]"
+                    : "bg-[var(--bx-bg)] border-[var(--bx-border)] text-[var(--bx-ink)] hover:bg-[var(--bx-surface)]"
                 }`}
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <div
                     className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${
                       layerOptions.labelsOverlay
-                        ? "bg-amber-400 text-slate-950"
-                        : "bg-slate-800 text-slate-400"
+                        ? "bg-[var(--gold)] text-white"
+                        : "bg-[var(--bx-surface)] text-[var(--bx-muted)] border border-[var(--bx-border)]"
                     }`}
                   >
                     <Tag className="w-3 h-3" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] font-semibold text-slate-100 truncate">
+                    <p className="text-[11px] font-semibold text-[var(--bx-ink-bright)] truncate">
                       {language === "ID"
                         ? "Label Tempat, Kota & Jalan"
                         : "Place, City & Road Labels"}
                     </p>
-                    <p className="text-[9px] text-slate-400 truncate">
+                    <p className="text-[9px] text-[var(--bx-muted)] truncate">
                       {language === "ID"
                         ? "Nama wilayah, toponimi & batas administratif"
                         : "Administrative labels & toponyms"}
@@ -305,7 +305,7 @@ export function MapLayersWidget({
 
                 <div
                   className={`w-8 h-4 rounded-full transition-colors relative flex items-center px-0.5 shrink-0 ${
-                    layerOptions.labelsOverlay ? "bg-amber-500" : "bg-slate-700"
+                    layerOptions.labelsOverlay ? "bg-[var(--gold)]" : "bg-slate-300 dark:bg-slate-700"
                   }`}
                 >
                   <div
@@ -322,27 +322,27 @@ export function MapLayersWidget({
                 onClick={() => onToggleLayerOption("seaMarksOverlay")}
                 className={`w-full p-2 rounded-xl transition flex items-center justify-between border cursor-pointer text-left ${
                   layerOptions.seaMarksOverlay
-                    ? "bg-cyan-500/15 border-cyan-500/40 text-cyan-200"
-                    : "bg-slate-950/50 border-white/5 text-slate-300 hover:bg-slate-800/60"
+                    ? "bg-cyan-500/15 border-cyan-500/40 text-cyan-700 dark:text-cyan-300"
+                    : "bg-[var(--bx-bg)] border-[var(--bx-border)] text-[var(--bx-ink)] hover:bg-[var(--bx-surface)]"
                 }`}
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <div
                     className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${
                       layerOptions.seaMarksOverlay
-                        ? "bg-cyan-400 text-slate-950"
-                        : "bg-slate-800 text-slate-400"
+                        ? "bg-cyan-500 text-white"
+                        : "bg-[var(--bx-surface)] text-[var(--bx-muted)] border border-[var(--bx-border)]"
                     }`}
                   >
                     <Waves className="w-3 h-3" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] font-semibold text-slate-100 truncate">
+                    <p className="text-[11px] font-semibold text-[var(--bx-ink-bright)] truncate">
                       {language === "ID"
                         ? "Navigasi Bahari & Mercusuar"
                         : "Maritime & Seamark Navigation"}
                     </p>
-                    <p className="text-[9px] text-slate-400 truncate">
+                    <p className="text-[9px] text-[var(--bx-muted)] truncate">
                       {language === "ID"
                         ? "OpenSeaMap: tanda suar, terumbu & alur laut"
                         : "OpenSeaMap seamarks & nautical channels"}
@@ -352,7 +352,7 @@ export function MapLayersWidget({
 
                 <div
                   className={`w-8 h-4 rounded-full transition-colors relative flex items-center px-0.5 shrink-0 ${
-                    layerOptions.seaMarksOverlay ? "bg-cyan-500" : "bg-slate-700"
+                    layerOptions.seaMarksOverlay ? "bg-cyan-500" : "bg-slate-300 dark:bg-slate-700"
                   }`}
                 >
                   <div
@@ -369,8 +369,8 @@ export function MapLayersWidget({
                 onClick={() => onToggleLayerOption("culturalRadar")}
                 className={`w-full p-2 rounded-xl transition flex items-center justify-between border cursor-pointer text-left ${
                   layerOptions.culturalRadar
-                    ? "bg-rose-500/15 border-rose-500/40 text-rose-200"
-                    : "bg-slate-950/50 border-white/5 text-slate-300 hover:bg-slate-800/60"
+                    ? "bg-rose-500/15 border-rose-500/40 text-rose-700 dark:text-rose-300"
+                    : "bg-[var(--bx-bg)] border-[var(--bx-border)] text-[var(--bx-ink)] hover:bg-[var(--bx-surface)]"
                 }`}
               >
                 <div className="flex items-center gap-2 min-w-0">
@@ -378,18 +378,18 @@ export function MapLayersWidget({
                     className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${
                       layerOptions.culturalRadar
                         ? "bg-rose-500 text-white"
-                        : "bg-slate-800 text-slate-400"
+                        : "bg-[var(--bx-surface)] text-[var(--bx-muted)] border border-[var(--bx-border)]"
                     }`}
                   >
                     <Radio className="w-3 h-3" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] font-semibold text-slate-100 truncate">
+                    <p className="text-[11px] font-semibold text-[var(--bx-ink-bright)] truncate">
                       {language === "ID"
                         ? "Radar Event Budaya Berdenyut"
                         : "Pulsing Cultural Event Radar"}
                     </p>
-                    <p className="text-[9px] text-slate-400 truncate">
+                    <p className="text-[9px] text-[var(--bx-muted)] truncate">
                       {language === "ID"
                         ? "Suar festival & upacara adat aktif di peta"
                         : "Active festival & ritual beacons"}
@@ -399,7 +399,7 @@ export function MapLayersWidget({
 
                 <div
                   className={`w-8 h-4 rounded-full transition-colors relative flex items-center px-0.5 shrink-0 ${
-                    layerOptions.culturalRadar ? "bg-rose-500" : "bg-slate-700"
+                    layerOptions.culturalRadar ? "bg-rose-500" : "bg-slate-300 dark:bg-slate-700"
                   }`}
                 >
                   <div
@@ -417,7 +417,7 @@ export function MapLayersWidget({
       {/* ============================================================ */}
       {/* INTEGRATED FOOTER SECTION                                     */}
       {/* ============================================================ */}
-      <div className="flex items-center gap-1.5 sm:gap-2 text-white">
+      <div className="flex items-center gap-1.5 sm:gap-2 text-[var(--bx-ink)]">
         {/* Main Trigger Button */}
         <button
           type="button"
@@ -426,23 +426,23 @@ export function MapLayersWidget({
           aria-label={
             isOpen ? "Tutup pilihan gaya peta" : "Buka pilihan gaya peta"
           }
-          className="flex items-center gap-1.5 sm:gap-2 px-1.5 py-1 rounded-md hover:bg-white/10 transition group cursor-pointer"
+          className="flex items-center gap-1.5 sm:gap-2 px-1.5 py-1 rounded-md hover:bg-[var(--bx-bg)] transition group cursor-pointer"
           title="Pilihan Gaya Peta & Lapisan Kontur (Buka Menu Atas)"
         >
-          <div className="w-5 h-5 rounded-md bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-400 group-hover:scale-105 transition shrink-0">
+          <div className="w-5 h-5 rounded-md bg-[var(--gold)]/20 border border-[var(--gold)]/40 flex items-center justify-center text-[var(--gold)] group-hover:scale-105 transition shrink-0">
             <Layers className="w-3 h-3" />
           </div>
 
           <div className="flex items-center gap-1">
-            <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold hidden md:inline">
+            <span className="text-[10px] text-[var(--bx-muted)] uppercase tracking-wider font-semibold hidden md:inline">
               {language === "ID" ? "Peta:" : "Map:"}
             </span>
-            <span className="text-xs font-bold text-amber-200">
+            <span className="text-xs font-bold text-[var(--gold)]">
               {currentDef.shortName}
             </span>
           </div>
 
-          <div className="text-slate-400 group-hover:text-amber-300 transition">
+          <div className="text-[var(--bx-muted)] group-hover:text-[var(--gold)] transition">
             {isOpen ? (
               <ChevronDown className="w-3.5 h-3.5" />
             ) : (
@@ -451,7 +451,7 @@ export function MapLayersWidget({
           </div>
         </button>
 
-        <div className="w-px h-3.5 bg-white/20 shrink-0 hidden sm:block" />
+        <div className="w-px h-3.5 bg-[var(--bx-border)] shrink-0 hidden sm:block" />
 
         {/* Quick Flat Icon Buttons for Instant One-Click Switching */}
         <div className="hidden sm:flex items-center gap-1">
@@ -466,8 +466,8 @@ export function MapLayersWidget({
                 aria-label={`Pilih mode ${style.name}`}
                 className={`p-1 sm:px-1.5 sm:py-0.5 rounded-md text-[10px] font-medium transition flex items-center gap-1 ${
                   isActive
-                    ? "bg-amber-400 text-slate-950 font-bold shadow-sm"
-                    : "text-slate-300 hover:text-amber-200 hover:bg-white/10"
+                    ? "bg-[var(--gold)] text-white font-bold shadow-xs"
+                    : "text-[var(--bx-ink)] hover:text-[var(--gold)] hover:bg-[var(--bx-bg)]"
                 }`}
               >
                 {getStyleIcon(style.iconName)}
@@ -480,7 +480,7 @@ export function MapLayersWidget({
         {/* Contour Overlay Quick Indicator */}
         {layerOptions.contourOverlay && (
           <span
-            className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hidden lg:inline-flex items-center gap-1"
+            className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 hidden lg:inline-flex items-center gap-1"
             title="Lapisan kontur aktif"
           >
             <Spline className="w-2.5 h-2.5" /> Kontur

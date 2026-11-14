@@ -67,11 +67,8 @@ export default function RootLayout({
                 var theme = localStorage.getItem('nusantara_theme') || localStorage.getItem('anvieo_theme');
                 if (theme === 'dark') {
                   document.documentElement.setAttribute('data-theme', 'dark');
-                } else if (theme === 'light') {
-                  document.documentElement.setAttribute('data-theme', 'light');
                 } else {
-                  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+                  document.documentElement.setAttribute('data-theme', 'light');
                 }
               } catch (e) {
                 document.documentElement.setAttribute('data-theme', 'light');
